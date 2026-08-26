@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlashLearn | Academic Flashcards & Classroom Platform</title>
+  <meta name="description" content="FlashLearn - Interactive spaced-repetition flashcards, course analytics, and classroom management." />
+  <link rel="icon" type="image/png" href="images/memoflip_logo.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ================= 1. LANDING PAGE VIEW ================= -->
+  <section id="landing-view" class="landing-view">
+    <header class="landing-header">
+      <div class="brand-container" onclick="showLandingView()" style="cursor: pointer;">
+        <img src="images/memoflip_logo.png" alt="FlashLearn Owl Logo" class="brand-logo-img" />
+        <div class="brand-title">FlashLearn</div>
+      </div>
+
+      <div class="landing-nav-links">
+        <a class="landing-nav-link active" onclick="showLandingView()">Dashboard</a>
+        <a class="landing-nav-link" onclick="showAuthView('login')">My Decks</a>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button class="btn btn-primary" onclick="showAuthView('login')" style="font-size: 0.9rem; padding: 9px 22px;">
+          Sign In / Sign Up
+        </button>
+      </div>
+    </header>
+
+    <div class="landing-hero">
+      <h1 class="landing-hero-title">Revolutionize Your Recall</h1>
+      <p class="landing-hero-subtitle">
+        Interactive spaced-repetition flashcards designed to optimize your learning workflow.
+      </p>
+    </div>
+
+    <!-- Single-Row Arrow Horizontal Carousel -->
+    <div class="carousel-wrapper">
+      <button type="button" class="carousel-arrow prev-arrow" onclick="prevCarouselSlide()" title="Previous slide">‹</button>
+      <div class="carousel-track" id="carousel-track">
+        <!-- Populated dynamically by landing.js -->
+      </div>
+      <button type="button" class="carousel-arrow next-arrow" onclick="nextCarouselSlide()" title="Next slide">›</button>
+    </div>
+
+    <div class="landing-features-grid">
+      <div class="landing-feature-box">
+        <div class="landing-feature-icon">🧠</div>
+        <div>
+          <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-main);">Active Recall Engine</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Spaced repetition for deeper learning</p>
+        </div>
+      </div>
+
+      <div class="landing-feature-box">
+        <div class="landing-feature-icon">🌐</div>
+        <div>
+          <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-main);">Deck Marketplace</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Explore shared study materials</p>
+        </div>
+      </div>
+
+      <div class="landing-feature-box">
+        <div class="landing-feature-icon">🔄</div>
+        <div>
+          <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-main);">Real-time Device Sync</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted);">Seamless across all your devices</p>
+        </div>
+      </div>
+    </div>
+
+    <footer class="landing-footer">
+      <div style="margin-bottom: 0.75rem; display: flex; justify-content: center; gap: 2rem;">
+        <a style="color: var(--text-muted); text-decoration: none;">Community Feed</a>
+        <a style="color: var(--text-muted); text-decoration: none;">Contact</a>
+        <a style="color: var(--text-muted); text-decoration: none;">About</a>
+      </div>
+      <div>Licensed to FlashLearn, Inc. Terms of the MIT License. All rights reserved.</div>
+    </footer>
+  </section>
+
+  <!-- ================= 2. AUTHENTICATION VIEW ================= -->
+  <section class="auth-wrapper" id="auth-view" style="display: none;">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-brand" onclick="showLandingView()" style="cursor: pointer;">
+          <img src="images/memoflip_logo.png" alt="FlashLearn Owl Logo" class="brand-logo-img" />
+          <h1 class="auth-title">FlashLearn</h1>
+        </div>
+        <p class="auth-subtitle">Academic Flashcards & Classroom Platform</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab-btn active" id="tab-btn-login" onclick="toggleAuthTab('login')">Sign In</button>
+        <button type="button" class="auth-tab-btn" id="tab-btn-reg" onclick="toggleAuthTab('register')">Register</button>
+      </div>
+
+      <form id="auth-login-form" onsubmit="handleLogin(event)">
+        <div style="margin-bottom: 1.25rem;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Email Address:</label>
+          <input type="email" id="login-email" class="input-field" placeholder="teacher@gmail.com or student@gmail.com" required />
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Password:</label>
+          <input type="password" id="login-password" class="input-field" placeholder="••••••••" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+          Sign In to FlashLearn
+        </button>
+        
+        <div style="text-align: center; margin-top: 1rem;">
+          <a onclick="showLandingView()" style="font-size: 0.9rem; color: var(--color-blue-bright); cursor: pointer; text-decoration: underline;">← Back to Landing Page</a>
+        </div>
+      </form>
+
+      <form id="auth-reg-form" onsubmit="handleRegister(event)" style="display: none;">
+        <div style="margin-bottom: 1.25rem;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Full Name:</label>
+          <input type="text" id="reg-name" class="input-field" placeholder="e.g. Student Name" required />
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Email Address:</label>
+          <input type="email" id="reg-email" class="input-field" placeholder="your.name@gmail.com" required />
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Password:</label>
+          <input type="password" id="reg-password" class="input-field" placeholder="Create password" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+          Create Account
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= 3. MAIN APPLICATION WORKSPACE ================= -->
+  <div id="dashboard-view" style="display: none; flex-direction: column; min-height: 100vh;">
+
+    <!-- Top Header Navigation -->
+    <header class="app-header">
+      <div class="brand-container" onclick="showLandingView()" style="cursor: pointer;" title="Go to Landing Page">
+        <img src="images/memoflip_logo.png" alt="FlashLearn Owl Logo" class="brand-logo-img" />
+        <div class="brand-title">FlashLearn</div>
+      </div>
+
+      <div class="header-right">
+        <!-- Header Dynamic Streak Badge -->
+        <div id="header-streak-badge" style="margin-right: 15px; font-weight: 700; background: linear-gradient(135deg, var(--color-orange), #ea580c); color: #ffffff; padding: 6px 12px; border-radius: 9999px; display: none; align-items: center; gap: 6px; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.25);">
+          🔥 <span id="header-streak-count">0</span> Day Streak
+        </div>
+        <!-- User Full Name Dropdown Menu -->
+        <div class="user-dropdown-container" id="user-header-dropdown-container">
+          <div class="user-dropdown-trigger" onclick="toggleUserHeaderMenu()">
+            <span>👤</span>
+            <strong id="header-user-fullname" style="font-weight: 600; color: var(--text-main);">User Name</strong>
+            <span style="font-size: 0.8rem; color: var(--text-subtle);">▼</span>
+          </div>
+
+          <div class="header-dropdown-menu" id="user-header-menu">
+            <a class="dropdown-item" onclick="switchTab('profile'); toggleUserHeaderMenu();">
+              <span>👤</span> My Profile
+            </a>
+            <a class="dropdown-item" onclick="switchTab('profile'); toggleUserHeaderMenu();">
+              <span>⚙️</span> Settings
+            </a>
+            <div class="dropdown-divider"></div>
+            <!-- Sign Out Row with Theme Icon right inside the same row -->
+            <div class="dropdown-item" style="justify-content: space-between; color: var(--color-rose);">
+              <span onclick="handleLogout(); toggleUserHeaderMenu();" style="flex: 1;">🚪 Sign Out</span>
+              <span onclick="event.stopPropagation(); toggleTheme();" id="theme-dropdown-icon" style="cursor: pointer; font-size: 1.15rem; padding: 2px 8px; border-radius: 6px; background: rgba(37, 99, 235, 0.12);" title="Toggle Dark/Light Theme">☀️</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="app-container">
+
+      <!-- Left Sidebar Navigation -->
+      <aside class="sidebar">
+
+        <div class="sidebar-user-card" onclick="switchTab('profile')" style="cursor: pointer;" title="Click to view Profile">
+          <div class="user-avatar-large" id="sidebar-user-avatar">EV</div>
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name" id="sidebar-user-name">User Name</span>
+            <span class="sidebar-user-badge" id="sidebar-user-badge">Faculty Admin</span>
+          </div>
+        </div>
+        
+        <!-- Teacher Nav Group -->
+        <div id="teacher-nav-group">
+          <div class="nav-section-title">Teacher Portal</div>
+          <ul class="nav-list">
+            <li>
+              <a class="nav-item active" id="nav-teacher-dashboard" onclick="switchTab('teacher-dashboard')">
+                <span style="font-size: 1.2rem;">📊</span>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-teacher-classrooms" onclick="switchTab('teacher-classrooms')">
+                <span style="font-size: 1.2rem;">➕</span>
+                <span>Create Classroom</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-teacher-ai" onclick="switchTab('teacher-ai')">
+                <span style="font-size: 1.2rem;">🃏</span>
+                <span>Flashcards</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Student Nav Group -->
+        <div id="student-nav-group" style="display: none;">
+          <div class="nav-section-title">Student Portal</div>
+          <ul class="nav-list">
+            <li>
+              <a class="nav-item" id="nav-student-dashboard" onclick="switchTab('student-dashboard')">
+                <span style="font-size: 1.2rem;">📊</span>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-student-classrooms" onclick="switchTab('student-classrooms')">
+                <span style="font-size: 1.2rem;">🏫</span>
+                <span>Joined Classrooms</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-student-decks" onclick="switchTab('student-decks')">
+                <span style="font-size: 1.2rem;">📚</span>
+                <span>Decks & Practice</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-student-create" onclick="switchTab('student-create')">
+                <span style="font-size: 1.2rem;">✍️</span>
+                <span>Create Flashcards</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Viewport Content Panels -->
+      <main class="main-content">
+
+        <!-- PANEL 1: Teacher Dashboard (STATS + ANALYTICS GRAPHS) -->
+        <section class="view-panel active" id="panel-teacher-dashboard">
+          <h2 id="teacher-welcome-msg" style="font-size: 1.8rem; font-weight: 700; color: var(--color-blue-dark); margin-bottom: 1.5rem; animation: fadeIn 0.3s ease;">Welcome, Faculty Admin</h2>
+          <div class="dash-stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon-box blue-bg">🎓</div>
+              <div>
+                <div class="stat-label">TOTAL CLASSES</div>
+                <div class="stat-value" id="stat-total-classes">3</div>
+                <div class="stat-trend green">↑ 1 this month</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box green-bg">👥</div>
+              <div>
+                <div class="stat-label">TOTAL STUDENTS</div>
+                <div class="stat-value" id="stat-total-students">86</div>
+                <div class="stat-trend green">↑ 12 this month</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box purple-bg">🃏</div>
+              <div>
+                <div class="stat-label">FLASHCARD DECKS</div>
+                <div class="stat-value" id="stat-total-decks">15</div>
+                <div class="stat-trend green">↑ 3 this month</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box orange-bg">📈</div>
+              <div>
+                <div class="stat-label">AVERAGE PERFORMANCE</div>
+                <div class="stat-value" id="stat-avg-performance">78%</div>
+                <div class="stat-trend green">↑ 8% this month</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Class Analytics Visualizations -->
+          <div id="dashboard-analytics-container">
+            <!-- Rendered dynamically by teacher.js -->
+          </div>
+        </section>
+
+        <!-- PANEL 2: Teacher My Classes (WITH COURSE SEARCH BAR & ROSTER/CARDS CRUD) -->
+        <section class="view-panel" id="panel-teacher-myclasses">
+          <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
+            <div style="width: 380px;">
+              <input type="text" id="myclasses-search-input" class="input-field" placeholder="🔍 Search courses by title, subject, or code..." oninput="renderMyClassesPanel(this.value)" />
+            </div>
+          </div>
+
+          <!-- Course Cards Grid -->
+          <div class="grid-cards" id="myclasses-grid">
+            <!-- Rendered by teacher.js -->
+          </div>
+
+          <!-- Active Course Detail (Enrolled Students + Flashcards CRUD for Selected Course) -->
+          <div id="myclasses-course-detail" style="margin-top: 2rem;">
+            <!-- Rendered dynamically when clicking a course -->
+          </div>
+        </section>
+
+        <!-- PANEL 3: Teacher Create Classroom -->
+        <section class="view-panel" id="panel-teacher-classrooms">
+          <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
+            <button class="btn btn-primary" onclick="openModal('modal-create-classroom')">
+              + Create Classroom
+            </button>
+          </div>
+
+          <div class="grid-cards" id="teacher-classrooms-grid"></div>
+        </section>
+
+        <!-- PANEL 4: Teacher Flashcards Generator -->
+        <section class="view-panel" id="panel-teacher-ai">
+          <div style="background: var(--bg-card); border: 1px solid var(--border-blue); border-radius: var(--radius-lg); padding: 2rem; max-width: 800px; margin: 0 auto; box-shadow: var(--shadow-main);">
+            <form onsubmit="handleAIFlashcardGenerate(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+              <div>
+                <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Topic or Academic Concept:</label>
+                <input type="text" id="ai-topic-input" class="input-field" placeholder="Enter topic..." required />
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                  <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Questions Count:</label>
+                  <input type="number" id="ai-count-input" class="input-field" min="1" max="20" value="5" required />
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Level of Questions:</label>
+                  <select id="ai-level-select" class="select-field">
+                    <option value="Basic Fundamentals">Basic Fundamentals</option>
+                    <option value="Intermediate Mastery" selected>Intermediate Mastery</option>
+                    <option value="Advanced Honors / AP">Advanced Honors / AP</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="submit" id="ai-generate-btn" class="btn btn-primary" style="align-self: flex-start;">
+                Generate Flashcards
+              </button>
+            </form>
+
+            <div id="ai-generated-result" style="display: none;"></div>
+          </div>
+        </section>
+
+        <!-- PANEL 5: Student Dashboard -->
+        <section class="view-panel" id="panel-student-dashboard">
+          <h2 id="student-welcome-msg" style="font-size: 1.8rem; font-weight: 700; color: var(--color-blue-dark); margin-bottom: 1.5rem; animation: fadeIn 0.3s ease;">Welcome, Student</h2>
+          <div class="dash-stats-grid" style="margin-bottom: 2rem;">
+            <div class="stat-card">
+              <div class="stat-icon-box blue-bg">🏫</div>
+              <div>
+                <div class="stat-label">JOINED SUBJECTS</div>
+                <div class="stat-value" id="student-stat-classes">2</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box green-bg">🃏</div>
+              <div>
+                <div class="stat-label">COMPLETED DECKS</div>
+                <div class="stat-value" id="student-stat-completed-decks">7 Decks</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box purple-bg">📈</div>
+              <div>
+                <div class="stat-label">OVERALL ACCURACY</div>
+                <div class="stat-value" id="student-stat-accuracy">92%</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box orange-bg">🔥</div>
+              <div>
+                <div class="stat-label">DAILY STREAK</div>
+                <div class="stat-value" id="student-stat-streak">5 Days</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem;">My Joined Subjects</h2>
+            <div class="grid-cards" id="student-dashboard-subjects"></div>
+          </div>
+        </section>
+
+        <!-- PANEL 6: Student Joined Classrooms -->
+        <section class="view-panel" id="panel-student-classrooms">
+          <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
+            <button class="btn btn-primary" onclick="openModal('modal-join-classroom')">
+              Join Classroom with Code
+            </button>
+          </div>
+
+          <div class="grid-cards" id="student-classrooms-grid"></div>
+        </section>
+
+        <!-- PANEL 7: Student Decks -->
+        <section class="view-panel" id="panel-student-decks">
+          <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
+            <button class="btn btn-primary" onclick="switchTab('student-create')">
+              + Create New Deck
+            </button>
+          </div>
+
+          <div class="grid-cards" id="student-decks-grid"></div>
+        </section>
+
+        <!-- PANEL 8: Student Create Flashcards -->
+        <section class="view-panel" id="panel-student-create">
+          <div style="background: var(--bg-card); border: 1px solid var(--border-blue); border-radius: var(--radius-lg); padding: 2rem; max-width: 850px; margin: 0 auto;">
+            <form onsubmit="handleGenerateFromStudyMaterial(event)" style="margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-blue);">
+              <h3 style="color: var(--color-blue-bright); font-size: 1.3rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                <span>📖</span> Study Material Concept Generator
+              </h3>
+              
+              <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Deck Title / Concept Name:</label>
+                <input type="text" id="study-material-title" class="input-field" placeholder="e.g. Cellular Respiration Notes" />
+              </div>
+
+              <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Enter Study Material Concept Text:</label>
+                <textarea id="study-material-text" class="textarea-field" rows="5" placeholder="Paste lecture notes or textbook summary..."></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Generate Questions & Flashcards
+              </button>
+
+              <div id="study-material-questions-result" style="display: none; margin-top: 1.5rem;"></div>
+            </form>
+
+            <div>
+              <h3 style="color: var(--text-main); font-size: 1.15rem; margin-bottom: 1rem;">Create Flashcards Manually:</h3>
+              <form onsubmit="handleCreateManualDeck(event)">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                  <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Deck Title:</label>
+                    <input type="text" id="deck-title-input" class="input-field" placeholder="Deck Title" />
+                  </div>
+                  <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Subject Tag:</label>
+                    <input type="text" id="deck-subject-input" class="input-field" placeholder="Subject" />
+                  </div>
+                </div>
+
+                <div id="manual-cards-container">
+                  <div class="manual-card-row" style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-blue); margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                      <span style="font-weight: bold; color: var(--color-blue-bright);">Card #1</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                      <input type="text" class="input-field card-q-input" placeholder="Front: Question..." />
+                      <input type="text" class="input-field card-a-input" placeholder="Back: Answer..." />
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                  <button type="button" class="btn btn-secondary" onclick="addManualCardRow()">+ Add Another Card</button>
+                  <button type="submit" class="btn btn-primary">Save Manual Deck</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- PANEL 9: Student Daily Streaks Game -->
+        <section class="view-panel" id="panel-student-streaks">
+          <div class="streak-game-card">
+            <div style="text-align: center;">
+              <div class="streak-badge">
+                🔥 <span id="streak-count-val">5</span> Day Streak
+              </div>
+              <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--text-main);">Daily Mystery Word</h2>
+              <p style="color: var(--text-muted);">Guess the single word that connects all clues!</p>
+            </div>
+
+            <div class="clues-grid" id="clues-grid-container"></div>
+
+            <div style="display: flex; justify-content: center; margin-bottom: 1.5rem;">
+              <button class="btn btn-secondary" id="btn-next-clue" onclick="handleNextClue()">Next Clue →</button>
+            </div>
+
+            <form onsubmit="handleStreakGuess(event)" style="display: flex; gap: 12px; max-width: 500px; margin: 0 auto;">
+              <input type="text" id="streak-guess-input" class="input-field" placeholder="Enter word..." style="text-transform: uppercase; font-weight: bold;" required />
+              <button type="submit" id="streak-submit-btn" class="btn btn-primary">Submit Guess</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- PANEL 10: Profile Page -->
+        <section class="view-panel" id="panel-profile">
+          <div style="max-width: 700px; margin: 0 auto;">
+            <div style="background: var(--bg-card); border: 1px solid var(--border-blue); border-radius: var(--radius-lg); padding: 2.25rem; box-shadow: var(--shadow-main);">
+              <h3 style="color: var(--color-blue-bright); font-size: 1.4rem; margin-bottom: 1.25rem;">👤 Account Profile Details</h3>
+              <form onsubmit="handleUpdateProfile(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div>
+                  <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Full Name:</label>
+                  <input type="text" id="profile-name-input" class="input-field" required />
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Email Address:</label>
+                  <input type="email" id="profile-email-input" class="input-field" required />
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">New Password (optional):</label>
+                  <input type="password" id="profile-password-input" class="input-field" placeholder="••••••••" />
+                </div>
+                <button type="submit" class="btn btn-primary" style="align-self: flex-start;">Save Profile Changes</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- MODALS -->
+  <div class="modal-backdrop" id="modal-student-report">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 style="color: var(--color-blue-bright);">📋 Student Progress Report</h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-student-report')">&times;</button>
+      </div>
+      <div id="student-report-content"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-edit-deck">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 style="color: var(--color-blue-bright);">Edit Flashcard Deck</h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-edit-deck')">&times;</button>
+      </div>
+      <form onsubmit="handleSaveEditedDeck(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 600;">Deck Title:</label>
+          <input type="text" id="edit-deck-title" class="input-field" required />
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 600;">Subject:</label>
+          <input type="text" id="edit-deck-subject" class="input-field" required />
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 600;">Deck Flashcards:</label>
+          <div id="edit-deck-cards-container" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px; background: var(--bg-card-subtle);">
+            <!-- Dynamic cards rendered here -->
+          </div>
+        </div>
+        <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-deck')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-create-classroom">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 style="color: var(--color-blue-bright);">Create Classroom</h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-create-classroom')">&times;</button>
+      </div>
+      <form onsubmit="handleCreateClassroom(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 600;">Course Title:</label>
+          <input type="text" id="new-class-name" class="input-field" placeholder="e.g. Biology 101" required />
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 600;">Subject:</label>
+          <input type="text" id="new-class-subject" class="input-field" placeholder="e.g. Biology" required />
+        </div>
+        <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-classroom')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create & Generate Code</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal-join-classroom">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 style="color: var(--color-blue-bright);">Join Classroom</h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-join-classroom')">&times;</button>
+      </div>
+      <form onsubmit="handleJoinClassroom(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 600;">Enter Access Code:</label>
+          <input type="text" id="join-class-code" class="input-field" placeholder="BIO101X" style="font-family: monospace; text-transform: uppercase;" required />
+        </div>
+        <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-join-classroom')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Join Course</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3D PRACTICE FLASHCARD SESSION MODAL -->
+  <div class="modal-backdrop" id="modal-study-session">
+    <div class="modal-card" style="max-width: 750px;">
+      <div class="modal-header">
+        <h2 id="study-modal-deck-title" style="color: var(--color-blue-bright);">Practice Flashcards</h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-study-session')">&times;</button>
+      </div>
+
+      <div class="study-viewport">
+        <div class="study-progress-container">
+          <div class="study-stats-row">
+            <span id="study-card-counter">Card 1 of 5</span>
+            <span id="study-cards-remaining">5 cards remaining</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="study-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="card-flip-container" id="study-flip-card" onclick="studyEngine.flipCard()">
+          <div class="card-flip-inner">
+            <div class="card-flip-front">
+              <div style="font-size: 0.8rem; color: var(--color-blue-bright); text-transform: uppercase; margin-bottom: 1rem;">Question / Concept</div>
+              <div class="card-question-text" id="card-question-display">Loading question...</div>
+              <div class="card-flip-hint">Click card to flip 🔄</div>
+            </div>
+            <div class="card-flip-back">
+              <div style="font-size: 0.8rem; color: var(--color-cyan); text-transform: uppercase; margin-bottom: 1rem;">Explanation / Answer</div>
+              <div class="card-answer-text" id="card-answer-display">Loading answer...</div>
+              <div class="card-flip-hint">Click card to flip back 🔄</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="study-controls" id="study-active-controls">
+          <button class="btn btn-danger" onclick="studyEngine.markCard('review')" style="flex: 1;">Review Again 🔄</button>
+          <button class="btn btn-secondary" onclick="studyEngine.shuffleCards()">Shuffle 🎲</button>
+          <button class="btn btn-success" onclick="studyEngine.markCard('know')" style="flex: 1;">Know It! ✓</button>
+        </div>
+
+        <div id="study-summary-view" style="display: none; width: 100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/landing.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/teacher.js"></script>
+  <script src="js/student.js"></script>
+  <script src="js/study.js"></script>
+
+  <script>
+    function showLandingView() {
+      document.getElementById('landing-view').style.display = 'flex';
+      document.getElementById('auth-view').style.display = 'none';
+      document.getElementById('dashboard-view').style.display = 'none';
+    }
+
+    function showAuthView(tab = 'login') {
+      document.getElementById('landing-view').style.display = 'none';
+      document.getElementById('auth-view').style.display = 'flex';
+      document.getElementById('dashboard-view').style.display = 'none';
+      toggleAuthTab(tab);
+    }
+
+    function switchTab(tabKey) {
+      document.getElementById('landing-view').style.display = 'none';
+      document.getElementById('auth-view').style.display = 'none';
+      document.getElementById('dashboard-view').style.display = 'flex';
+
+      document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+      const targetPanel = document.getElementById(`panel-${tabKey}`);
+      const targetNav = document.getElementById(`nav-${tabKey}`);
+
+      if (targetPanel) targetPanel.classList.add('active');
+      if (targetNav) targetNav.classList.add('active');
+
+      if (tabKey === 'teacher-dashboard') renderTeacherDashboard();
+      if (tabKey === 'teacher-myclasses') renderMyClassesPanel();
+      if (tabKey === 'teacher-classrooms') renderTeacherClassrooms();
+      if (tabKey === 'student-dashboard') renderStudentDashboard();
+      if (tabKey === 'student-classrooms') renderStudentClassrooms();
+      if (tabKey === 'student-decks') renderStudentDecks();
+      if (tabKey === 'student-streaks') renderDailyStreakGame();
+      if (tabKey === 'profile') renderProfileView();
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await state.loadState();
+      
+      // Sync theme classes
+      if (state.data.theme === 'dark') {
+        document.body.classList.add('dark-theme');
+        const iconEl = document.getElementById('theme-dropdown-icon');
+        const labelEl = document.getElementById('theme-dropdown-label');
+        if (iconEl) iconEl.textContent = '🌙';
+        if (labelEl) labelEl.textContent = 'Dark Theme';
+      }
+
+      if (state.data.currentUser) {
+        updateAppAuthUI();
+      } else {
+        showLandingView();
+      }
+    });
+  </script>
+</body>
+</html>
