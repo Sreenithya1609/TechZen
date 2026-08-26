@@ -1,4 +1,5 @@
 import json
+from werkzeug.security import generate_password_hash
 from database.connection import get_db_connection
 
 def init_db():
@@ -12,8 +13,9 @@ def init_db():
         name TEXT NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL,
-        role TEXT NOT NULL,
-        theme TEXT DEFAULT 'light'
+        role TEXT NOT NULL CHECK(role IN ('teacher', 'student')),
+        theme TEXT DEFAULT 'light',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     ''')
 
@@ -25,16 +27,18 @@ def init_db():
         code TEXT UNIQUE NOT NULL,
         teacher_name TEXT NOT NULL,
         avg_performance INTEGER DEFAULT 80,
-        enrolled_count INTEGER DEFAULT 0
+        enrolled_count INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     ''')
 
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS classroom_enrollments (
-        classroom_id TEXT,
-        student_id TEXT,
+        classroom_id TEXT NOT NULL,
+        student_id TEXT NOT NULL,
         mark INTEGER DEFAULT 85,
         completed_decks INTEGER DEFAULT 4,
+        joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (classroom_id, student_id),
         FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE,
         FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE
@@ -48,6 +52,7 @@ def init_db():
         subject TEXT NOT NULL,
         creator_name TEXT NOT NULL,
         classroom_id TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE
     )
     ''')
@@ -81,6 +86,7 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id TEXT NOT NULL,
         study_date TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE (user_id, study_date),
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )
@@ -91,16 +97,18 @@ def init_db():
     # Seed Default Data if empty
     cursor.execute("SELECT COUNT(*) FROM users")
     if cursor.fetchone()[0] == 0:
-        print("Seeding database with default values...")
+        print("Seeding database with secure enterprise default values...")
         
-        # 1. Users (Only revathi@gmail.com is TEACHER. All others are STUDENT)
+        default_pwd_hash = generate_password_hash('123')
+
+        # 1. Users (revathi@gmail.com is TEACHER / Faculty Admin. All others are STUDENT)
         users = [
-            ('usr-teacher-1', 'Revathi', 'revathi@gmail.com', '123', 'teacher'),
-            ('usr-student-1', 'Eleanor Vance', 'student@gmail.com', '123', 'student'),
-            ('st-2', 'Marcus Aurelius', 'marcus@university.edu', '123', 'student'),
-            ('st-3', 'Sophia Lin', 'sophia@university.edu', '123', 'student'),
-            ('st-4', 'Julian Thorne', 'julian@university.edu', '123', 'student'),
-            ('st-5', 'Clara Oswald', 'clara@university.edu', '123', 'student'),
+            ('usr-teacher-1', 'Revathi', 'revathi@gmail.com', default_pwd_hash, 'teacher'),
+            ('usr-student-1', 'Eleanor Vance', 'student@gmail.com', default_pwd_hash, 'student'),
+            ('st-2', 'Marcus Aurelius', 'marcus@university.edu', default_pwd_hash, 'student'),
+            ('st-3', 'Sophia Lin', 'sophia@university.edu', default_pwd_hash, 'student'),
+            ('st-4', 'Julian Thorne', 'julian@university.edu', default_pwd_hash, 'student'),
+            ('st-5', 'Clara Oswald', 'clara@university.edu', default_pwd_hash, 'student'),
         ]
         cursor.executemany("INSERT INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)", users)
 

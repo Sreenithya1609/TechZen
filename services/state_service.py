@@ -19,10 +19,10 @@ def get_state_json(user_id=None):
                 'email': row['email'],
                 'role': row['role']
             }
-            theme = row['theme']
+            theme = row['theme'] if row['theme'] in ('light', 'dark') else 'light'
 
     # 2. Classrooms
-    cursor.execute("SELECT id, name, subject, code, teacher_name, avg_performance, enrolled_count FROM classrooms")
+    cursor.execute("SELECT id, name, subject, code, teacher_name, avg_performance, enrolled_count FROM classrooms ORDER BY name ASC")
     classrooms_rows = cursor.fetchall()
     classrooms = []
     for c_row in classrooms_rows:
@@ -34,6 +34,7 @@ def get_state_json(user_id=None):
             FROM classroom_enrollments ce
             JOIN users u ON ce.student_id = u.id
             WHERE ce.classroom_id = ?
+            ORDER BY u.name ASC
         ''', (cls_id,))
         enrolled_students = [
             {
@@ -45,7 +46,7 @@ def get_state_json(user_id=None):
             } for r in cursor.fetchall()
         ]
         
-        # Filter enrolled students for security: students can only see themselves in classroom info
+        # Filter enrolled students for security: students only see themselves
         if current_user and current_user['role'] == 'student':
             enrolled_students = [s for s in enrolled_students if s['id'] == user_id]
         
@@ -59,7 +60,7 @@ def get_state_json(user_id=None):
             'subject': c_row['subject'],
             'code': c_row['code'],
             'teacher': c_row['teacher_name'],
-            'enrolledCount': len(enrolled_students) if (current_user and current_user['role'] == 'student') else c_row['enrolled_count'],
+            'enrolledCount': c_row['enrolled_count'],
             'avgPerformance': c_row['avg_performance'],
             'enrolledStudents': enrolled_students,
             'decks': classroom_deck_ids
@@ -74,15 +75,16 @@ def get_state_json(user_id=None):
             SELECT id, title, subject, creator_name, classroom_id 
             FROM decks 
             WHERE classroom_id IS NOT NULL OR creator_name = ?
+            ORDER BY id ASC
         ''', (user_name,))
     else:
-        cursor.execute('SELECT id, title, subject, creator_name, classroom_id FROM decks WHERE classroom_id IS NOT NULL')
+        cursor.execute('SELECT id, title, subject, creator_name, classroom_id FROM decks WHERE classroom_id IS NOT NULL ORDER BY id ASC')
     
     decks_rows = cursor.fetchall()
     decks = []
     for d_row in decks_rows:
         deck_id = d_row['id']
-        cursor.execute("SELECT question, answer FROM cards WHERE deck_id = ?", (deck_id,))
+        cursor.execute("SELECT question, answer FROM cards WHERE deck_id = ? ORDER BY id ASC", (deck_id,))
         cards = [{'question': r['question'], 'answer': r['answer']} for r in cursor.fetchall()]
         decks.append({
             'id': deck_id,
@@ -99,6 +101,7 @@ def get_state_json(user_id=None):
         FROM classroom_enrollments ce
         JOIN users u ON ce.student_id = u.id
         JOIN classrooms c ON ce.classroom_id = c.id
+        ORDER BY u.name ASC
     ''')
     student_progress = [
         {

@@ -12,7 +12,7 @@ function renderStudentDashboard() {
 
   const currentUserId = state.data.currentUser ? state.data.currentUser.id : null;
 
-  // Calculate completed decks and overall accuracy dynamically from SQLite state
+  // Calculate completed decks and overall accuracy dynamically from state
   const totalCompleted = classrooms.reduce((sum, cls) => {
     const info = cls.enrolledStudents ? cls.enrolledStudents.find(s => s.id === currentUserId) : null;
     return sum + (info ? info.completedDecks : 0);
@@ -38,10 +38,13 @@ function renderStudentDashboard() {
 
   if (classrooms.length === 0) {
     container.innerHTML = `
-      <div style="grid-column: 1/-1; text-align: center; padding: 2.5rem; color: var(--text-muted); background: #ffffff; border-radius: var(--radius-lg); border: 1px dashed var(--border-blue);">
+      <div style="grid-column: 1/-1; text-align: center; padding: 2.5rem; color: var(--text-muted); background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-blue);">
+        <i class="fa-solid fa-graduation-cap" style="font-size: 2.5rem; color: var(--text-subtle); margin-bottom: 0.75rem;"></i>
         <h3 style="color: var(--text-main); margin-bottom: 8px;">No Joined Subjects Yet</h3>
-        <p style="margin-bottom: 1.25rem;">Join a classroom using an access code from your teacher.</p>
-        <button class="btn btn-primary" onclick="openModal('modal-join-classroom')">Join Subject</button>
+        <p style="margin-bottom: 1.25rem;">Enroll in a course using an access code provided by your instructor.</p>
+        <button class="btn btn-primary" onclick="openModal('modal-join-classroom')">
+          <i class="fa-solid fa-plus"></i> Join Course
+        </button>
       </div>
     `;
     return;
@@ -53,31 +56,34 @@ function renderStudentDashboard() {
     const masteryVal = studentInfo ? studentInfo.mark : 85;
 
     return `
-      <div class="card" style="background: #ffffff; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
-          <div>
-            <span class="card-badge">${cls.subject}</span>
-            <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-top: 6px;">${cls.name}</h3>
+      <div class="card">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+            <div>
+              <span class="card-badge">${cls.subject}</span>
+              <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-top: 6px;">${cls.name}</h3>
+            </div>
+            <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(37, 99, 235, 0.1); color: var(--color-blue-bright); display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+              <i class="fa-solid fa-book-open"></i>
+            </div>
           </div>
-          <div style="width: 40px; height: 40px; border-radius: 50%; background: rgba(37, 99, 235, 0.1); color: var(--color-blue-bright); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-            📖
-          </div>
-        </div>
-        
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Instructor: <strong>${cls.teacher}</strong></p>
-  
-        <div style="margin-bottom: 1.25rem;">
-          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
-            <span style="color: var(--text-muted);">Subject Mastery</span>
-            <strong style="color: var(--color-blue-dark);">${masteryVal}%</strong>
-          </div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" style="width: ${masteryVal}%;"></div>
+          
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1rem;">Instructor: <strong>${cls.teacher}</strong></p>
+    
+          <div style="margin-bottom: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
+              <span style="color: var(--text-muted);">Subject Mastery</span>
+              <strong style="color: var(--color-blue-bright);">${masteryVal}%</strong>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" style="width: ${masteryVal}%;"></div>
+            </div>
           </div>
         </div>
   
         <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 9px;" onclick="showDecksForClassroom('${cls.id}')">
-          Practice Subject Decks
+          <i class="fa-solid fa-play"></i>
+          <span>Practice Subject Decks</span>
         </button>
       </div>
     `;
@@ -89,15 +95,18 @@ function renderStudentClassrooms() {
   const container = document.getElementById('student-classrooms-grid');
   if (!container) return;
 
-  const joinedIds = state.data.studentJoinedClassrooms;
-  const classrooms = state.data.classrooms.filter(c => joinedIds.includes(c.id));
+  const joinedIds = state.data.studentJoinedClassrooms || [];
+  const classrooms = (state.data.classrooms || []).filter(c => joinedIds.includes(c.id));
 
   if (classrooms.length === 0) {
     container.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted); background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-blue);">
+        <i class="fa-solid fa-school" style="font-size: 2.5rem; color: var(--text-subtle); margin-bottom: 0.75rem;"></i>
         <h3 style="color: var(--text-main); margin-bottom: 8px;">No Classrooms Joined Yet</h3>
-        <p style="margin-bottom: 1.5rem;">Enter a 6-character class code provided by your teacher to enroll in your courses.</p>
-        <button class="btn btn-primary" onclick="openModal('modal-join-classroom')">Join A Classroom</button>
+        <p style="margin-bottom: 1.5rem;">Enter the class access code provided by your instructor to view your courses.</p>
+        <button class="btn btn-primary" onclick="openModal('modal-join-classroom')">
+          <i class="fa-solid fa-plus"></i> Join Classroom
+        </button>
       </div>
     `;
     return;
@@ -113,21 +122,23 @@ function renderStudentClassrooms() {
           </div>
         </div>
         <p class="card-desc">Instructor: ${cls.teacher}</p>
-        <div style="margin: 0.5rem 0;">
-          <span style="font-size: 0.85rem; color: var(--text-subtle);">Class Code: <strong>${cls.code}</strong></span>
+        <div style="margin: 0.75rem 0;">
+          <span style="font-size: 0.85rem; color: var(--text-subtle);">Class Code: <strong style="font-family: var(--font-mono); color: var(--color-blue-bright);">${cls.code}</strong></span>
         </div>
       </div>
 
       <div>
         <div class="card-meta">
           <div class="card-meta-item">
-            <span>🃏 ${cls.decks ? cls.decks.length : 0} Class Decks</span>
+            <i class="fa-solid fa-layer-group"></i>
+            <span>${cls.decks ? cls.decks.length : 0} Class Decks</span>
           </div>
         </div>
 
-        <div style="margin-top: 1rem;">
+        <div style="margin-top: 1.25rem;">
           <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="showDecksForClassroom('${cls.id}')">
-            View Class Flashcards
+            <i class="fa-solid fa-book-open"></i>
+            <span>View Flashcards</span>
           </button>
         </div>
       </div>
@@ -166,7 +177,7 @@ async function handleJoinClassroom(event) {
     renderStudentClassrooms();
     renderStudentDecks();
     closeModal('modal-join-classroom');
-    showToast('Successfully joined classroom!', 'success');
+    showToast('Successfully enrolled in classroom!', 'success');
     codeInput.value = '';
   } catch (e) {
     console.error(e);
@@ -179,14 +190,17 @@ function renderStudentDecks() {
   const container = document.getElementById('student-decks-grid');
   if (!container) return;
 
-  const decks = state.data.decks;
+  const decks = state.data.decks || [];
 
   if (decks.length === 0) {
     container.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted); background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-blue);">
+        <i class="fa-solid fa-layer-group" style="font-size: 2.5rem; color: var(--text-subtle); margin-bottom: 0.75rem;"></i>
         <h3 style="color: var(--text-main); margin-bottom: 8px;">No Study Decks Available</h3>
-        <p style="margin-bottom: 1.5rem;">Create a custom flashcard deck or join a classroom.</p>
-        <button class="btn btn-primary" onclick="switchTab('student-create')">+ Create New Deck</button>
+        <p style="margin-bottom: 1.5rem;">Create a custom flashcard deck or join a classroom to start studying.</p>
+        <button class="btn btn-primary" onclick="switchTab('student-create')">
+          <i class="fa-solid fa-plus"></i> Create New Deck
+        </button>
       </div>
     `;
     return;
@@ -206,28 +220,30 @@ function renderStudentDecks() {
               <h3 class="card-title" style="margin-top: 6px;">${deck.title}</h3>
             </div>
           </div>
-          <p class="card-desc">Created by: ${deck.creator || 'Instructor'}</p>
+          <p class="card-desc">Author: ${deck.creator || 'Instructor'}</p>
         </div>
 
         <div>
           <div class="card-meta">
             <div class="card-meta-item">
-              <span>🃏 ${deck.cards ? deck.cards.length : 0} Flashcards</span>
+              <i class="fa-solid fa-layer-group"></i>
+              <span>${deck.cards ? deck.cards.length : 0} Flashcards</span>
             </div>
           </div>
 
-          <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 8px;">
+          <div style="margin-top: 1.25rem; display: flex; flex-direction: column; gap: 8px;">
             <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="launchStudySession('${deck.id}')">
-              Start Practice
+              <i class="fa-solid fa-play"></i>
+              <span>Start Active Recall Practice</span>
             </button>
             
             ${isOwner ? `
             <div style="display: flex; gap: 8px;">
               <button class="btn btn-secondary" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 6px 12px;" onclick="openEditDeckModal('${deck.id}')">
-                ✏️ Edit Deck
+                <i class="fa-solid fa-pen"></i> Edit Deck
               </button>
               <button class="btn btn-danger" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 6px 12px;" onclick="deleteDeckDirect('${deck.id}')">
-                🗑️ Delete
+                <i class="fa-solid fa-trash"></i> Delete
               </button>
             </div>
             ` : ''}
@@ -261,7 +277,7 @@ async function deleteDeckDirect(deckId) {
 
 function showDecksForClassroom(classId) {
   switchTab('student-decks');
-  showToast('Showing study decks for selected classroom.', 'info');
+  showToast('Displaying flashcard modules.', 'info');
 }
 
 /* Study Material Concept Generator */
@@ -273,16 +289,15 @@ async function handleGenerateFromStudyMaterial(event) {
   const generateBtn = event.submitter || document.querySelector('#panel-student-create button[type="submit"]');
 
   const text = materialInput.value.trim();
-  const title = titleInput.value.trim() || 'Custom Study Concept';
+  const title = titleInput.value.trim() || 'Custom Study Notes';
 
   if (!text) {
     showToast('Please enter your study notes or concept text.', 'error');
     return;
   }
 
-  const originalBtnText = generateBtn.textContent;
   generateBtn.disabled = true;
-  generateBtn.textContent = 'Generating Flashcards...';
+  generateBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Synthesizing...';
 
   try {
     const res = await fetch('/api/ai/generate', {
@@ -300,23 +315,27 @@ async function handleGenerateFromStudyMaterial(event) {
 
     resultContainer.style.display = 'block';
     resultContainer.innerHTML = `
-      <div style="background: rgba(255, 255, 255, 0.95); border: 1px solid var(--border-blue); padding: 1.5rem; border-radius: var(--radius-lg); margin-top: 1.5rem; box-shadow: var(--shadow-main);">
+      <div style="background: var(--bg-card); border: 1px solid var(--border-blue); padding: 1.5rem; border-radius: var(--radius-lg); margin-top: 1.5rem; box-shadow: var(--shadow-main);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h3 style="color: var(--color-blue-dark); font-size: 1.25rem;">✨ Generated Flashcards from Study Concept:</h3>
-          <span class="card-badge">${generatedCards.length} Possible Questions</span>
+          <h3 style="color: var(--color-blue-bright); font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-sparkles"></i>
+            <span>Synthesized Concept Flashcards</span>
+          </h3>
+          <span class="card-badge">${generatedCards.length} Questions</span>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; max-height: 320px; overflow-y: auto;">
           ${generatedCards.map((c, idx) => `
-            <div style="background: #f8fafc; padding: 1rem; border-radius: var(--radius-md); border-left: 3px solid var(--color-blue-dark);">
-              <div style="font-weight: bold; color: var(--text-main); margin-bottom: 4px;">Q${idx + 1}: ${c.question}</div>
-              <div style="color: var(--text-muted); font-size: 0.95rem;">A: ${c.answer}</div>
+            <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-md); border-left: 3px solid var(--color-blue-bright);">
+              <div style="font-weight: 700; color: var(--text-main); margin-bottom: 4px; font-size: 0.92rem;">Q${idx + 1}: ${c.question}</div>
+              <div style="color: var(--text-muted); font-size: 0.88rem;">A: ${c.answer}</div>
             </div>
           `).join('')}
         </div>
 
         <button class="btn btn-primary" onclick="addGeneratedCardsToDeck('${title.replace(/'/g, "\\'")}', ${JSON.stringify(generatedCards).replace(/"/g, '&quot;')})">
-          Add Flashcards to My Decks 📚
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>Save to My Decks</span>
         </button>
       </div>
     `;
@@ -327,7 +346,7 @@ async function handleGenerateFromStudyMaterial(event) {
     showToast('An error occurred during AI generation.', 'error');
   } finally {
     generateBtn.disabled = false;
-    generateBtn.textContent = originalBtnText;
+    generateBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i><span>Synthesize Flashcards</span>';
   }
 }
 
@@ -349,7 +368,7 @@ async function addGeneratedCardsToDeck(title, cards) {
     state.data = backendState;
     
     renderStudentDecks();
-    showToast(`Saved "${title}" with ${cards.length} flashcards to your decks!`, 'success');
+    showToast(`Saved "${title}" with ${cards.length} flashcards to your library!`, 'success');
     switchTab('student-decks');
   } catch (e) {
     console.error(e);
@@ -366,15 +385,17 @@ function addManualCardRow() {
 
   const row = document.createElement('div');
   row.className = 'manual-card-row';
-  row.style.cssText = 'background: #f8fafc; padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-blue); margin-bottom: 1rem;';
+  row.style.cssText = 'background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 1rem;';
   row.innerHTML = `
     <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-      <span style="font-weight: bold; color: var(--color-blue-dark);">Card #${manualCardCount}</span>
-      <button type="button" class="btn btn-danger" style="padding: 2px 8px; font-size: 0.8rem;" onclick="this.parentElement.parentElement.remove()">Remove</button>
+      <span style="font-weight: 700; color: var(--color-blue-bright); font-size: 0.9rem;">Card #${manualCardCount}</span>
+      <button type="button" class="btn btn-danger" style="padding: 2px 8px; font-size: 0.8rem;" onclick="this.parentElement.parentElement.remove()">
+        <i class="fa-solid fa-trash"></i> Remove
+      </button>
     </div>
-    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-      <input type="text" class="input-field card-q-input" placeholder="Front: Enter question or term..." required />
-      <input type="text" class="input-field card-a-input" placeholder="Back: Enter answer or definition..." required />
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <input type="text" class="input-field card-q-input" placeholder="Question Front..." required />
+      <input type="text" class="input-field card-a-input" placeholder="Answer Back..." required />
     </div>
   `;
   container.appendChild(row);
@@ -401,7 +422,7 @@ async function handleCreateManualDeck(event) {
   });
 
   if (!title || cards.length === 0) {
-    showToast('Please provide a deck title and at least one valid Q&A card.', 'error');
+    showToast('Please provide a deck title and at least one valid question & answer card.', 'error');
     return;
   }
 
@@ -430,13 +451,13 @@ async function handleCreateManualDeck(event) {
     const container = document.getElementById('manual-cards-container');
     if (container) {
       container.innerHTML = `
-        <div class="manual-card-row" style="background: #f8fafc; padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-blue); margin-bottom: 1rem;">
+        <div class="manual-card-row" style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-            <span style="font-weight: bold; color: var(--color-blue-dark);">Card #1</span>
+            <span style="font-weight: 700; color: var(--color-blue-bright); font-size: 0.9rem;">Card #1</span>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-            <input type="text" class="input-field card-q-input" placeholder="Front: Enter question or term..." required />
-            <input type="text" class="input-field card-a-input" placeholder="Back: Enter answer or definition..." required />
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <input type="text" class="input-field card-q-input" placeholder="Question Front..." required />
+            <input type="text" class="input-field card-a-input" placeholder="Answer Back..." required />
           </div>
         </div>
       `;
@@ -453,6 +474,8 @@ async function handleCreateManualDeck(event) {
 /* Daily Streaks Game Logic */
 function renderDailyStreakGame() {
   const streak = state.data.dailyStreak;
+  if (!streak) return;
+
   const countEl = document.getElementById('streak-count-val');
   if (countEl) countEl.textContent = streak.count;
   if (typeof updateHeaderStreak === 'function') updateHeaderStreak();
@@ -464,9 +487,12 @@ function renderDailyStreakGame() {
     const isRevealed = idx <= streak.currentClueIndex;
     return `
       <div class="clue-box ${isRevealed ? 'active' : ''}">
-        <div class="clue-number">Clue #${idx + 1} ${isRevealed ? '✓' : '(Locked)'}</div>
+        <div class="clue-number">
+          <i class="fa-solid ${isRevealed ? 'fa-circle-check' : 'fa-lock'}"></i>
+          <span>Clue #${idx + 1} ${isRevealed ? '(Unlocked)' : '(Locked)'}</span>
+        </div>
         <div class="${isRevealed ? 'clue-text' : 'clue-placeholder'}">
-          ${isRevealed ? clue : 'Click "Next Clue" to unlock this word hint.'}
+          ${isRevealed ? clue : 'Unlock the next clue to reveal this concept hint.'}
         </div>
       </div>
     `;
@@ -493,7 +519,7 @@ function renderDailyStreakGame() {
     }
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.innerHTML = 'Streak Solved Today! 🔥';
+      submitBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Solved Today!';
     }
   }
 }
@@ -541,9 +567,9 @@ async function handleStreakGuess(event) {
       renderDailyStreakGame();
       
       if (result.correct) {
-        showToast(`🎉 Brilliant! "${state.data.dailyStreak.secretWord}" is correct! Daily mystery word solved!`, 'success');
+        showToast(`Brilliant! "${state.data.dailyStreak.secretWord}" is correct! Concept solved!`, 'success');
       } else {
-        showToast(`"${userGuess}" is not correct. Check the revealed clues and try again!`, 'error');
+        showToast(`"${userGuess}" is not correct. Check the clues and try again!`, 'error');
       }
     }
   } catch (e) {

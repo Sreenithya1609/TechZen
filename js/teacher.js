@@ -1,4 +1,4 @@
-/* FlashLearn Teacher Module (Dashboard with Analytics, My Classes Column, Search & Card CRUD) */
+/* FlashLearn Teacher Module (Analytics, Curriculum Explorer, AI Generator & Deck CRUD) */
 
 let activeMyClassId = 'cls-1';
 
@@ -74,7 +74,7 @@ function renderTeacherDashboard() {
     classLabelsHtml = `<span>Start</span><span>End</span>`;
   }
 
-  // 4) Deck Performance (Dynamically compute average marks for each deck based on classroom students)
+  // 4) Deck Performance (Compute average marks for each deck based on classroom students)
   let deckBarsHtml = "";
   const displayDecks = decks.slice(0, 4);
   if (displayDecks.length > 0) {
@@ -89,7 +89,7 @@ function renderTeacherDashboard() {
       
       return `
         <div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; color: var(--text-main);">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; color: var(--text-main); font-weight: 600;">
             <span>${deck.title}</span><strong style="color: var(--color-blue-bright);">${deckAvg}%</strong>
           </div>
           <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${deckAvg}%;"></div></div>
@@ -125,25 +125,28 @@ function renderTeacherDashboard() {
   if (totalMarksCount > 0) {
     easyPct = Math.round((easyCount / totalMarksCount) * 100);
     mediumPct = Math.round((mediumCount / totalMarksCount) * 100);
-    hardPct = 100 - easyPct - mediumPct;
+    hardPct = Math.max(0, 100 - easyPct - mediumPct);
   }
 
   const conicGradientStyle = `background: conic-gradient(#10b981 0% ${easyPct}%, #f59e0b ${easyPct}% ${easyPct + mediumPct}%, #ef4444 ${easyPct + mediumPct}% 100%);`;
 
-  // Render Analytics Visualizations on Dashboard (Using Theme Variables)
+  // Render Analytics Visualizations
   const analyticsContainer = document.getElementById('dashboard-analytics-container');
   if (analyticsContainer) {
     analyticsContainer.innerHTML = `
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 2rem;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
         <!-- 1) Student Performance Trend Line Chart -->
         <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-main);">
-          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem;">📈 Student Performance</h3>
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-chart-line" style="color: var(--color-blue-bright);"></i>
+            <span>Cohort Performance Trend</span>
+          </h3>
           <div style="height: 180px; position: relative;">
             <svg width="100%" height="100%" viewBox="0 0 300 150">
               <polyline fill="none" stroke="#2563eb" stroke-width="3" points="${polylinePoints}"></polyline>
               ${circlesHtml}
             </svg>
-            <div style="display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.75rem; color: var(--text-subtle); gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-subtle); gap: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
               ${classLabelsHtml}
             </div>
           </div>
@@ -151,7 +154,10 @@ function renderTeacherDashboard() {
 
         <!-- 2) Deck Performance Bar Graph -->
         <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-main);">
-          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem;">📊 Deck Performance</h3>
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-layer-group" style="color: var(--color-purple);"></i>
+            <span>Module Mastery Averages</span>
+          </h3>
           <div style="display: flex; flex-direction: column; gap: 1rem;">
             ${deckBarsHtml}
           </div>
@@ -159,13 +165,25 @@ function renderTeacherDashboard() {
 
         <!-- 3) Difficulty Performance Donut Chart -->
         <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-main);">
-          <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem;">🎯 Difficulty Performance</h3>
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-chart-pie" style="color: var(--color-emerald);"></i>
+            <span>Mastery Tier Distribution</span>
+          </h3>
           <div style="display: flex; flex-direction: column; align-items: center;">
-            <div class="css-donut-chart" style="margin-bottom: 1rem; ${conicGradientStyle}"></div>
-            <div style="width: 100%; display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; color: var(--text-main);">
-              <div style="display: flex; justify-content: space-between;"><span>🟢 Easy (Marks &ge; 90%)</span><strong>${easyPct}%</strong></div>
-              <div style="display: flex; justify-content: space-between;"><span>🟡 Medium (Marks 75-89%)</span><strong>${mediumPct}%</strong></div>
-              <div style="display: flex; justify-content: space-between;"><span>🔴 Hard (Marks &lt; 75%)</span><strong>${hardPct}%</strong></div>
+            <div class="css-donut-chart" style="margin-bottom: 1.25rem; ${conicGradientStyle}"></div>
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; font-size: 0.85rem; color: var(--text-main);">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span><i class="fa-solid fa-circle" style="color: #10b981; font-size: 0.6rem; margin-right: 6px;"></i> High Mastery (&ge; 90%)</span>
+                <strong>${easyPct}%</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span><i class="fa-solid fa-circle" style="color: #f59e0b; font-size: 0.6rem; margin-right: 6px;"></i> Competent (75-89%)</span>
+                <strong>${mediumPct}%</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span><i class="fa-solid fa-circle" style="color: #ef4444; font-size: 0.6rem; margin-right: 6px;"></i> Needs Attention (&lt; 75%)</span>
+                <strong>${hardPct}%</strong>
+              </div>
             </div>
           </div>
         </div>
@@ -180,7 +198,7 @@ function renderMyClassesPanel(searchQuery = '') {
   if (!container) return;
 
   const query = searchQuery.toLowerCase().trim();
-  let classrooms = state.data.classrooms;
+  let classrooms = state.data.classrooms || [];
 
   if (query) {
     classrooms = classrooms.filter(c => 
@@ -193,10 +211,12 @@ function renderMyClassesPanel(searchQuery = '') {
   if (classrooms.length === 0) {
     container.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted); background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-blue);">
+        <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; color: var(--text-subtle); margin-bottom: 1rem;"></i>
         <h3>No courses found matching "${searchQuery}"</h3>
       </div>
     `;
-    document.getElementById('myclasses-course-detail').style.display = 'none';
+    const detailContainer = document.getElementById('myclasses-course-detail');
+    if (detailContainer) detailContainer.style.display = 'none';
     return;
   }
 
@@ -214,23 +234,25 @@ function renderMyClassesPanel(searchQuery = '') {
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
             <div>
               <span class="card-badge">${cls.subject}</span>
-              <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-top: 6px;">${cls.name}</h3>
+              <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-top: 6px;">${cls.name}</h3>
             </div>
-            <div style="width: 36px; height: 36px; border-radius: 50%; background: ${isSelected ? 'var(--color-blue-bright)' : 'rgba(37, 99, 235, 0.1)'}; color: ${isSelected ? '#ffffff' : 'var(--color-blue-bright)'}; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
-              📖
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: ${isSelected ? 'var(--color-blue-bright)' : 'rgba(37, 99, 235, 0.1)'}; color: ${isSelected ? '#ffffff' : 'var(--color-blue-bright)'}; display: flex; align-items: center; justify-content: center; font-size: 1.05rem;">
+              <i class="fa-solid fa-graduation-cap"></i>
             </div>
           </div>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Code: <strong>${cls.code}</strong></p>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            Code: <strong style="font-family: var(--font-mono); color: var(--color-blue-bright);">${cls.code}</strong>
+          </p>
 
           <div style="display: flex; gap: 1.5rem; font-size: 0.85rem; color: var(--text-subtle);">
-            <span>👥 <strong>${cls.enrolledCount} Students</strong></span>
-            <span>🃏 <strong>${deckCount} Decks</strong></span>
+            <span><i class="fa-solid fa-users" style="margin-right: 4px;"></i> <strong>${cls.enrolledCount} Enrolled</strong></span>
+            <span><i class="fa-solid fa-layer-group" style="margin-right: 4px;"></i> <strong>${deckCount} Decks</strong></span>
           </div>
         </div>
 
-        <div style="margin-top: 1rem;">
+        <div style="margin-top: 1.25rem;">
           <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; color: var(--text-main);">
-            <span>Avg Performance</span>
+            <span>Cohort Accuracy</span>
             <strong style="color: var(--color-blue-bright);">${cls.avgPerformance || 78}%</strong>
           </div>
           <div class="progress-bar-bg">
@@ -256,77 +278,93 @@ function renderCourseDetailsView(classId) {
   const detailContainer = document.getElementById('myclasses-course-detail');
   if (!cls || !detailContainer) return;
 
-  const enrolledStudents = cls.enrolledStudents || [
-    { id: 'st-1', name: 'Eleanor Vance', email: 'student@gmail.com', mark: 96 },
-    { id: 'st-3', name: 'Sophia Lin', email: 'sophia@university.edu', mark: 92 }
-  ];
-
+  const enrolledStudents = cls.enrolledStudents || [];
   const classDecks = state.data.decks.filter(d => cls.decks && cls.decks.includes(d.id));
 
   detailContainer.style.display = 'block';
   detailContainer.innerHTML = `
-    <div style="background: var(--bg-card); border: 2px solid var(--color-blue-bright); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-main); animation: fadeIn 0.3s ease;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle);">
+    <div style="background: var(--bg-card); border: 2px solid var(--border-blue); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-main); animation: fadeIn 0.3s ease;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 1rem;">
         <div>
           <span class="card-badge">${cls.subject}</span>
-          <h2 style="font-size: 1.6rem; font-weight: 700; color: var(--text-main); margin-top: 6px;">Course Overview: ${cls.name}</h2>
+          <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin-top: 6px;">Course Overview: ${cls.name}</h2>
         </div>
-        <div style="font-size: 0.9rem; color: var(--text-muted);">
-          Access Code: <strong style="color: var(--color-blue-bright); font-family: monospace;">${cls.code}</strong>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div style="font-size: 0.9rem; color: var(--text-muted);">
+            Access Code: <span class="code-pill" onclick="copyClassCode('${cls.code}')" title="Click to copy code"><i class="fa-solid fa-copy"></i> ${cls.code}</span>
+          </div>
         </div>
       </div>
 
       <!-- 1) Enrolled Students in this course -->
       <div style="margin-bottom: 2.5rem;">
-        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-          <span>🎓</span> Enrolled Students in ${cls.name} (${enrolledStudents.length})
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-users" style="color: var(--color-blue-bright);"></i>
+          <span>Enrolled Scholars (${enrolledStudents.length})</span>
         </h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-          ${enrolledStudents.map(st => `
-            <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: var(--radius-md); cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease;" onclick="openStudentReportModal('${st.id || 'st-1'}')" title="Click to view detailed student progress report">
-              <div style="font-weight: 700; color: var(--color-blue-bright); font-size: 1.05rem;">${st.name}</div>
-              <div style="font-size: 0.82rem; color: var(--text-subtle);">${st.email}</div>
-              <div style="margin-top: 8px; display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-main);">
-                <span>Course Accuracy:</span>
-                <strong style="color: var(--color-emerald);">${st.mark || 90}%</strong>
+        
+        ${enrolledStudents.length === 0 ? `
+          <div style="background: var(--bg-card-subtle); padding: 1.5rem; border-radius: var(--radius-md); text-align: center; color: var(--text-muted);">
+            No students enrolled yet. Share code <strong style="font-family: var(--font-mono);">${cls.code}</strong> with your students to join.
+          </div>
+        ` : `
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+            ${enrolledStudents.map(st => `
+              <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1.1rem; border-radius: var(--radius-md); cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease;" onclick="openStudentReportModal('${st.id || 'st-1'}')" title="Click to view detailed student progress report">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <div style="font-weight: 700; color: var(--color-blue-bright); font-size: 1rem;">${st.name}</div>
+                  <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem; color: var(--text-subtle);"></i>
+                </div>
+                <div style="font-size: 0.82rem; color: var(--text-subtle);">${st.email}</div>
+                <div style="margin-top: 10px; display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-main);">
+                  <span>Subject Mastery:</span>
+                  <strong style="color: var(--color-emerald);"><i class="fa-solid fa-award" style="margin-right: 3px;"></i>${st.mark || 90}%</strong>
+                </div>
               </div>
-            </div>
-          `).join('')}
-        </div>
+            `).join('')}
+          </div>
+        `}
       </div>
 
       <!-- 2) Flashcards created for this course -->
       <div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
-            <span>🃏</span> Flashcards Created for ${cls.name} (${classDecks.length})
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-layer-group" style="color: var(--color-blue-bright);"></i>
+            <span>Course Flashcard Modules (${classDecks.length})</span>
           </h3>
-          <button class="btn btn-primary" onclick="openCreateCourseDeckModal('${cls.id}')">+ Create Course Deck</button>
+          <button class="btn btn-primary" onclick="openCreateCourseDeckModal('${cls.id}')" style="font-size: 0.85rem; padding: 7px 14px;">
+            <i class="fa-solid fa-plus"></i>
+            <span>Create Course Deck</span>
+          </button>
         </div>
 
         ${classDecks.length === 0 ? `
           <div style="background: var(--bg-card-subtle); padding: 2rem; text-align: center; border-radius: var(--radius-lg); border: 1px dashed var(--border-blue);">
+            <i class="fa-solid fa-folder-plus" style="font-size: 2.2rem; color: var(--text-subtle); margin-bottom: 0.75rem;"></i>
             <p style="color: var(--text-muted); font-size: 0.95rem;">No flashcards created for this course yet.</p>
-            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="openCreateCourseDeckModal('${cls.id}')">+ Create First Deck</button>
+            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="openCreateCourseDeckModal('${cls.id}')">
+              <i class="fa-solid fa-plus"></i> Create First Deck
+            </button>
           </div>
         ` : `
           <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem;">
             ${classDecks.map(deck => `
-              <div style="background: var(--bg-card); border: 1px solid var(--border-blue); padding: 1.25rem; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+              <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; box-shadow: var(--shadow-sm);">
                 <div>
-                  <div style="font-weight: 700; font-size: 1.15rem; color: var(--text-main); margin-bottom: 4px;">${deck.title}</div>
-                  <div style="font-size: 0.85rem; color: var(--text-muted);">${deck.cards ? deck.cards.length : 0} Cards • ${deck.subject}</div>
+                  <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-main); margin-bottom: 4px;">${deck.title}</div>
+                  <div style="font-size: 0.85rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-layer-group" style="margin-right: 4px;"></i> ${deck.cards ? deck.cards.length : 0} Cards &bull; ${deck.subject}
+                  </div>
                 </div>
 
-                <div style="margin-top: 1.25rem; display: flex; flex-direction: column; gap: 6px;">
-                  <div style="display: flex; gap: 6px;">
-                    <button class="btn btn-secondary" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 6px;" onclick="openEditDeckModal('${deck.id}')">
-                      ✏️ Edit
-                    </button>
-                    <button class="btn btn-danger" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 6px;" onclick="deleteDeckCourseDirect('${deck.id}', '${cls.id}')">
-                      🗑️ Delete
-                    </button>
-                  </div>
+                <div style="margin-top: 1.25rem; display: flex; gap: 8px;">
+                  <button class="btn btn-secondary" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 6px;" onclick="openEditDeckModal('${deck.id}')">
+                    <i class="fa-solid fa-pen"></i> Edit
+                  </button>
+                  <button class="btn btn-danger" style="flex: 1; justify-content: center; font-size: 0.85rem; padding: 6px;" onclick="deleteDeckCourseDirect('${deck.id}', '${cls.id}')">
+                    <i class="fa-solid fa-trash"></i> Delete
+                  </button>
                 </div>
               </div>
             `).join('')}
@@ -339,7 +377,9 @@ function renderCourseDetailsView(classId) {
 
 function openCreateCourseDeckModal(classId) {
   switchTab('teacher-ai');
-  showToast('Use Flashcards Generator or custom creator to build course decks.', 'info');
+  const classSelect = document.getElementById('ai-upload-class-select');
+  if (classSelect) classSelect.value = classId;
+  showToast('Configure subject and generate flashcards to publish to this course.', 'info');
 }
 
 async function deleteDeckCourseDirect(deckId, classId) {
@@ -354,9 +394,10 @@ async function deleteDeckCourseDirect(deckId, classId) {
     }
     const backendState = await res.json();
     state.data = backendState;
-    showToast('Flashcard Deck deleted.', 'info');
+    showToast('Flashcard deck deleted.', 'info');
     renderCourseDetailsView(classId);
     renderMyClassesPanel();
+    renderTeacherDashboard();
   } catch (e) {
     console.error(e);
     showToast('An error occurred deleting deck.', 'error');
@@ -367,13 +408,16 @@ function renderTeacherClassrooms() {
   const container = document.getElementById('teacher-classrooms-grid');
   if (!container) return;
 
-  const classrooms = state.data.classrooms;
+  const classrooms = state.data.classrooms || [];
 
   if (classrooms.length === 0) {
     container.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: var(--text-muted); background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-blue);">
+        <i class="fa-solid fa-school-circle-xmark" style="font-size: 2.5rem; color: var(--text-subtle); margin-bottom: 1rem;"></i>
         <h3>No Classrooms Created Yet</h3>
-        <button class="btn btn-primary" onclick="openModal('modal-create-classroom')" style="margin-top: 1rem;">Create Classroom</button>
+        <button class="btn btn-primary" onclick="openModal('modal-create-classroom')" style="margin-top: 1rem;">
+          <i class="fa-solid fa-plus"></i> Create Classroom
+        </button>
       </div>
     `;
     return;
@@ -390,28 +434,29 @@ function renderTeacherClassrooms() {
         </div>
         <p class="card-desc">Instructor: ${cls.teacher}</p>
         <div style="margin: 1rem 0;">
-          <span style="font-size: 0.85rem; color: var(--text-subtle);">Access Code:</span>
-          <div style="margin-top: 4px;">
-            <span class="code-pill" onclick="copyClassCode('${cls.code}')" title="Click to copy code">
-              ${cls.code}
-            </span>
-          </div>
+          <span style="font-size: 0.85rem; color: var(--text-subtle); display: block; margin-bottom: 4px;">Student Access Code:</span>
+          <span class="code-pill" onclick="copyClassCode('${cls.code}')" title="Click to copy code">
+            <i class="fa-solid fa-copy"></i> ${cls.code}
+          </span>
         </div>
       </div>
 
       <div>
         <div class="card-meta">
           <div class="card-meta-item">
-            <span>👥 ${cls.enrolledCount} Enrolled</span>
+            <i class="fa-solid fa-users"></i>
+            <span>${cls.enrolledCount} Enrolled</span>
           </div>
           <div class="card-meta-item">
-            <span>🃏 ${cls.decks ? cls.decks.length : 0} Decks</span>
+            <i class="fa-solid fa-layer-group"></i>
+            <span>${cls.decks ? cls.decks.length : 0} Decks</span>
           </div>
         </div>
 
-        <div style="margin-top: 1rem;">
+        <div style="margin-top: 1.25rem;">
           <button class="btn btn-secondary" style="width: 100%; justify-content: center;" onclick="selectMyClassCourse('${cls.id}'); switchTab('teacher-myclasses')">
-            Manage Course & Cards
+            <i class="fa-solid fa-gear"></i>
+            <span>Manage Course & Roster</span>
           </button>
         </div>
       </div>
@@ -428,11 +473,11 @@ async function openStudentReportModal(studentId) {
     }
     const data = await res.json();
     const st = data.progress && data.progress[0] ? data.progress[0] : {
-      name: 'Unknown Student',
+      name: 'Scholar',
       email: '',
       course: 'N/A',
       completedDecks: 0,
-      mark: 0
+      mark: 85
     };
 
     const reportContainer = document.getElementById('student-report-content');
@@ -441,34 +486,40 @@ async function openStudentReportModal(studentId) {
         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle);">
           <div class="user-avatar-large">${st.name.slice(0, 2).toUpperCase()}</div>
           <div>
-            <h3 style="font-size: 1.4rem; color: var(--text-main); font-weight: 700;">${st.name}</h3>
-            <p style="color: var(--text-subtle); font-size: 0.9rem;">${st.email} • Course: <strong>${st.course}</strong></p>
+            <h3 style="font-size: 1.35rem; color: var(--text-main); font-weight: 800;">${st.name}</h3>
+            <p style="color: var(--text-subtle); font-size: 0.88rem;">${st.email} &bull; Course: <strong>${st.course}</strong></p>
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
           <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); text-align: center;">
-            <div style="font-size: 0.8rem; color: var(--text-subtle); font-weight: 700;">ACCURACY SCORE</div>
-            <div style="font-size: 1.7rem; font-weight: 800; color: var(--color-blue-bright); margin-top: 4px;">${st.mark}%</div>
+            <div style="font-size: 0.75rem; color: var(--text-subtle); font-weight: 700; text-transform: uppercase;">Accuracy Score</div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--color-blue-bright); margin-top: 4px;">${st.mark}%</div>
           </div>
 
           <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); text-align: center;">
-            <div style="font-size: 0.8rem; color: var(--text-subtle); font-weight: 700;">COMPLETED DECKS</div>
-            <div style="font-size: 1.7rem; font-weight: 800; color: var(--color-emerald); margin-top: 4px;">${st.completedDecks} Decks</div>
+            <div style="font-size: 0.75rem; color: var(--text-subtle); font-weight: 700; text-transform: uppercase;">Completed Decks</div>
+            <div style="font-size: 1.6rem; font-weight: 800; color: var(--color-emerald); margin-top: 4px;">${st.completedDecks} Decks</div>
           </div>
 
           <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); text-align: center;">
-            <div style="font-size: 0.8rem; color: var(--text-subtle); font-weight: 700;">MASTERY STATUS</div>
+            <div style="font-size: 0.75rem; color: var(--text-subtle); font-weight: 700; text-transform: uppercase;">Mastery Status</div>
             <div style="margin-top: 8px;">
-              <span class="status-badge ${st.mark >= 90 ? 'status-excellent' : 'status-good'}">${st.mark >= 90 ? 'Excellent' : 'Good'}</span>
+              <span class="status-badge ${st.mark >= 90 ? 'status-excellent' : 'status-good'}">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>${st.mark >= 90 ? 'Advanced' : 'Proficient'}</span>
+              </span>
             </div>
           </div>
         </div>
 
-        <div style="background: var(--bg-card); border: 1px solid var(--border-blue); padding: 1.25rem; border-radius: var(--radius-md);">
-          <h4 style="color: var(--color-blue-bright); margin-bottom: 0.5rem; font-size: 1.05rem;">📊 Progress Report & Study Analytics</h4>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-            ${st.name} has demonstrated mastery with ${st.mark}% retention accuracy across course flashcard modules. Recommended to continue active recall practice.
+        <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-blue); padding: 1.25rem; border-radius: var(--radius-md);">
+          <h4 style="color: var(--color-blue-bright); margin-bottom: 0.5rem; font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>Academic Performance Evaluation</span>
+          </h4>
+          <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6;">
+            ${st.name} maintains a retention rate of <strong>${st.mark}%</strong> across course flashcard sessions. Spaced repetition retention indices confirm steady memory consolidation.
           </p>
         </div>
       `;
@@ -483,7 +534,7 @@ async function openStudentReportModal(studentId) {
 
 function copyClassCode(code) {
   navigator.clipboard.writeText(code).then(() => {
-    showToast(`Classroom Code ${code} copied to clipboard!`, 'info');
+    showToast(`Access code ${code} copied to clipboard!`, 'info');
   }).catch(() => {
     showToast(`Code: ${code}`, 'info');
   });
@@ -548,7 +599,7 @@ async function handleAIFlashcardGenerate(event) {
   }
 
   generateBtn.disabled = true;
-  generateBtn.textContent = 'Generating Flashcards...';
+  generateBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating Flashcards...';
 
   try {
     const res = await fetch('/api/ai/generate', {
@@ -570,36 +621,46 @@ async function handleAIFlashcardGenerate(event) {
 
     resultContainer.style.display = 'block';
     resultContainer.innerHTML = `
-      <div style="background: var(--bg-card); border: 1px solid var(--border-blue); padding: 1.5rem; border-radius: var(--radius-lg); margin-top: 1.5rem;">
+      <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-blue); padding: 1.5rem; border-radius: var(--radius-lg); margin-top: 1.5rem;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h3 style="color: var(--color-blue-bright); font-size: 1.3rem;">✨ Generated Deck Preview: ${topic} (${levelSelect.value})</h3>
+          <h3 style="color: var(--color-blue-bright); font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-sparkles"></i>
+            <span>Generated Preview: ${topic}</span>
+          </h3>
           <span class="card-badge">${generatedCards.length} Cards</span>
         </div>
-        <div style="display: flex; flex-direction: column; gap: 1.25rem; max-height: 350px; overflow-y: auto; margin-bottom: 1.5rem; padding: 12px; background: var(--bg-card-subtle);">
+        <div style="display: flex; flex-direction: column; gap: 1rem; max-height: 350px; overflow-y: auto; margin-bottom: 1.5rem; padding: 6px;">
           ${generatedCards.map((card, idx) => `
-            <div class="ai-generated-card-edit-box" style="background: #ffffff; padding: 1rem; border-radius: var(--radius-md); border-left: 3px solid var(--color-blue-bright);">
-              <div style="font-weight: bold; color: var(--color-blue-dark); margin-bottom: 8px;">Card #${idx + 1}</div>
-              <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 2px;">Question Front:</label>
+            <div class="ai-generated-card-edit-box" style="background: var(--bg-card); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); border-left: 3px solid var(--color-blue-bright);">
+              <div style="font-weight: 700; color: var(--color-blue-bright); font-size: 0.85rem; margin-bottom: 6px;">Card #${idx + 1}</div>
+              <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 2px;">Question Front:</label>
               <input type="text" class="input-field ai-card-q-input" value="${card.question.replace(/"/g, '&quot;')}" required />
-              <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; display: block; margin: 8px 0 2px;">Answer Back:</label>
-              <textarea class="input-field ai-card-a-input" required>${card.answer}</textarea>
+              <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; display: block; margin: 8px 0 2px;">Answer Back:</label>
+              <textarea class="input-field ai-card-a-input" rows="2" required>${card.answer}</textarea>
             </div>
           `).join('')}
         </div>
-        <label for="ai-upload-class-select">Select Course to Upload:</label>
-        <select id="ai-upload-class-select" class="input-field">
-          ${state.data.classrooms.map(c => `<option value="${c.id}" ${c.id === activeMyClassId ? 'selected' : ''}>${c.name} (${c.code})</option>`).join('')}
-          <option value="">Personal Deck (No Classroom)</option>
-        </select>
-        <button type="button" class="btn btn-primary" id="btn-ai-upload" style="margin-top: 1rem;" onclick="handleAIDeckUpload()">📤 Upload & Send to Students</button>
+        
+        <div style="margin-bottom: 1.25rem;">
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Publish to Classroom:</label>
+          <select id="ai-upload-class-select" class="select-field">
+            ${(state.data.classrooms || []).map(c => `<option value="${c.id}" ${c.id === activeMyClassId ? 'selected' : ''}>${c.name} (${c.code})</option>`).join('')}
+            <option value="">Personal Deck (No Classroom)</option>
+          </select>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="btn-ai-upload" onclick="handleAIDeckUpload()">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <span>Upload & Distribute Deck</span>
+        </button>
       </div>
     `;
   } catch (e) {
     console.error(e);
-    showToast('Could not connect to the AI service.', 'error');
+    showToast('Could not connect to the flashcard service.', 'error');
   } finally {
     generateBtn.disabled = false;
-    generateBtn.textContent = 'Generate Flashcards';
+    generateBtn.innerHTML = '<i class="fa-solid fa-bolt"></i><span>Generate Flashcards</span>';
   }
 }
 
@@ -627,7 +688,7 @@ async function handleAIDeckUpload() {
   const uploadBtn = document.getElementById('btn-ai-upload');
   if (uploadBtn) {
     uploadBtn.disabled = true;
-    uploadBtn.innerHTML = "Uploading to Course...";
+    uploadBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
   }
 
   try {
@@ -638,7 +699,7 @@ async function handleAIDeckUpload() {
         title: `${window.lastGeneratedTopic} (${window.lastGeneratedLevel})`,
         subject: window.lastGeneratedTopic,
         cards: updatedCards,
-        classroom_id: classroomId
+        classroom_id: classroomId || undefined
       })
     });
 
@@ -647,7 +708,7 @@ async function handleAIDeckUpload() {
       showToast(err.error || 'Failed to upload deck.', 'error');
       if (uploadBtn) {
         uploadBtn.disabled = false;
-        uploadBtn.innerHTML = "📤 Upload & Send to Students";
+        uploadBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i><span>Upload & Distribute Deck</span>';
       }
       return;
     }
@@ -655,9 +716,8 @@ async function handleAIDeckUpload() {
     const backendState = await res.json();
     state.data = backendState;
 
-    showToast('Flashcard deck successfully uploaded and sent to students! 🚀', 'success');
+    showToast('Flashcard deck published successfully!', 'success');
 
-    // Clear inputs
     const topicInput = document.getElementById('ai-topic-input');
     if (topicInput) topicInput.value = '';
     
@@ -667,7 +727,6 @@ async function handleAIDeckUpload() {
       resultContainer.innerHTML = '';
     }
 
-    // Refresh dashboard stats and classes panel
     renderTeacherDashboard();
     renderMyClassesPanel();
     if (classroomId) {
@@ -676,41 +735,12 @@ async function handleAIDeckUpload() {
     }
   } catch (e) {
     console.error(e);
-    showToast('An error occurred during upload.', 'error');
+    showToast('An error occurred during deck upload.', 'error');
     if (uploadBtn) {
       uploadBtn.disabled = false;
-      uploadBtn.innerHTML = "📤 Upload & Send to Students";
+      uploadBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i><span>Upload & Distribute Deck</span>';
     }
   }
-}
-
-function createSimulatedCards(topic, level, count = 5) {
-  const t = topic.toLowerCase();
-  const pool = [];
-
-  if (t.includes('java') || t.includes('code') || t.includes('comp')) {
-    pool.push(
-      { question: `What are the core principles governing ${topic}?`, answer: 'Encapsulation, Inheritance, Polymorphism, and Abstraction.' },
-      { question: `How is memory allocated in ${topic}?`, answer: 'Objects are allocated on Heap memory; local variables reside on Stack memory.' },
-      { question: `What is the significance of data immutability in ${topic}?`, answer: 'Prevents unwanted side effects and improves thread safety across concurrent operations.' }
-    );
-  } else {
-    pool.push(
-      { question: `What is the core definition of ${topic}?`, answer: `The fundamental academic domain covering essential theories and applications of ${topic}.` },
-      { question: `What key discovery transformed modern understanding of ${topic}?`, answer: `Empirical research and theoretical models developed by domain pioneers.` },
-      { question: `How do scholars analyze complex problems in ${topic}?`, answer: `By applying structured analytical methodology and experimental verification.` }
-    );
-  }
-
-  const result = [];
-  for (let i = 0; i < count; i++) {
-    const template = pool[i % pool.length];
-    result.push({
-      question: template.question,
-      answer: template.answer
-    });
-  }
-  return result;
 }
 
 function renderProfileView() {
@@ -745,22 +775,24 @@ function openEditDeckModal(deckId) {
     cardRowsContainer.style = 'display: flex; flex-direction: column; gap: 10px;';
     cardsContainer.appendChild(cardRowsContainer);
 
-    deck.cards.forEach((card, idx) => {
+    (deck.cards || []).forEach((card, idx) => {
       const row = document.createElement('div');
       row.className = 'edit-card-row';
-      row.style = 'background: #ffffff; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);';
+      row.style = 'background: var(--bg-card); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 6px;';
       row.innerHTML = `
-        <div style="font-weight: 700; color: var(--color-blue-dark); font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: 700; color: var(--color-blue-bright); font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
           <span>Card #${idx + 1}</span>
-          <button type="button" class="btn-delete-card-row" style="background: none; border: none; color: var(--color-red); cursor: pointer; font-size: 0.85rem; font-weight: bold;" onclick="this.closest('.edit-card-row').remove()">🗑️ Remove</button>
+          <button type="button" class="btn-delete-card-row" style="background: none; border: none; color: var(--color-rose); cursor: pointer; font-size: 0.85rem; font-weight: bold;" onclick="this.closest('.edit-card-row').remove()">
+            <i class="fa-solid fa-trash"></i> Remove
+          </button>
         </div>
         <div>
           <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Question Front:</label>
-          <input type="text" class="input-field edit-card-q-input" value="${card.question.replace(/"/g, '&quot;')}" style="width: 100%; padding: 5px; font-size: 0.85rem;" required />
+          <input type="text" class="input-field edit-card-q-input" value="${card.question.replace(/"/g, '&quot;')}" style="padding: 6px 10px; font-size: 0.88rem;" required />
         </div>
         <div>
           <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Answer Back:</label>
-          <textarea class="input-field edit-card-a-input" style="width: 100%; padding: 5px; height: 40px; font-family: inherit; font-size: 0.85rem; resize: vertical;" required>${card.answer}</textarea>
+          <textarea class="input-field edit-card-a-input" style="padding: 6px 10px; height: 50px; font-size: 0.88rem; resize: vertical;" required>${card.answer}</textarea>
         </div>
       `;
       cardRowsContainer.appendChild(row);
@@ -769,25 +801,27 @@ function openEditDeckModal(deckId) {
     const addCardBtn = document.createElement('button');
     addCardBtn.type = 'button';
     addCardBtn.className = 'btn btn-secondary';
-    addCardBtn.style = 'justify-content: center; padding: 6px; font-size: 0.85rem; margin-top: 6px; width: 100%;';
-    addCardBtn.innerHTML = '➕ Add Card to Deck';
+    addCardBtn.style = 'justify-content: center; padding: 8px; font-size: 0.88rem; margin-top: 8px; width: 100%;';
+    addCardBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Card to Deck';
     addCardBtn.onclick = () => {
       const idx = cardRowsContainer.querySelectorAll('.edit-card-row').length;
       const row = document.createElement('div');
       row.className = 'edit-card-row';
-      row.style = 'background: #ffffff; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);';
+      row.style = 'background: var(--bg-card); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 6px;';
       row.innerHTML = `
-        <div style="font-weight: 700; color: var(--color-blue-dark); font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-weight: 700; color: var(--color-blue-bright); font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
           <span>Card #${idx + 1}</span>
-          <button type="button" class="btn-delete-card-row" style="background: none; border: none; color: var(--color-red); cursor: pointer; font-size: 0.85rem; font-weight: bold;" onclick="this.closest('.edit-card-row').remove()">🗑️ Remove</button>
+          <button type="button" class="btn-delete-card-row" style="background: none; border: none; color: var(--color-rose); cursor: pointer; font-size: 0.85rem; font-weight: bold;" onclick="this.closest('.edit-card-row').remove()">
+            <i class="fa-solid fa-trash"></i> Remove
+          </button>
         </div>
         <div>
           <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Question Front:</label>
-          <input type="text" class="input-field edit-card-q-input" value="" style="width: 100%; padding: 5px; font-size: 0.85rem;" required />
+          <input type="text" class="input-field edit-card-q-input" value="" style="padding: 6px 10px; font-size: 0.88rem;" required />
         </div>
         <div>
           <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Answer Back:</label>
-          <textarea class="input-field edit-card-a-input" style="width: 100%; padding: 5px; height: 40px; font-family: inherit; font-size: 0.85rem; resize: vertical;" required></textarea>
+          <textarea class="input-field edit-card-a-input" style="padding: 6px 10px; height: 50px; font-size: 0.88rem; resize: vertical;" required></textarea>
         </div>
       `;
       cardRowsContainer.appendChild(row);

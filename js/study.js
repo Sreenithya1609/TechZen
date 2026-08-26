@@ -1,4 +1,4 @@
-/* Study Engine & 3D Card Flip Session */
+/* FlashLearn Enterprise Study Engine (3D Flashcard Flip Session with Keyboard Shortcuts & Zero Emojis) */
 
 class StudyEngine {
   constructor() {
@@ -8,6 +8,7 @@ class StudyEngine {
     this.knowCount = 0;
     this.reviewCount = 0;
     this.isFlipped = false;
+    this.keyboardListenerAttached = false;
   }
 
   startSession(deckId) {
@@ -17,7 +18,7 @@ class StudyEngine {
     if (!deck) {
       deck = {
         id: deckId || 'deck-demo',
-        title: 'Flashcard Study Deck',
+        title: 'Academic Flashcard Deck',
         subject: 'General',
         cards: [
           { question: 'What is Active Recall in learning psychology?', answer: 'The practice of testing memory retention by stimulating mind retrieval during learning.' },
@@ -43,9 +44,39 @@ class StudyEngine {
     const titleEl = document.getElementById('study-modal-deck-title');
     if (titleEl) titleEl.textContent = deck.title;
 
+    // Attach global keyboard listeners once
+    this.initKeyboardControls();
+
     // Render first card & UI
     this.renderCurrentCard();
     openModal('modal-study-session');
+  }
+
+  initKeyboardControls() {
+    if (this.keyboardListenerAttached) return;
+    this.keyboardListenerAttached = true;
+
+    document.addEventListener('keydown', (e) => {
+      const modal = document.getElementById('modal-study-session');
+      if (!modal || !modal.classList.contains('active')) return;
+
+      // Disable shortcuts when typing into inputs
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        this.flipCard();
+      } else if (e.key === '1' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        this.markCard('review');
+      } else if (e.key === '2' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        this.markCard('know');
+      } else if (e.key === 's' || e.key === 'S') {
+        e.preventDefault();
+        this.shuffleCards();
+      }
+    });
   }
 
   renderCurrentCard() {
@@ -100,14 +131,16 @@ class StudyEngine {
   }
 
   markCard(status) {
+    if (this.currentIndex >= this.cardsQueue.length) return;
+
     if (status === 'know') {
       this.knowCount++;
-      showToast('Marked as Known! ✓', 'success');
+      showToast('Marked as Mastered', 'success');
     } else if (status === 'review') {
       this.reviewCount++;
       const currentCard = this.cardsQueue[this.currentIndex];
       this.cardsQueue.push(currentCard);
-      showToast('Card added back to review queue 🔄', 'info');
+      showToast('Added back to review queue', 'info');
     }
 
     // Save study activity dynamically in SQLite
@@ -136,7 +169,7 @@ class StudyEngine {
 
     this.cardsQueue = [...this.cardsQueue.slice(0, this.currentIndex), ...unstudied];
     this.renderCurrentCard();
-    showToast('Flashcard order shuffled! 🎲', 'info');
+    showToast('Flashcard queue shuffled', 'info');
   }
 
   renderSummary() {
@@ -155,28 +188,36 @@ class StudyEngine {
 
       summaryView.innerHTML = `
         <div style="text-align: center; padding: 2rem 1rem;">
-          <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎓</div>
-          <h2 style="color: var(--color-blue-dark); font-size: 1.8rem; margin-bottom: 0.5rem;">Practice Session Complete!</h2>
-          <p style="color: var(--text-muted); margin-bottom: 2rem;">You've reviewed all cards in "${this.activeDeck ? this.activeDeck.title : 'Deck'}"</p>
+          <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(5, 150, 105, 0.1); color: var(--color-emerald); font-size: 2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <i class="fa-solid fa-award"></i>
+          </div>
+          <h2 style="color: var(--text-main); font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">Practice Session Complete!</h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2rem;">You've completed reviewing all flashcards in "${this.activeDeck ? this.activeDeck.title : 'Deck'}"</p>
 
           <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;">
-            <div style="background: #f8fafc; border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-md);">
-              <div style="font-size: 0.85rem; color: var(--text-subtle);">Mastered Cards</div>
-              <div style="font-size: 1.8rem; font-weight: bold; color: var(--color-emerald);">${this.knowCount}</div>
+            <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-md);">
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-subtle); text-transform: uppercase;">Mastered Cards</div>
+              <div style="font-size: 1.8rem; font-weight: 800; color: var(--color-emerald); margin-top: 4px;">${this.knowCount}</div>
             </div>
-            <div style="background: #f8fafc; border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-md);">
-              <div style="font-size: 0.85rem; color: var(--text-subtle);">Needs Review</div>
-              <div style="font-size: 1.8rem; font-weight: bold; color: var(--color-rose);">${this.reviewCount}</div>
+            <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-md);">
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-subtle); text-transform: uppercase;">Reviewed Again</div>
+              <div style="font-size: 1.8rem; font-weight: 800; color: var(--color-rose); margin-top: 4px;">${this.reviewCount}</div>
             </div>
-            <div style="background: #f8fafc; border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-md);">
-              <div style="font-size: 0.85rem; color: var(--text-subtle);">Mastery Score</div>
-              <div style="font-size: 1.8rem; font-weight: bold; color: var(--color-blue-dark);">${accuracy}%</div>
+            <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-md);">
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-subtle); text-transform: uppercase;">Retention Rate</div>
+              <div style="font-size: 1.8rem; font-weight: 800; color: var(--color-blue-bright); margin-top: 4px;">${accuracy}%</div>
             </div>
           </div>
 
           <div style="display: flex; justify-content: center; gap: 1rem;">
-            <button class="btn btn-secondary" onclick="studyEngine.startSession('${this.activeDeck ? this.activeDeck.id : ''}')">Practice Again</button>
-            <button class="btn btn-primary" onclick="closeModal('modal-study-session')">Done & Exit</button>
+            <button class="btn btn-secondary" onclick="studyEngine.startSession('${this.activeDeck ? this.activeDeck.id : ''}')">
+              <i class="fa-solid fa-rotate-left"></i>
+              <span>Practice Again</span>
+            </button>
+            <button class="btn btn-primary" onclick="closeModal('modal-study-session')">
+              <i class="fa-solid fa-check"></i>
+              <span>Done & Close</span>
+            </button>
           </div>
         </div>
       `;

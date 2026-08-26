@@ -3,9 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FlashLearn | Academic Flashcards & Classroom Platform</title>
-  <meta name="description" content="FlashLearn - Interactive spaced-repetition flashcards, course analytics, and classroom management." />
+  <title>FlashLearn | Enterprise Spaced-Repetition & Classroom Platform</title>
+  <meta name="description" content="FlashLearn - Enterprise-grade interactive spaced-repetition flashcards, course analytics, and academic classroom management." />
   <link rel="icon" type="image/png" href="images/memoflip_logo.png" />
+  
+  <!-- Font Awesome 6 CDN (Free Icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Google Fonts (Plus Jakarta Sans & Inter) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -14,8 +23,9 @@
   <section id="landing-view" class="landing-view">
     <header class="landing-header">
       <div class="brand-container" onclick="showLandingView()" style="cursor: pointer;">
-        <img src="images/memoflip_logo.png" alt="FlashLearn Owl Logo" class="brand-logo-img" />
+        <img src="images/memoflip_logo.png" alt="FlashLearn Logo" class="brand-logo-img" />
         <div class="brand-title">FlashLearn</div>
+        <span class="brand-badge">Enterprise</span>
       </div>
 
       <div class="landing-nav-links">
@@ -25,60 +35,75 @@
 
       <div style="display: flex; align-items: center; gap: 1rem;">
         <button class="btn btn-primary" onclick="showAuthView('login')" style="font-size: 0.9rem; padding: 9px 22px;">
-          Sign In / Sign Up
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span>Sign In / Sign Up</span>
         </button>
       </div>
     </header>
 
     <div class="landing-hero">
-      <h1 class="landing-hero-title">Revolutionize Your Recall</h1>
+      <div class="landing-hero-badge">
+        <i class="fa-solid fa-sparkles"></i>
+        <span>AI-Powered Active Recall</span>
+      </div>
+      <h1 class="landing-hero-title">Revolutionize Your Academic Recall</h1>
       <p class="landing-hero-subtitle">
-        Interactive spaced-repetition flashcards designed to optimize your learning workflow.
+        Enterprise spaced-repetition flashcards designed to optimize memory retention, course analytics, and classroom workflows.
       </p>
     </div>
 
     <!-- Single-Row Arrow Horizontal Carousel -->
     <div class="carousel-wrapper">
-      <button type="button" class="carousel-arrow prev-arrow" onclick="prevCarouselSlide()" title="Previous slide">‹</button>
+      <button type="button" class="carousel-arrow prev-arrow" onclick="prevCarouselSlide()" title="Previous slide">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
       <div class="carousel-track" id="carousel-track">
         <!-- Populated dynamically by landing.js -->
       </div>
-      <button type="button" class="carousel-arrow next-arrow" onclick="nextCarouselSlide()" title="Next slide">›</button>
+      <button type="button" class="carousel-arrow next-arrow" onclick="nextCarouselSlide()" title="Next slide">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
     </div>
 
     <div class="landing-features-grid">
       <div class="landing-feature-box">
-        <div class="landing-feature-icon">🧠</div>
+        <div class="landing-feature-icon">
+          <i class="fa-solid fa-brain"></i>
+        </div>
         <div>
-          <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-main);">Active Recall Engine</h4>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">Spaced repetition for deeper learning</p>
+          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Active Recall Engine</h4>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">Spaced repetition algorithms for deeper cognitive retention.</p>
         </div>
       </div>
 
       <div class="landing-feature-box">
-        <div class="landing-feature-icon">🌐</div>
+        <div class="landing-feature-icon">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
         <div>
-          <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-main);">Deck Marketplace</h4>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">Explore shared study materials</p>
+          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Classroom Management</h4>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">Secure code-based course enrollment and progress tracking.</p>
         </div>
       </div>
 
       <div class="landing-feature-box">
-        <div class="landing-feature-icon">🔄</div>
+        <div class="landing-feature-icon">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
         <div>
-          <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-main);">Real-time Device Sync</h4>
-          <p style="font-size: 0.85rem; color: var(--text-muted);">Seamless across all your devices</p>
+          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Real-Time Analytics</h4>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">Performance trend lines, mastery ratings, and activity streaks.</p>
         </div>
       </div>
     </div>
 
     <footer class="landing-footer">
       <div style="margin-bottom: 0.75rem; display: flex; justify-content: center; gap: 2rem;">
-        <a style="color: var(--text-muted); text-decoration: none;">Community Feed</a>
-        <a style="color: var(--text-muted); text-decoration: none;">Contact</a>
-        <a style="color: var(--text-muted); text-decoration: none;">About</a>
+        <a style="color: var(--text-muted); text-decoration: none; cursor: pointer;">Platform Overview</a>
+        <a style="color: var(--text-muted); text-decoration: none; cursor: pointer;">Security & Compliance</a>
+        <a style="color: var(--text-muted); text-decoration: none; cursor: pointer;">Academic API</a>
       </div>
-      <div>Licensed to FlashLearn, Inc. Terms of the MIT License. All rights reserved.</div>
+      <div>&copy; 2026 FlashLearn Academic Systems. Licensed under MIT. All rights reserved.</div>
     </footer>
   </section>
 
@@ -87,55 +112,78 @@
     <div class="auth-card">
       <div class="auth-header">
         <div class="auth-brand" onclick="showLandingView()" style="cursor: pointer;">
-          <img src="images/memoflip_logo.png" alt="FlashLearn Owl Logo" class="brand-logo-img" />
+          <img src="images/memoflip_logo.png" alt="FlashLearn Logo" class="brand-logo-img" />
           <h1 class="auth-title">FlashLearn</h1>
         </div>
         <p class="auth-subtitle">Academic Flashcards & Classroom Platform</p>
       </div>
 
       <div class="auth-tabs">
-        <button type="button" class="auth-tab-btn active" id="tab-btn-login" onclick="toggleAuthTab('login')">Sign In</button>
-        <button type="button" class="auth-tab-btn" id="tab-btn-reg" onclick="toggleAuthTab('register')">Register</button>
+        <button type="button" class="auth-tab-btn active" id="tab-btn-login" onclick="toggleAuthTab('login')">
+          <i class="fa-solid fa-lock" style="margin-right: 6px;"></i>Sign In
+        </button>
+        <button type="button" class="auth-tab-btn" id="tab-btn-reg" onclick="toggleAuthTab('register')">
+          <i class="fa-solid fa-user-plus" style="margin-right: 6px;"></i>Register
+        </button>
       </div>
 
       <form id="auth-login-form" onsubmit="handleLogin(event)">
         <div style="margin-bottom: 1.25rem;">
-          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Email Address:</label>
-          <input type="email" id="login-email" class="input-field" placeholder="teacher@gmail.com or student@gmail.com" required />
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: var(--text-main);">Email Address</label>
+          <div class="input-group">
+            <i class="fa-solid fa-envelope input-icon-left"></i>
+            <input type="email" id="login-email" class="input-field" placeholder="name@domain.com" required />
+          </div>
         </div>
 
         <div style="margin-bottom: 1.5rem;">
-          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Password:</label>
-          <input type="password" id="login-password" class="input-field" placeholder="••••••••" required />
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: var(--text-main);">Password</label>
+          <div class="input-group">
+            <i class="fa-solid fa-key input-icon-left"></i>
+            <input type="password" id="login-password" class="input-field" placeholder="••••••••" required />
+          </div>
         </div>
 
         <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
-          Sign In to FlashLearn
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Sign In to FlashLearn</span>
         </button>
         
-        <div style="text-align: center; margin-top: 1rem;">
-          <a onclick="showLandingView()" style="font-size: 0.9rem; color: var(--color-blue-bright); cursor: pointer; text-decoration: underline;">← Back to Landing Page</a>
+        <div style="text-align: center; margin-top: 1.25rem;">
+          <a onclick="showLandingView()" style="font-size: 0.88rem; color: var(--color-blue-bright); cursor: pointer; text-decoration: none;">
+            <i class="fa-solid fa-arrow-left" style="margin-right: 4px;"></i> Return to Landing Page
+          </a>
         </div>
       </form>
 
       <form id="auth-reg-form" onsubmit="handleRegister(event)" style="display: none;">
         <div style="margin-bottom: 1.25rem;">
-          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Full Name:</label>
-          <input type="text" id="reg-name" class="input-field" placeholder="e.g. Student Name" required />
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: var(--text-main);">Full Name</label>
+          <div class="input-group">
+            <i class="fa-solid fa-user input-icon-left"></i>
+            <input type="text" id="reg-name" class="input-field" placeholder="Academic Scholar" required />
+          </div>
         </div>
 
         <div style="margin-bottom: 1.25rem;">
-          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Email Address:</label>
-          <input type="email" id="reg-email" class="input-field" placeholder="your.name@gmail.com" required />
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: var(--text-main);">Email Address</label>
+          <div class="input-group">
+            <i class="fa-solid fa-envelope input-icon-left"></i>
+            <input type="email" id="reg-email" class="input-field" placeholder="your.name@domain.com" required />
+          </div>
         </div>
 
         <div style="margin-bottom: 1.5rem;">
-          <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Password:</label>
-          <input type="password" id="reg-password" class="input-field" placeholder="Create password" required />
+          <label style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: var(--text-main);">Password</label>
+          <div class="input-group">
+            <i class="fa-solid fa-key input-icon-left"></i>
+            <input type="password" id="reg-password" class="input-field" placeholder="Minimum 6 characters" minlength="6" required />
+          </div>
         </div>
 
         <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
-          Create Account
+          <i class="fa-solid fa-user-plus"></i>
+          <span>Create Account</span>
         </button>
       </form>
     </div>
@@ -147,36 +195,45 @@
     <!-- Top Header Navigation -->
     <header class="app-header">
       <div class="brand-container" onclick="showLandingView()" style="cursor: pointer;" title="Go to Landing Page">
-        <img src="images/memoflip_logo.png" alt="FlashLearn Owl Logo" class="brand-logo-img" />
+        <img src="images/memoflip_logo.png" alt="FlashLearn Logo" class="brand-logo-img" />
         <div class="brand-title">FlashLearn</div>
       </div>
 
       <div class="header-right">
         <!-- Header Dynamic Streak Badge -->
-        <div id="header-streak-badge" style="margin-right: 15px; font-weight: 700; background: linear-gradient(135deg, var(--color-orange), #ea580c); color: #ffffff; padding: 6px 12px; border-radius: 9999px; display: none; align-items: center; gap: 6px; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.25);">
-          🔥 <span id="header-streak-count">0</span> Day Streak
+        <div id="header-streak-badge" class="streak-pill-badge" style="display: none;">
+          <i class="fa-solid fa-fire-flame-curved"></i>
+          <span><strong id="header-streak-count">0</strong> Day Streak</span>
         </div>
-        <!-- User Full Name Dropdown Menu -->
+
+        <!-- User Dropdown Menu -->
         <div class="user-dropdown-container" id="user-header-dropdown-container">
           <div class="user-dropdown-trigger" onclick="toggleUserHeaderMenu()">
-            <span>👤</span>
-            <strong id="header-user-fullname" style="font-weight: 600; color: var(--text-main);">User Name</strong>
-            <span style="font-size: 0.8rem; color: var(--text-subtle);">▼</span>
+            <div class="user-avatar-mini" id="header-avatar-mini">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <strong id="header-user-fullname" style="font-weight: 600; font-size: 0.92rem; color: var(--text-main);">User Name</strong>
+            <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; color: var(--text-subtle);"></i>
           </div>
 
           <div class="header-dropdown-menu" id="user-header-menu">
+            <div class="dropdown-header-info">
+              <div class="dropdown-user-name" id="dropdown-user-name">User Name</div>
+              <div class="dropdown-user-role" id="dropdown-user-role">Scholar</div>
+            </div>
             <a class="dropdown-item" onclick="switchTab('profile'); toggleUserHeaderMenu();">
-              <span>👤</span> My Profile
+              <i class="fa-solid fa-id-card"></i>
+              <span>My Profile</span>
             </a>
-            <a class="dropdown-item" onclick="switchTab('profile'); toggleUserHeaderMenu();">
-              <span>⚙️</span> Settings
+            <a class="dropdown-item" onclick="toggleTheme();">
+              <i id="theme-dropdown-icon" class="fa-solid fa-sun"></i>
+              <span id="theme-dropdown-label">Theme Mode</span>
             </a>
             <div class="dropdown-divider"></div>
-            <!-- Sign Out Row with Theme Icon right inside the same row -->
-            <div class="dropdown-item" style="justify-content: space-between; color: var(--color-rose);">
-              <span onclick="handleLogout(); toggleUserHeaderMenu();" style="flex: 1;">🚪 Sign Out</span>
-              <span onclick="event.stopPropagation(); toggleTheme();" id="theme-dropdown-icon" style="cursor: pointer; font-size: 1.15rem; padding: 2px 8px; border-radius: 6px; background: rgba(37, 99, 235, 0.12);" title="Toggle Dark/Light Theme">☀️</span>
-            </div>
+            <a class="dropdown-item" onclick="handleLogout(); toggleUserHeaderMenu();" style="color: var(--color-rose);">
+              <i class="fa-solid fa-arrow-right-from-bracket" style="color: var(--color-rose);"></i>
+              <span>Sign Out</span>
+            </a>
           </div>
         </div>
       </div>
@@ -187,8 +244,8 @@
       <!-- Left Sidebar Navigation -->
       <aside class="sidebar">
 
-        <div class="sidebar-user-card" onclick="switchTab('profile')" style="cursor: pointer;" title="Click to view Profile">
-          <div class="user-avatar-large" id="sidebar-user-avatar">EV</div>
+        <div class="sidebar-user-card" onclick="switchTab('profile')" title="View Account Settings">
+          <div class="user-avatar-large" id="sidebar-user-avatar">US</div>
           <div class="sidebar-user-info">
             <span class="sidebar-user-name" id="sidebar-user-name">User Name</span>
             <span class="sidebar-user-badge" id="sidebar-user-badge">Faculty Admin</span>
@@ -197,24 +254,30 @@
         
         <!-- Teacher Nav Group -->
         <div id="teacher-nav-group">
-          <div class="nav-section-title">Teacher Portal</div>
+          <div class="nav-section-title">Faculty Portal</div>
           <ul class="nav-list">
             <li>
               <a class="nav-item active" id="nav-teacher-dashboard" onclick="switchTab('teacher-dashboard')">
-                <span style="font-size: 1.2rem;">📊</span>
-                <span>Dashboard</span>
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Analytics & KPI</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-teacher-myclasses" onclick="switchTab('teacher-myclasses')">
+                <i class="fa-solid fa-chalkboard-user"></i>
+                <span>My Courses</span>
               </a>
             </li>
             <li>
               <a class="nav-item" id="nav-teacher-classrooms" onclick="switchTab('teacher-classrooms')">
-                <span style="font-size: 1.2rem;">➕</span>
+                <i class="fa-solid fa-circle-plus"></i>
                 <span>Create Classroom</span>
               </a>
             </li>
             <li>
               <a class="nav-item" id="nav-teacher-ai" onclick="switchTab('teacher-ai')">
-                <span style="font-size: 1.2rem;">🃏</span>
-                <span>Flashcards</span>
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>AI Deck Generator</span>
               </a>
             </li>
           </ul>
@@ -226,26 +289,32 @@
           <ul class="nav-list">
             <li>
               <a class="nav-item" id="nav-student-dashboard" onclick="switchTab('student-dashboard')">
-                <span style="font-size: 1.2rem;">📊</span>
-                <span>Dashboard</span>
+                <i class="fa-solid fa-gauge-high"></i>
+                <span>Overview</span>
               </a>
             </li>
             <li>
               <a class="nav-item" id="nav-student-classrooms" onclick="switchTab('student-classrooms')">
-                <span style="font-size: 1.2rem;">🏫</span>
+                <i class="fa-solid fa-school"></i>
                 <span>Joined Classrooms</span>
               </a>
             </li>
             <li>
               <a class="nav-item" id="nav-student-decks" onclick="switchTab('student-decks')">
-                <span style="font-size: 1.2rem;">📚</span>
+                <i class="fa-solid fa-layer-group"></i>
                 <span>Decks & Practice</span>
               </a>
             </li>
             <li>
               <a class="nav-item" id="nav-student-create" onclick="switchTab('student-create')">
-                <span style="font-size: 1.2rem;">✍️</span>
+                <i class="fa-solid fa-pen-to-square"></i>
                 <span>Create Flashcards</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-student-streaks" onclick="switchTab('student-streaks')">
+                <i class="fa-solid fa-fire"></i>
+                <span>Daily Mystery Word</span>
               </a>
             </li>
           </ul>
@@ -257,41 +326,61 @@
 
         <!-- PANEL 1: Teacher Dashboard (STATS + ANALYTICS GRAPHS) -->
         <section class="view-panel active" id="panel-teacher-dashboard">
-          <h2 id="teacher-welcome-msg" style="font-size: 1.8rem; font-weight: 700; color: var(--color-blue-dark); margin-bottom: 1.5rem; animation: fadeIn 0.3s ease;">Welcome, Faculty Admin</h2>
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title" id="teacher-welcome-msg">
+                <i class="fa-solid fa-chalkboard-user"></i> Welcome, Faculty Admin
+              </h2>
+              <p class="panel-subtitle">Academic cohort metrics, accuracy distribution, and active curricula.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('modal-create-classroom')">
+              <i class="fa-solid fa-plus"></i>
+              <span>New Classroom</span>
+            </button>
+          </div>
+
           <div class="dash-stats-grid">
             <div class="stat-card">
-              <div class="stat-icon-box blue-bg">🎓</div>
+              <div class="stat-icon-box blue-bg">
+                <i class="fa-solid fa-school"></i>
+              </div>
               <div>
-                <div class="stat-label">TOTAL CLASSES</div>
+                <div class="stat-label">Total Classes</div>
                 <div class="stat-value" id="stat-total-classes">3</div>
-                <div class="stat-trend green">↑ 1 this month</div>
+                <div class="stat-trend green"><i class="fa-solid fa-arrow-trend-up"></i> Active curriculum</div>
               </div>
             </div>
 
             <div class="stat-card">
-              <div class="stat-icon-box green-bg">👥</div>
+              <div class="stat-icon-box green-bg">
+                <i class="fa-solid fa-users"></i>
+              </div>
               <div>
-                <div class="stat-label">TOTAL STUDENTS</div>
-                <div class="stat-value" id="stat-total-students">86</div>
-                <div class="stat-trend green">↑ 12 this month</div>
+                <div class="stat-label">Total Students</div>
+                <div class="stat-value" id="stat-total-students">6</div>
+                <div class="stat-trend green"><i class="fa-solid fa-user-check"></i> Enrolled scholars</div>
               </div>
             </div>
 
             <div class="stat-card">
-              <div class="stat-icon-box purple-bg">🃏</div>
+              <div class="stat-icon-box purple-bg">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
               <div>
-                <div class="stat-label">FLASHCARD DECKS</div>
-                <div class="stat-value" id="stat-total-decks">15</div>
-                <div class="stat-trend green">↑ 3 this month</div>
+                <div class="stat-label">Flashcard Decks</div>
+                <div class="stat-value" id="stat-total-decks">3</div>
+                <div class="stat-trend green"><i class="fa-solid fa-bolt"></i> Published modules</div>
               </div>
             </div>
 
             <div class="stat-card">
-              <div class="stat-icon-box orange-bg">📈</div>
+              <div class="stat-icon-box orange-bg">
+                <i class="fa-solid fa-award"></i>
+              </div>
               <div>
-                <div class="stat-label">AVERAGE PERFORMANCE</div>
+                <div class="stat-label">Avg Performance</div>
                 <div class="stat-value" id="stat-avg-performance">78%</div>
-                <div class="stat-trend green">↑ 8% this month</div>
+                <div class="stat-trend green"><i class="fa-solid fa-arrow-trend-up"></i> Cohort mastery</div>
               </div>
             </div>
           </div>
@@ -304,9 +393,18 @@
 
         <!-- PANEL 2: Teacher My Classes (WITH COURSE SEARCH BAR & ROSTER/CARDS CRUD) -->
         <section class="view-panel" id="panel-teacher-myclasses">
-          <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
-            <div style="width: 380px;">
-              <input type="text" id="myclasses-search-input" class="input-field" placeholder="🔍 Search courses by title, subject, or code..." oninput="renderMyClassesPanel(this.value)" />
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-book-bookmark"></i> Course Curriculum & Rosters
+              </h2>
+              <p class="panel-subtitle">Filter cohorts, inspect student progress reports, and organize course flashcards.</p>
+            </div>
+            <div style="width: 320px;">
+              <div class="input-group">
+                <i class="fa-solid fa-magnifying-glass input-icon-left"></i>
+                <input type="text" id="myclasses-search-input" class="input-field" placeholder="Search by name, subject, or code..." oninput="renderMyClassesPanel(this.value)" />
+              </div>
             </div>
           </div>
 
@@ -323,9 +421,16 @@
 
         <!-- PANEL 3: Teacher Create Classroom -->
         <section class="view-panel" id="panel-teacher-classrooms">
-          <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-chalkboard"></i> Active Classrooms
+              </h2>
+              <p class="panel-subtitle">Generate access codes and distribute course modules to students.</p>
+            </div>
             <button class="btn btn-primary" onclick="openModal('modal-create-classroom')">
-              + Create Classroom
+              <i class="fa-solid fa-plus"></i>
+              <span>Create Classroom</span>
             </button>
           </div>
 
@@ -334,20 +439,35 @@
 
         <!-- PANEL 4: Teacher Flashcards Generator -->
         <section class="view-panel" id="panel-teacher-ai">
-          <div style="background: var(--bg-card); border: 1px solid var(--border-blue); border-radius: var(--radius-lg); padding: 2rem; max-width: 800px; margin: 0 auto; box-shadow: var(--shadow-main);">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Academic Flashcard Generator
+              </h2>
+              <p class="panel-subtitle">Synthesize comprehensive question-and-answer pairs across academic domains.</p>
+            </div>
+          </div>
+
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2.25rem; max-width: 840px; margin: 0 auto; box-shadow: var(--shadow-main);">
             <form onsubmit="handleAIFlashcardGenerate(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
               <div>
-                <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Topic or Academic Concept:</label>
-                <input type="text" id="ai-topic-input" class="input-field" placeholder="Enter topic..." required />
+                <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Academic Subject or Topic</label>
+                <div class="input-group">
+                  <i class="fa-solid fa-book input-icon-left"></i>
+                  <input type="text" id="ai-topic-input" class="input-field" placeholder="e.g. Distributed Consensus in Cloud Systems" required />
+                </div>
               </div>
 
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                 <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Questions Count:</label>
-                  <input type="number" id="ai-count-input" class="input-field" min="1" max="20" value="5" required />
+                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Number of Flashcards</label>
+                  <div class="input-group">
+                    <i class="fa-solid fa-list-ol input-icon-left"></i>
+                    <input type="number" id="ai-count-input" class="input-field" min="1" max="20" value="5" required />
+                  </div>
                 </div>
                 <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Level of Questions:</label>
+                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Rigor & Mastery Level</label>
                   <select id="ai-level-select" class="select-field">
                     <option value="Basic Fundamentals">Basic Fundamentals</option>
                     <option value="Intermediate Mastery" selected>Intermediate Mastery</option>
@@ -357,7 +477,8 @@
               </div>
 
               <button type="submit" id="ai-generate-btn" class="btn btn-primary" style="align-self: flex-start;">
-                Generate Flashcards
+                <i class="fa-solid fa-bolt"></i>
+                <span>Generate Flashcards</span>
               </button>
             </form>
 
@@ -367,52 +488,82 @@
 
         <!-- PANEL 5: Student Dashboard -->
         <section class="view-panel" id="panel-student-dashboard">
-          <h2 id="student-welcome-msg" style="font-size: 1.8rem; font-weight: 700; color: var(--color-blue-dark); margin-bottom: 1.5rem; animation: fadeIn 0.3s ease;">Welcome, Student</h2>
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title" id="student-welcome-msg">
+                <i class="fa-solid fa-graduation-cap"></i> Welcome, Student
+              </h2>
+              <p class="panel-subtitle">Your personal active recall overview, enrolled courses, and study streak.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('modal-join-classroom')">
+              <i class="fa-solid fa-key"></i>
+              <span>Join Course with Code</span>
+            </button>
+          </div>
+
           <div class="dash-stats-grid" style="margin-bottom: 2rem;">
             <div class="stat-card">
-              <div class="stat-icon-box blue-bg">🏫</div>
+              <div class="stat-icon-box blue-bg">
+                <i class="fa-solid fa-school"></i>
+              </div>
               <div>
-                <div class="stat-label">JOINED SUBJECTS</div>
+                <div class="stat-label">Joined Subjects</div>
                 <div class="stat-value" id="student-stat-classes">2</div>
               </div>
             </div>
 
             <div class="stat-card">
-              <div class="stat-icon-box green-bg">🃏</div>
+              <div class="stat-icon-box green-bg">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
               <div>
-                <div class="stat-label">COMPLETED DECKS</div>
+                <div class="stat-label">Completed Decks</div>
                 <div class="stat-value" id="student-stat-completed-decks">7 Decks</div>
               </div>
             </div>
 
             <div class="stat-card">
-              <div class="stat-icon-box purple-bg">📈</div>
+              <div class="stat-icon-box purple-bg">
+                <i class="fa-solid fa-bullseye"></i>
+              </div>
               <div>
-                <div class="stat-label">OVERALL ACCURACY</div>
+                <div class="stat-label">Overall Accuracy</div>
                 <div class="stat-value" id="student-stat-accuracy">92%</div>
               </div>
             </div>
 
             <div class="stat-card">
-              <div class="stat-icon-box orange-bg">🔥</div>
+              <div class="stat-icon-box orange-bg">
+                <i class="fa-solid fa-fire"></i>
+              </div>
               <div>
-                <div class="stat-label">DAILY STREAK</div>
+                <div class="stat-label">Daily Streak</div>
                 <div class="stat-value" id="student-stat-streak">5 Days</div>
               </div>
             </div>
           </div>
 
           <div>
-            <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem;">My Joined Subjects</h2>
+            <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem;">
+              <i class="fa-solid fa-book-open-reader" style="color: var(--color-blue-bright); margin-right: 8px;"></i>
+              My Joined Subjects
+            </h3>
             <div class="grid-cards" id="student-dashboard-subjects"></div>
           </div>
         </section>
 
         <!-- PANEL 6: Student Joined Classrooms -->
         <section class="view-panel" id="panel-student-classrooms">
-          <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-school"></i> Joined Classrooms
+              </h2>
+              <p class="panel-subtitle">Access your courses and faculty study materials.</p>
+            </div>
             <button class="btn btn-primary" onclick="openModal('modal-join-classroom')">
-              Join Classroom with Code
+              <i class="fa-solid fa-plus"></i>
+              <span>Join Classroom with Code</span>
             </button>
           </div>
 
@@ -421,9 +572,16 @@
 
         <!-- PANEL 7: Student Decks -->
         <section class="view-panel" id="panel-student-decks">
-          <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-layer-group"></i> Flashcard Decks & Practice
+              </h2>
+              <p class="panel-subtitle">Review active study decks or build your custom sets.</p>
+            </div>
             <button class="btn btn-primary" onclick="switchTab('student-create')">
-              + Create New Deck
+              <i class="fa-solid fa-plus"></i>
+              <span>Create New Deck</span>
             </button>
           </div>
 
@@ -432,58 +590,74 @@
 
         <!-- PANEL 8: Student Create Flashcards -->
         <section class="view-panel" id="panel-student-create">
-          <div style="background: var(--bg-card); border: 1px solid var(--border-blue); border-radius: var(--radius-lg); padding: 2rem; max-width: 850px; margin: 0 auto;">
-            <form onsubmit="handleGenerateFromStudyMaterial(event)" style="margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-blue);">
-              <h3 style="color: var(--color-blue-bright); font-size: 1.3rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
-                <span>📖</span> Study Material Concept Generator
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-pen-to-square"></i> Create Flashcards
+              </h2>
+              <p class="panel-subtitle">Generate flashcards from notes or enter terms manually.</p>
+            </div>
+          </div>
+
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2.25rem; max-width: 850px; margin: 0 auto; box-shadow: var(--shadow-main);">
+            <form onsubmit="handleGenerateFromStudyMaterial(event)" style="margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-subtle);">
+              <h3 style="color: var(--color-blue-bright); font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-file-invoice"></i> Study Notes AI Synthesizer
               </h3>
               
               <div style="margin-bottom: 1.25rem;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Deck Title / Concept Name:</label>
-                <input type="text" id="study-material-title" class="input-field" placeholder="e.g. Cellular Respiration Notes" />
+                <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck Title / Concept Name</label>
+                <input type="text" id="study-material-title" class="input-field" placeholder="e.g. Cellular Respiration Lecture Notes" />
               </div>
 
               <div style="margin-bottom: 1.25rem;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Enter Study Material Concept Text:</label>
-                <textarea id="study-material-text" class="textarea-field" rows="5" placeholder="Paste lecture notes or textbook summary..."></textarea>
+                <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Paste Lecture Notes or Summary Text</label>
+                <textarea id="study-material-text" class="textarea-field" rows="5" placeholder="Paste study text, textbook sections, or summary concepts here..."></textarea>
               </div>
 
               <button type="submit" class="btn btn-primary">
-                Generate Questions & Flashcards
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Synthesize Flashcards</span>
               </button>
 
               <div id="study-material-questions-result" style="display: none; margin-top: 1.5rem;"></div>
             </form>
 
             <div>
-              <h3 style="color: var(--text-main); font-size: 1.15rem; margin-bottom: 1rem;">Create Flashcards Manually:</h3>
+              <h3 style="color: var(--text-main); font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-pencil"></i> Create Flashcards Manually
+              </h3>
               <form onsubmit="handleCreateManualDeck(event)">
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
                   <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Deck Title:</label>
-                    <input type="text" id="deck-title-input" class="input-field" placeholder="Deck Title" />
+                    <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck Title</label>
+                    <input type="text" id="deck-title-input" class="input-field" placeholder="e.g. Organic Chemistry Reactions" required />
                   </div>
                   <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Subject Tag:</label>
-                    <input type="text" id="deck-subject-input" class="input-field" placeholder="Subject" />
+                    <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject Tag</label>
+                    <input type="text" id="deck-subject-input" class="input-field" placeholder="Chemistry" required />
                   </div>
                 </div>
 
                 <div id="manual-cards-container">
-                  <div class="manual-card-row" style="background: var(--bg-secondary); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-blue); margin-bottom: 1rem;">
+                  <div class="manual-card-row" style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                      <span style="font-weight: bold; color: var(--color-blue-bright);">Card #1</span>
+                      <span style="font-weight: 700; color: var(--color-blue-bright); font-size: 0.9rem;">Card #1</span>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                      <input type="text" class="input-field card-q-input" placeholder="Front: Question..." />
-                      <input type="text" class="input-field card-a-input" placeholder="Back: Answer..." />
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                      <input type="text" class="input-field card-q-input" placeholder="Question Front..." required />
+                      <input type="text" class="input-field card-a-input" placeholder="Answer Back..." required />
                     </div>
                   </div>
                 </div>
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
-                  <button type="button" class="btn btn-secondary" onclick="addManualCardRow()">+ Add Another Card</button>
-                  <button type="submit" class="btn btn-primary">Save Manual Deck</button>
+                  <button type="button" class="btn btn-secondary" onclick="addManualCardRow()">
+                    <i class="fa-solid fa-plus"></i> Add Card
+                  </button>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Manual Deck
+                  </button>
                 </div>
               </form>
             </div>
@@ -492,47 +666,82 @@
 
         <!-- PANEL 9: Student Daily Streaks Game -->
         <section class="view-panel" id="panel-student-streaks">
-          <div class="streak-game-card">
-            <div style="text-align: center;">
-              <div class="streak-badge">
-                🔥 <span id="streak-count-val">5</span> Day Streak
-              </div>
-              <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--text-main);">Daily Mystery Word</h2>
-              <p style="color: var(--text-muted);">Guess the single word that connects all clues!</p>
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-fire" style="color: var(--color-orange);"></i> Daily Mystery Word
+              </h2>
+              <p class="panel-subtitle">Unlock clues and solve the academic concept to build your streak.</p>
             </div>
+          </div>
+
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2.5rem; max-width: 750px; margin: 0 auto; box-shadow: var(--shadow-main); text-align: center;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--gradient-flame); color: #ffffff; font-weight: 700; padding: 8px 18px; border-radius: 9999px; font-size: 1rem; margin-bottom: 1.25rem;">
+              <i class="fa-solid fa-fire-flame-curved"></i>
+              <span><strong id="streak-count-val">5</strong> Day Active Streak</span>
+            </div>
+            
+            <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Daily Concept Challenge</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">Guess the single academic term or concept connecting all revealed clues.</p>
 
             <div class="clues-grid" id="clues-grid-container"></div>
 
             <div style="display: flex; justify-content: center; margin-bottom: 1.5rem;">
-              <button class="btn btn-secondary" id="btn-next-clue" onclick="handleNextClue()">Next Clue →</button>
+              <button class="btn btn-secondary" id="btn-next-clue" onclick="handleNextClue()">
+                <span>Unlock Next Clue</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
             </div>
 
             <form onsubmit="handleStreakGuess(event)" style="display: flex; gap: 12px; max-width: 500px; margin: 0 auto;">
-              <input type="text" id="streak-guess-input" class="input-field" placeholder="Enter word..." style="text-transform: uppercase; font-weight: bold;" required />
-              <button type="submit" id="streak-submit-btn" class="btn btn-primary">Submit Guess</button>
+              <input type="text" id="streak-guess-input" class="input-field" placeholder="Enter word guess..." style="text-transform: uppercase; font-weight: bold; text-align: center; letter-spacing: 1px;" required />
+              <button type="submit" id="streak-submit-btn" class="btn btn-primary" style="flex-shrink: 0;">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Submit Guess</span>
+              </button>
             </form>
           </div>
         </section>
 
         <!-- PANEL 10: Profile Page -->
         <section class="view-panel" id="panel-profile">
-          <div style="max-width: 700px; margin: 0 auto;">
-            <div style="background: var(--bg-card); border: 1px solid var(--border-blue); border-radius: var(--radius-lg); padding: 2.25rem; box-shadow: var(--shadow-main);">
-              <h3 style="color: var(--color-blue-bright); font-size: 1.4rem; margin-bottom: 1.25rem;">👤 Account Profile Details</h3>
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-id-card"></i> Account Profile & Settings
+              </h2>
+              <p class="panel-subtitle">Manage your credential preferences and profile details.</p>
+            </div>
+          </div>
+
+          <div style="max-width: 680px; margin: 0 auto;">
+            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2.25rem; box-shadow: var(--shadow-main);">
               <form onsubmit="handleUpdateProfile(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
                 <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Full Name:</label>
-                  <input type="text" id="profile-name-input" class="input-field" required />
+                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Full Name</label>
+                  <div class="input-group">
+                    <i class="fa-solid fa-user input-icon-left"></i>
+                    <input type="text" id="profile-name-input" class="input-field" required />
+                  </div>
                 </div>
                 <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">Email Address:</label>
-                  <input type="email" id="profile-email-input" class="input-field" required />
+                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Email Address</label>
+                  <div class="input-group">
+                    <i class="fa-solid fa-envelope input-icon-left"></i>
+                    <input type="email" id="profile-email-input" class="input-field" required />
+                  </div>
                 </div>
                 <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-blue-bright);">New Password (optional):</label>
-                  <input type="password" id="profile-password-input" class="input-field" placeholder="••••••••" />
+                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">New Password (optional)</label>
+                  <div class="input-group">
+                    <i class="fa-solid fa-key input-icon-left"></i>
+                    <input type="password" id="profile-password-input" class="input-field" placeholder="Leave blank to keep existing password" />
+                  </div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="align-self: flex-start;">Save Profile Changes</button>
+                <button type="submit" class="btn btn-primary" style="align-self: flex-start; margin-top: 0.5rem;">
+                  <i class="fa-solid fa-floppy-disk"></i>
+                  <span>Save Profile Changes</span>
+                </button>
               </form>
             </div>
           </div>
@@ -542,83 +751,116 @@
     </div>
   </div>
 
-  <!-- MODALS -->
+  <!-- ================= MODALS ================= -->
+  <!-- Student Progress Report Modal -->
   <div class="modal-backdrop" id="modal-student-report">
     <div class="modal-card">
       <div class="modal-header">
-        <h2 style="color: var(--color-blue-bright);">📋 Student Progress Report</h2>
-        <button class="modal-close-btn" onclick="closeModal('modal-student-report')">&times;</button>
+        <h2>
+          <i class="fa-solid fa-clipboard-user" style="color: var(--color-blue-bright);"></i>
+          <span>Student Mastery Report</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-student-report')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
       <div id="student-report-content"></div>
     </div>
   </div>
 
+  <!-- Edit Deck Modal -->
   <div class="modal-backdrop" id="modal-edit-deck">
     <div class="modal-card">
       <div class="modal-header">
-        <h2 style="color: var(--color-blue-bright);">Edit Flashcard Deck</h2>
-        <button class="modal-close-btn" onclick="closeModal('modal-edit-deck')">&times;</button>
+        <h2>
+          <i class="fa-solid fa-pen-to-square" style="color: var(--color-blue-bright);"></i>
+          <span>Edit Flashcard Deck</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-edit-deck')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
       <form onsubmit="handleSaveEditedDeck(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
         <div>
-          <label style="display: block; margin-bottom: 6px; font-weight: 600;">Deck Title:</label>
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck Title</label>
           <input type="text" id="edit-deck-title" class="input-field" required />
         </div>
         <div>
-          <label style="display: block; margin-bottom: 6px; font-weight: 600;">Subject:</label>
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject Tag</label>
           <input type="text" id="edit-deck-subject" class="input-field" required />
         </div>
         <div>
-          <label style="display: block; margin-bottom: 6px; font-weight: 600;">Deck Flashcards:</label>
-          <div id="edit-deck-cards-container" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px; background: var(--bg-card-subtle);">
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck Flashcards</label>
+          <div id="edit-deck-cards-container" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; background: var(--bg-card-subtle);">
             <!-- Dynamic cards rendered here -->
           </div>
         </div>
         <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-deck')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Save Changes</span>
+          </button>
         </div>
       </form>
     </div>
   </div>
 
+  <!-- Create Classroom Modal -->
   <div class="modal-backdrop" id="modal-create-classroom">
     <div class="modal-card">
       <div class="modal-header">
-        <h2 style="color: var(--color-blue-bright);">Create Classroom</h2>
-        <button class="modal-close-btn" onclick="closeModal('modal-create-classroom')">&times;</button>
+        <h2>
+          <i class="fa-solid fa-school" style="color: var(--color-blue-bright);"></i>
+          <span>Create Classroom</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-create-classroom')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
       <form onsubmit="handleCreateClassroom(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
         <div>
-          <label style="display: block; margin-bottom: 6px; font-weight: 600;">Course Title:</label>
-          <input type="text" id="new-class-name" class="input-field" placeholder="e.g. Biology 101" required />
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Course Title</label>
+          <input type="text" id="new-class-name" class="input-field" placeholder="e.g. Distributed Systems 201" required />
         </div>
         <div>
-          <label style="display: block; margin-bottom: 6px; font-weight: 600;">Subject:</label>
-          <input type="text" id="new-class-subject" class="input-field" placeholder="e.g. Biology" required />
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject Tag</label>
+          <input type="text" id="new-class-subject" class="input-field" placeholder="e.g. Computer Science" required />
         </div>
         <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-classroom')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create & Generate Code</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-key"></i>
+            <span>Create & Generate Code</span>
+          </button>
         </div>
       </form>
     </div>
   </div>
 
+  <!-- Join Classroom Modal -->
   <div class="modal-backdrop" id="modal-join-classroom">
     <div class="modal-card">
       <div class="modal-header">
-        <h2 style="color: var(--color-blue-bright);">Join Classroom</h2>
-        <button class="modal-close-btn" onclick="closeModal('modal-join-classroom')">&times;</button>
+        <h2>
+          <i class="fa-solid fa-right-to-bracket" style="color: var(--color-blue-bright);"></i>
+          <span>Join Classroom</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-join-classroom')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
       <form onsubmit="handleJoinClassroom(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
         <div>
-          <label style="display: block; margin-bottom: 6px; font-weight: 600;">Enter Access Code:</label>
-          <input type="text" id="join-class-code" class="input-field" placeholder="BIO101X" style="font-family: monospace; text-transform: uppercase;" required />
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Classroom Access Code</label>
+          <input type="text" id="join-class-code" class="input-field" placeholder="e.g. BIO101X" style="font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px;" required />
         </div>
         <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('modal-join-classroom')">Cancel</button>
-          <button type="submit" class="btn btn-primary">Join Course</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-check"></i>
+            <span>Join Course</span>
+          </button>
         </div>
       </form>
     </div>
@@ -626,10 +868,15 @@
 
   <!-- 3D PRACTICE FLASHCARD SESSION MODAL -->
   <div class="modal-backdrop" id="modal-study-session">
-    <div class="modal-card" style="max-width: 750px;">
+    <div class="modal-card" style="max-width: 760px;">
       <div class="modal-header">
-        <h2 id="study-modal-deck-title" style="color: var(--color-blue-bright);">Practice Flashcards</h2>
-        <button class="modal-close-btn" onclick="closeModal('modal-study-session')">&times;</button>
+        <h2>
+          <i class="fa-solid fa-brain" style="color: var(--color-blue-bright);"></i>
+          <span id="study-modal-deck-title">Practice Flashcards</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-study-session')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
 
       <div class="study-viewport">
@@ -646,22 +893,35 @@
         <div class="card-flip-container" id="study-flip-card" onclick="studyEngine.flipCard()">
           <div class="card-flip-inner">
             <div class="card-flip-front">
-              <div style="font-size: 0.8rem; color: var(--color-blue-bright); text-transform: uppercase; margin-bottom: 1rem;">Question / Concept</div>
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--color-blue-bright); text-transform: uppercase; letter-spacing: 0.5px;">Question / Concept</div>
               <div class="card-question-text" id="card-question-display">Loading question...</div>
-              <div class="card-flip-hint">Click card to flip 🔄</div>
+              <div class="card-flip-hint">
+                <i class="fa-solid fa-arrows-rotate"></i> Click card or press Space to flip
+              </div>
             </div>
             <div class="card-flip-back">
-              <div style="font-size: 0.8rem; color: var(--color-cyan); text-transform: uppercase; margin-bottom: 1rem;">Explanation / Answer</div>
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--color-cyan); text-transform: uppercase; letter-spacing: 0.5px;">Explanation / Answer</div>
               <div class="card-answer-text" id="card-answer-display">Loading answer...</div>
-              <div class="card-flip-hint">Click card to flip back 🔄</div>
+              <div class="card-flip-hint">
+                <i class="fa-solid fa-arrows-rotate"></i> Click card or press Space to flip back
+              </div>
             </div>
           </div>
         </div>
 
         <div class="study-controls" id="study-active-controls">
-          <button class="btn btn-danger" onclick="studyEngine.markCard('review')" style="flex: 1;">Review Again 🔄</button>
-          <button class="btn btn-secondary" onclick="studyEngine.shuffleCards()">Shuffle 🎲</button>
-          <button class="btn btn-success" onclick="studyEngine.markCard('know')" style="flex: 1;">Know It! ✓</button>
+          <button class="btn btn-danger" onclick="studyEngine.markCard('review')" style="flex: 1;">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Review Again</span>
+          </button>
+          <button class="btn btn-secondary" onclick="studyEngine.shuffleCards()" title="Shuffle order">
+            <i class="fa-solid fa-shuffle"></i>
+            <span>Shuffle</span>
+          </button>
+          <button class="btn btn-success" onclick="studyEngine.markCard('know')" style="flex: 1;">
+            <i class="fa-solid fa-check"></i>
+            <span>Know It</span>
+          </button>
         </div>
 
         <div id="study-summary-view" style="display: none; width: 100%;"></div>
@@ -724,8 +984,8 @@
         document.body.classList.add('dark-theme');
         const iconEl = document.getElementById('theme-dropdown-icon');
         const labelEl = document.getElementById('theme-dropdown-label');
-        if (iconEl) iconEl.textContent = '🌙';
-        if (labelEl) labelEl.textContent = 'Dark Theme';
+        if (iconEl) iconEl.className = 'fa-solid fa-moon';
+        if (labelEl) labelEl.textContent = 'Dark Mode';
       }
 
       if (state.data.currentUser) {

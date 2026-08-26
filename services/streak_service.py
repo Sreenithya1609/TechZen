@@ -1,17 +1,26 @@
+import json
 from datetime import datetime, timedelta
 from database.connection import get_db_connection
 
 def db_advance_clue(user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT current_clue_index, solved FROM daily_streaks WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT current_clue_index, solved, clues FROM daily_streaks WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
-    if row and not row['solved'] and row['current_clue_index'] < 3:
-        cursor.execute("UPDATE daily_streaks SET current_clue_index = current_clue_index + 1 WHERE user_id = ?", (user_id,))
-        conn.commit()
+    if row and not row['solved']:
+        try:
+            clues_list = json.loads(row['clues'])
+            max_idx = max(0, len(clues_list) - 1)
+        except Exception:
+            max_idx = 3
+            
+        if row['current_clue_index'] < max_idx:
+            cursor.execute("UPDATE daily_streaks SET current_clue_index = current_clue_index + 1 WHERE user_id = ?", (user_id,))
+            conn.commit()
     conn.close()
 
 def db_make_guess(user_id, guess):
+    guess = str(guess).strip().upper()
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT secret_word, solved, count FROM daily_streaks WHERE user_id = ?", (user_id,))
@@ -25,7 +34,7 @@ def db_make_guess(user_id, guess):
         conn.close()
         return True, True
 
-    if guess.upper() == row['secret_word'].upper():
+    if guess == row['secret_word'].upper():
         cursor.execute(
             "UPDATE daily_streaks SET solved = 1, current_clue_index = 3 WHERE user_id = ?",
             (user_id,)
@@ -72,7 +81,6 @@ def calculate_streak(user_id, conn):
     if not study_dates:
         return 0
 
-    # Get today & yesterday
     today = datetime.now().date()
     yesterday = today - timedelta(days=1)
     
@@ -90,10 +98,8 @@ def calculate_streak(user_id, conn):
             streak += 1
             current_date = next_date
         elif diff == 0:
-            # Skip duplicate records on the same day if any
             continue
         else:
-            # Chain is broken by a gap
             break
             
     return streak

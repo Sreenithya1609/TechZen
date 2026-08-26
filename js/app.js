@@ -1,129 +1,4 @@
-/* FlashLearn Core State, Auth Router, and Theme Controller */
-
-const STORAGE_KEY = 'flashlearn_state_v8';
-
-const defaultState = {
-  currentUser: null,
-  theme: 'light',
-  users: [
-    {
-      id: 'usr-teacher-1',
-      name: 'Dr. Elizabeth Vance',
-      email: 'teacher@gmail.com',
-      password: '123',
-      role: 'teacher'
-    },
-    {
-      id: 'usr-student-1',
-      name: 'Eleanor Vance',
-      email: 'student@gmail.com',
-      password: '123',
-      role: 'student'
-    }
-  ],
-  classrooms: [
-    {
-      id: 'cls-1',
-      name: 'Biology 101: Cellular Mechanics',
-      subject: 'Biology',
-      code: 'BIO101X',
-      teacher: 'Dr. Elizabeth Vance',
-      enrolledCount: 32,
-      avgPerformance: 82,
-      enrolledStudents: [
-        { id: 'st-1', name: 'Eleanor Vance', email: 'student@gmail.com', mark: 96, completedDecks: 4 },
-        { id: 'st-3', name: 'Sophia Lin', email: 'sophia@university.edu', mark: 92, completedDecks: 5 },
-        { id: 'st-2', name: 'Marcus Aurelius', email: 'marcus@university.edu', mark: 85, completedDecks: 3 }
-      ],
-      decks: ['deck-1']
-    },
-    {
-      id: 'cls-2',
-      name: 'Java Programming & Data Structures',
-      subject: 'Computer Science',
-      code: 'JAVA92A',
-      teacher: 'Dr. Elizabeth Vance',
-      enrolledCount: 40,
-      avgPerformance: 76,
-      enrolledStudents: [
-        { id: 'st-1', name: 'Eleanor Vance', email: 'student@gmail.com', mark: 88, completedDecks: 3 },
-        { id: 'st-5', name: 'Clara Oswald', email: 'clara@university.edu', mark: 92, completedDecks: 4 },
-        { id: 'st-4', name: 'Julian Thorne', email: 'julian@university.edu', mark: 82, completedDecks: 2 }
-      ],
-      decks: ['deck-2']
-    },
-    {
-      id: 'cls-3',
-      name: 'Cloud Computing & Distributed Systems',
-      subject: 'Technology',
-      code: 'CLOUD7B',
-      teacher: 'Dr. Elizabeth Vance',
-      enrolledCount: 28,
-      avgPerformance: 74,
-      enrolledStudents: [
-        { id: 'st-5', name: 'Clara Oswald', email: 'clara@university.edu', mark: 94, completedDecks: 4 },
-        { id: 'st-2', name: 'Marcus Aurelius', email: 'marcus@university.edu', mark: 90, completedDecks: 3 }
-      ],
-      decks: ['deck-3']
-    }
-  ],
-  decks: [
-    {
-      id: 'deck-1',
-      title: 'Cellular Respiration & Mitosis',
-      subject: 'Biology',
-      cards: [
-        { question: 'What is the primary energy currency produced by mitochondria?', answer: 'ATP (Adenosine Triphosphate)' },
-        { question: 'What phase of cell division comes immediately after Metaphase?', answer: 'Anaphase' },
-        { question: 'What key molecule accepts final electrons during aerobic respiration?', answer: 'Oxygen (O₂)' },
-        { question: 'Define Mitosis in simple biological terms.', answer: 'The process where a single cell divides into two identical daughter cells.' }
-      ],
-      creator: 'Dr. Elizabeth Vance'
-    },
-    {
-      id: 'deck-2',
-      title: 'Java OOP Concepts & Collections',
-      subject: 'Computer Science',
-      cards: [
-        { question: 'What are the four fundamental pillars of Object-Oriented Programming (OOP) in Java?', answer: 'Encapsulation, Inheritance, Polymorphism, and Abstraction.' },
-        { question: 'What is the difference between == and .equals() in Java?', answer: '== compares memory address references; .equals() compares logical values.' },
-        { question: 'What is the difference between ArrayList and LinkedList in Java?', answer: 'ArrayList is backed by a dynamic array offering O(1) index access; LinkedList is a doubly-linked list.' }
-      ],
-      creator: 'Dr. Elizabeth Vance'
-    },
-    {
-      id: 'deck-3',
-      title: 'Cloud Architecture & AWS Services',
-      subject: 'Technology',
-      cards: [
-        { question: 'What is the primary purpose of Amazon S3?', answer: 'Scalable object storage in the cloud.' },
-        { question: 'Define IaaS vs PaaS in cloud computing.', answer: 'IaaS provides raw virtual infrastructure; PaaS provides a platform for app development without managing servers.' }
-      ],
-      creator: 'Dr. Elizabeth Vance'
-    }
-  ],
-  studentProgress: [
-    { id: 'st-1', name: 'Eleanor Vance', email: 'student@gmail.com', course: 'Biology 101: Cellular Mechanics', completedDecks: 4, mark: 96 },
-    { id: 'st-2', name: 'Marcus Aurelius', email: 'marcus@university.edu', course: 'Java Programming & Data Structures', completedDecks: 3, mark: 88 },
-    { id: 'st-3', name: 'Sophia Lin', email: 'sophia@university.edu', course: 'Biology 101: Cellular Mechanics', completedDecks: 5, mark: 98 },
-    { id: 'st-4', name: 'Julian Thorne', email: 'julian@university.edu', course: 'Cloud Computing & Distributed Systems', completedDecks: 2, mark: 82 },
-    { id: 'st-5', name: 'Clara Oswald', email: 'clara@university.edu', course: 'Java Programming & Data Structures', completedDecks: 4, mark: 92 }
-  ],
-  studentJoinedClassrooms: ['cls-1', 'cls-2'],
-  dailyStreak: {
-    count: 5,
-    lastPlayedDate: null,
-    secretWord: 'GRAVITY',
-    clues: [
-      'Discovered mathematically by Sir Isaac Newton in 1687.',
-      'An invisible fundamental force that pulls physical objects toward one another.',
-      'Governs celestial orbits, planetary paths, and tides across the galaxy.',
-      'Exerts a natural acceleration equal to 9.8 m/s² on Earth\'s surface.'
-    ],
-    currentClueIndex: 0,
-    solved: false
-  }
-};
+/* FlashLearn Enterprise State, Auth Router, and Theme Controller */
 
 class FlashLearnState {
   constructor() {
@@ -151,7 +26,7 @@ class FlashLearnState {
   }
 
   saveState(dataToSave = this.data) {
-    // Standard signature kept to prevent breakage, backend handles mutations
+    // Backend handles state persistence via SQLite
   }
 
   setCurrentUser(user) {
@@ -165,10 +40,19 @@ function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
   if (!container) return;
 
+  const iconMap = {
+    success: 'fa-circle-check',
+    error: 'fa-circle-exclamation',
+    warning: 'fa-triangle-exclamation',
+    info: 'fa-circle-info'
+  };
+
+  const iconClass = iconMap[type] || 'fa-circle-info';
+
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
   toast.innerHTML = `
-    <span style="font-size: 1.1rem;">${type === 'success' ? '✅' : type === 'error' ? '⚠️' : 'ℹ️'}</span>
+    <i class="fa-solid ${iconClass}" style="font-size: 1.15rem;"></i>
     <span>${message}</span>
   `;
   container.appendChild(toast);
@@ -191,6 +75,15 @@ function closeModal(modalId) {
   if (backdrop) backdrop.classList.remove('active');
 }
 
+// Global escape key listener to close active modals
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-backdrop.active').forEach(modal => {
+      modal.classList.remove('active');
+    });
+  }
+});
+
 /* Toggle Dark/Light Theme inside User Dropdown */
 async function toggleTheme() {
   const isDark = document.body.classList.toggle('dark-theme');
@@ -200,8 +93,8 @@ async function toggleTheme() {
   const iconEl = document.getElementById('theme-dropdown-icon');
   const labelEl = document.getElementById('theme-dropdown-label');
 
-  if (iconEl) iconEl.textContent = isDark ? '🌙' : '☀️';
-  if (labelEl) labelEl.textContent = isDark ? 'Dark Theme' : 'Light Theme';
+  if (iconEl) iconEl.className = isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+  if (labelEl) labelEl.textContent = isDark ? 'Dark Mode' : 'Light Mode';
 
   try {
     await fetch('/api/auth/theme', {
@@ -212,7 +105,7 @@ async function toggleTheme() {
   } catch (e) {
     console.error('Failed to sync theme with server:', e);
   }
-  showToast(`Switched to ${isDark ? 'Dark' : 'Light'} theme`, 'info');
+  showToast(`Theme switched to ${isDark ? 'Dark' : 'Light'} Mode`, 'info');
 }
 
 /* User Header Dropdown Menu Toggle */
@@ -256,7 +149,7 @@ async function handleLogin(event) {
     updateAppAuthUI();
   } catch (e) {
     console.error(e);
-    showToast('An error occurred during login.', 'error');
+    showToast('An error occurred during sign in.', 'error');
   }
 }
 
@@ -269,6 +162,11 @@ async function handleRegister(event) {
 
   if (!name || !email || !password) {
     showToast('Please fill out all registration fields.', 'error');
+    return;
+  }
+
+  if (password.length < 6) {
+    showToast('Password must be at least 6 characters long.', 'error');
     return;
   }
 
@@ -287,7 +185,7 @@ async function handleRegister(event) {
 
     const backendState = await res.json();
     state.data = backendState;
-    showToast(`Welcome, ${state.data.currentUser.name}!`, 'success');
+    showToast(`Welcome to FlashLearn, ${state.data.currentUser.name}!`, 'success');
     updateAppAuthUI();
   } catch (e) {
     console.error(e);
@@ -306,7 +204,7 @@ async function handleLogout() {
     }
   } catch (e) {
     console.error(e);
-    showToast('An error occurred during logout.', 'error');
+    showToast('An error occurred during sign out.', 'error');
   }
 }
 
@@ -347,7 +245,16 @@ function updateAppAuthUI() {
 
     // Update Header User Name & Avatar
     const headerNameEl = document.getElementById('header-user-fullname');
+    const dropdownNameEl = document.getElementById('dropdown-user-name');
+    const dropdownRoleEl = document.getElementById('dropdown-user-role');
+    const headerAvatarMini = document.getElementById('header-avatar-mini');
+
     if (headerNameEl) headerNameEl.textContent = currentUser.name;
+    if (dropdownNameEl) dropdownNameEl.textContent = currentUser.name;
+    if (dropdownRoleEl) dropdownRoleEl.textContent = currentUser.role === 'teacher' ? 'Faculty Admin' : 'Student Scholar';
+
+    const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'US';
+    if (headerAvatarMini) headerAvatarMini.textContent = initials;
 
     // Update Sidebar User Profile Card
     const nameEl = document.getElementById('sidebar-user-name');
@@ -356,16 +263,16 @@ function updateAppAuthUI() {
 
     if (nameEl) nameEl.textContent = currentUser.name;
     if (badgeEl) badgeEl.textContent = currentUser.role === 'teacher' ? 'Faculty Admin' : 'Student Scholar';
-
-    if (avatarEl) {
-      const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-      avatarEl.textContent = initials || 'US';
-    }
+    if (avatarEl) avatarEl.textContent = initials;
 
     const teacherWelcome = document.getElementById('teacher-welcome-msg');
     const studentWelcome = document.getElementById('student-welcome-msg');
-    if (teacherWelcome) teacherWelcome.textContent = `Welcome, ${currentUser.name}`;
-    if (studentWelcome) studentWelcome.textContent = `Welcome, ${currentUser.name}`;
+    if (teacherWelcome) {
+      teacherWelcome.innerHTML = `<i class="fa-solid fa-chalkboard-user"></i> Welcome, ${currentUser.name}`;
+    }
+    if (studentWelcome) {
+      studentWelcome.innerHTML = `<i class="fa-solid fa-graduation-cap"></i> Welcome, ${currentUser.name}`;
+    }
 
     const teacherNav = document.getElementById('teacher-nav-group');
     const studentNav = document.getElementById('student-nav-group');
@@ -399,7 +306,7 @@ async function handleUpdateProfile(event) {
     const res = await fetch('/api/auth/profile', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: nameInput, email: emailInput, password: passInput })
+      body: JSON.stringify({ name: nameInput, email: emailInput, password: passInput || undefined })
     });
 
     if (!res.ok) {
@@ -423,7 +330,7 @@ function updateHeaderStreak() {
   const headerStreakEl = document.getElementById('header-streak-badge');
   const headerStreakCountEl = document.getElementById('header-streak-count');
   if (currentUser && currentUser.role === 'student' && state.data.dailyStreak) {
-    if (headerStreakEl) headerStreakEl.style.display = 'flex';
+    if (headerStreakEl) headerStreakEl.style.display = 'inline-flex';
     if (headerStreakCountEl) headerStreakCountEl.textContent = state.data.dailyStreak.count;
   } else {
     if (headerStreakEl) headerStreakEl.style.display = 'none';

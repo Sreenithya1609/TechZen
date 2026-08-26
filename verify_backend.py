@@ -32,12 +32,11 @@ class FlashLearnBackendTestCase(unittest.TestCase):
             os.remove(self.test_db_path)
 
     def test_guest_state(self):
-        # Retrieve state when guest
         response = self.client.get('/api/state')
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertIsNone(data['currentUser'])
-        self.assertEqual(len(data['classrooms']), 3) # defaulted/seeded
+        self.assertEqual(len(data['classrooms']), 3)
 
     def test_auth_and_profile_flow(self):
         # 1. Register a student user
@@ -69,6 +68,23 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         self.assertEqual(data['currentUser']['name'], 'Updated Test Student')
         self.assertEqual(data['currentUser']['email'], 'student-test-new@gmail.com')
 
+    def test_input_validations(self):
+        # Invalid email
+        resp = self.client.post('/api/auth/register', json={
+            'name': 'Invalid Email User',
+            'email': 'not-an-email',
+            'password': 'password123'
+        })
+        self.assertEqual(resp.status_code, 400)
+
+        # Short password
+        resp = self.client.post('/api/auth/register', json={
+            'name': 'Short Pass User',
+            'email': 'valid@domain.com',
+            'password': '1'
+        })
+        self.assertEqual(resp.status_code, 400)
+
     def test_classroom_creation_and_join(self):
         # 1. Login as seeded teacher
         resp = self.client.post('/api/auth/login', json={
@@ -85,7 +101,6 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data)
         
-        # Check that class was added
         physics_class = next((c for c in data['classrooms'] if c['subject'] == 'Physics'), None)
         self.assertIsNotNone(physics_class)
         code = physics_class['code']
@@ -154,14 +169,13 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         resp = self.client.post('/api/auth/register', json={
             'name': 'Varsha',
             'email': 'varsha@gmail.com',
-            'password': '123'
+            'password': 'password123'
         })
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data)
         self.assertEqual(data['currentUser']['role'], 'student')
 
         # 2. Register revathi@gmail.com -> role should be TEACHER
-        # First pop session to allow fresh register
         self.client.post('/api/auth/logout')
         resp = self.client.post('/api/auth/register', json={
             'name': 'Revathi',
@@ -208,7 +222,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
             'password': '123'
         })
 
-        # 2. Daily streak count should initially be 0 (no study activity recorded yet for student@gmail.com)
+        # 2. Daily streak count should initially be 0
         resp = self.client.get('/api/state')
         data = json.loads(resp.data)
         self.assertEqual(data['dailyStreak']['count'], 0)
