@@ -94,7 +94,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # 2. Create classroom
-        resp = self.client.post('/api/classrooms', json={
+        resp = self.client.post('/api/classrooms', json={ 
             'name': 'Advanced Quantum Mechanics',
             'subject': 'Physics'
         })

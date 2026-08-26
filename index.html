@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FlashLearn | Enterprise Spaced-Repetition & Classroom Platform</title>
-  <meta name="description" content="FlashLearn - Enterprise-grade interactive spaced-repetition flashcards, course analytics, and academic classroom management." />
+  <title>FlashLearn | Enterprise Academic Spaced-Repetition Platform</title>
+  <meta name="description" content="FlashLearn - Enterprise-grade active recall flashcards, real-time cohort analytics, and AI-powered curriculum management." />
   <link rel="icon" type="image/png" href="images/memoflip_logo.png" />
   
   <!-- Font Awesome 6 CDN (Free Icons) -->
@@ -19,21 +19,27 @@
 </head>
 <body>
 
-  <!-- ================= 1. LANDING PAGE VIEW ================= -->
+  <!-- ================= 1. BRAND NEW LANDING PAGE VIEW ================= -->
   <section id="landing-view" class="landing-view">
+    <!-- Sticky Glass Header -->
     <header class="landing-header">
       <div class="brand-container" onclick="showLandingView()" style="cursor: pointer;">
         <img src="images/memoflip_logo.png" alt="FlashLearn Logo" class="brand-logo-img" />
         <div class="brand-title">FlashLearn</div>
-        <span class="brand-badge">Enterprise</span>
+        <span class="brand-badge">Academic v2.5</span>
       </div>
 
       <div class="landing-nav-links">
-        <a class="landing-nav-link active" onclick="showLandingView()">Dashboard</a>
-        <a class="landing-nav-link" onclick="showAuthView('login')">My Decks</a>
+        <a class="landing-nav-link" href="#hero">Overview</a>
+        <a class="landing-nav-link" href="#showcase">Curriculum Decks</a>
+        <a class="landing-nav-link" href="#bento-features">Platform Features</a>
+        <a class="landing-nav-link" href="#how-it-works">How It Works</a>
       </div>
 
       <div style="display: flex; align-items: center; gap: 1rem;">
+        <button class="btn btn-secondary" onclick="toggleTheme()" title="Toggle Theme" style="padding: 8px 12px; border-radius: 50%;">
+          <i class="fa-solid fa-moon"></i>
+        </button>
         <button class="btn btn-primary" onclick="showAuthView('login')" style="font-size: 0.9rem; padding: 9px 22px;">
           <i class="fa-solid fa-arrow-right-to-bracket"></i>
           <span>Sign In / Sign Up</span>
@@ -41,69 +47,366 @@
       </div>
     </header>
 
-    <div class="landing-hero">
-      <div class="landing-hero-badge">
-        <i class="fa-solid fa-sparkles"></i>
-        <span>AI-Powered Active Recall</span>
+    <!-- Split Hero Section with Live 3D Interactive Card Preview -->
+    <div class="landing-hero-section" id="hero">
+      <div class="hero-split-container">
+        <!-- Hero Left Text Column -->
+        <div class="hero-text-col">
+          <div class="hero-pill-badge">
+            <i class="fa-solid fa-sparkles"></i>
+            <span>AI-Powered Spaced Repetition Engine</span>
+          </div>
+
+          <h1 class="hero-main-heading">
+            Master Any Subject with <span class="gradient-text">Precision Active Recall</span>
+          </h1>
+
+          <p class="hero-main-subtext">
+            FlashLearn combines scientifically proven spaced repetition algorithms, AI-generated academic concept synthesizers, and real-time faculty cohort analytics for rapid mastery.
+          </p>
+
+          <div class="hero-cta-group">
+            <button class="btn btn-primary btn-lg" onclick="showAuthView('register')">
+              <span>Start Learning Free</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <a class="btn btn-secondary btn-lg" href="#showcase">
+              <i class="fa-solid fa-layer-group"></i>
+              <span>Explore Decks</span>
+            </a>
+          </div>
+
+          <div class="hero-trust-indicators">
+            <div class="trust-avatar-group">
+              <div class="trust-avatar" style="background: #2563eb;">EV</div>
+              <div class="trust-avatar" style="background: #059669;">MA</div>
+              <div class="trust-avatar" style="background: #7c3aed;">SL</div>
+              <div class="trust-avatar" style="background: #ea580c;">JT</div>
+            </div>
+            <div class="trust-text">
+              <strong>15,000+</strong> scholars & faculty actively practicing daily
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Right: Interactive 3D Card Widget (Try It Live) -->
+        <div class="hero-card-col">
+          <div class="hero-interactive-card-frame">
+            <div class="hero-card-header-bar">
+              <div class="hero-card-badge">
+                <i class="fa-solid fa-bolt"></i>
+                <span id="hero-demo-tag">Cognitive Science</span>
+              </div>
+              <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-subtle);">
+                Interactive Demo
+              </div>
+            </div>
+
+            <!-- 3D Flippable Widget -->
+            <div class="hero-demo-card-container" onclick="flipHeroDemoCard()">
+              <div class="hero-demo-card-inner" id="hero-demo-card-inner">
+                <!-- Front Side -->
+                <div class="hero-demo-card-front">
+                  <div class="hero-demo-card-kicker">
+                    <i class="fa-solid fa-circle-question"></i> Academic Question
+                  </div>
+                  <div class="hero-demo-question-text" id="hero-demo-question">
+                    How does Spaced Repetition optimize the human memory retention curve?
+                  </div>
+                  <div class="hero-demo-flip-hint">
+                    <i class="fa-solid fa-arrows-rotate"></i> Click card to flip answer
+                  </div>
+                </div>
+
+                <!-- Back Side -->
+                <div class="hero-demo-card-back">
+                  <div class="hero-demo-card-kicker" style="color: var(--color-cyan);">
+                    <i class="fa-solid fa-lightbulb"></i> Key Concept & Answer
+                  </div>
+                  <div class="hero-demo-answer-text" id="hero-demo-answer">
+                    By systematically calculating expanding intervals between study sessions to interrupt the Ebbinghaus forgetting curve and solidify synaptic pathways.
+                  </div>
+                  <div class="hero-demo-flip-hint">
+                    <i class="fa-solid fa-arrows-rotate"></i> Click card to flip back
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Demo Card Action Bar -->
+            <div class="hero-demo-actions">
+              <button class="btn btn-secondary btn-sm" onclick="nextHeroDemoCard(event)">
+                <i class="fa-solid fa-forward"></i>
+                <span>Next Sample Concept</span>
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="showAuthView('login')">
+                <i class="fa-solid fa-play"></i>
+                <span>Practice Full Deck</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-      <h1 class="landing-hero-title">Revolutionize Your Academic Recall</h1>
-      <p class="landing-hero-subtitle">
-        Enterprise spaced-repetition flashcards designed to optimize memory retention, course analytics, and classroom workflows.
-      </p>
     </div>
 
-    <!-- Single-Row Arrow Horizontal Carousel -->
-    <div class="carousel-wrapper">
-      <button type="button" class="carousel-arrow prev-arrow" onclick="prevCarouselSlide()" title="Previous slide">
-        <i class="fa-solid fa-chevron-left"></i>
-      </button>
-      <div class="carousel-track" id="carousel-track">
-        <!-- Populated dynamically by landing.js -->
-      </div>
-      <button type="button" class="carousel-arrow next-arrow" onclick="nextCarouselSlide()" title="Next slide">
-        <i class="fa-solid fa-chevron-right"></i>
-      </button>
-    </div>
-
-    <div class="landing-features-grid">
-      <div class="landing-feature-box">
-        <div class="landing-feature-icon">
-          <i class="fa-solid fa-brain"></i>
+    <!-- Platform Metrics Glass Strip -->
+    <div class="landing-metrics-strip">
+      <div class="metrics-strip-inner">
+        <div class="metric-block">
+          <div class="metric-number">98.4%</div>
+          <div class="metric-label">Retention Improvement</div>
         </div>
-        <div>
-          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Active Recall Engine</h4>
-          <p style="font-size: 0.88rem; color: var(--text-muted);">Spaced repetition algorithms for deeper cognitive retention.</p>
+        <div class="metric-divider"></div>
+        <div class="metric-block">
+          <div class="metric-number">50,000+</div>
+          <div class="metric-label">Active Recall Sessions</div>
         </div>
-      </div>
-
-      <div class="landing-feature-box">
-        <div class="landing-feature-icon">
-          <i class="fa-solid fa-graduation-cap"></i>
+        <div class="metric-divider"></div>
+        <div class="metric-block">
+          <div class="metric-number">150+</div>
+          <div class="metric-label">Academic Institutions</div>
         </div>
-        <div>
-          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Classroom Management</h4>
-          <p style="font-size: 0.88rem; color: var(--text-muted);">Secure code-based course enrollment and progress tracking.</p>
-        </div>
-      </div>
-
-      <div class="landing-feature-box">
-        <div class="landing-feature-icon">
-          <i class="fa-solid fa-chart-line"></i>
-        </div>
-        <div>
-          <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Real-Time Analytics</h4>
-          <p style="font-size: 0.88rem; color: var(--text-muted);">Performance trend lines, mastery ratings, and activity streaks.</p>
+        <div class="metric-divider"></div>
+        <div class="metric-block">
+          <div class="metric-number">4.9 / 5</div>
+          <div class="metric-label">Faculty & Student Rating</div>
         </div>
       </div>
     </div>
 
-    <footer class="landing-footer">
-      <div style="margin-bottom: 0.75rem; display: flex; justify-content: center; gap: 2rem;">
-        <a style="color: var(--text-muted); text-decoration: none; cursor: pointer;">Platform Overview</a>
-        <a style="color: var(--text-muted); text-decoration: none; cursor: pointer;">Security & Compliance</a>
-        <a style="color: var(--text-muted); text-decoration: none; cursor: pointer;">Academic API</a>
+    <!-- Section 2: Re-engineered Card View & Curriculum Showcase -->
+    <section class="landing-section" id="showcase">
+      <div class="section-header-center">
+        <div class="section-pill">
+          <i class="fa-solid fa-layer-group"></i>
+          <span>Curated Academic Modules</span>
+        </div>
+        <h2 class="section-title">Explore High-Yield Study Decks</h2>
+        <p class="section-subtitle">
+          Designed by university faculty and domain scholars for maximum active recall retention.
+        </p>
+
+        <!-- Category Filter Pills -->
+        <div class="landing-filter-bar">
+          <button class="landing-filter-btn active" data-filter="all" onclick="setLandingFilter('all')">
+            <i class="fa-solid fa-border-all"></i> All Curricula
+          </button>
+          <button class="landing-filter-btn" data-filter="biology" onclick="setLandingFilter('biology')">
+            <i class="fa-solid fa-dna"></i> Biology & Medicine
+          </button>
+          <button class="landing-filter-btn" data-filter="cs" onclick="setLandingFilter('cs')">
+            <i class="fa-solid fa-code"></i> Computer Science
+          </button>
+          <button class="landing-filter-btn" data-filter="tech" onclick="setLandingFilter('tech')">
+            <i class="fa-solid fa-cloud"></i> Cloud & Tech
+          </button>
+          <button class="landing-filter-btn" data-filter="humanities" onclick="setLandingFilter('humanities')">
+            <i class="fa-solid fa-landmark"></i> Humanities
+          </button>
+        </div>
       </div>
-      <div>&copy; 2026 FlashLearn Academic Systems. Licensed under MIT. All rights reserved.</div>
+
+      <!-- Modern Deck Cards Grid -->
+      <div class="landing-decks-grid" id="landing-decks-showcase">
+        <!-- Rendered dynamically by landing.js -->
+      </div>
+    </section>
+
+    <!-- Section 3: Bento Grid Platform Capabilities -->
+    <section class="landing-section bg-alt" id="bento-features">
+      <div class="section-header-center">
+        <div class="section-pill">
+          <i class="fa-solid fa-cubes"></i>
+          <span>Engineered for Learning</span>
+        </div>
+        <h2 class="section-title">Enterprise Learning Architecture</h2>
+        <p class="section-subtitle">
+          A cohesive ecosystem engineered for student scholars and academic faculty alike.
+        </p>
+      </div>
+
+      <div class="bento-grid-container">
+        <!-- Bento Tile 1: Spaced Repetition -->
+        <div class="bento-tile bento-tile-large">
+          <div class="bento-tile-header">
+            <div class="bento-icon blue">
+              <i class="fa-solid fa-brain"></i>
+            </div>
+            <span class="card-badge">Core Engine</span>
+          </div>
+          <h3 class="bento-title">3D Active Recall & Spaced Repetition</h3>
+          <p class="bento-desc">
+            Scientifically calculated review cycles adapt to your individual mastery rate. Mastered flashcards are spaced further apart, while challenging concepts remain in your immediate review queue.
+          </p>
+          <div class="bento-mockup-bar">
+            <div class="bento-mock-step">
+              <i class="fa-solid fa-circle-check" style="color: var(--color-emerald);"></i> Immediate Review
+            </div>
+            <div class="bento-mock-step">
+              <i class="fa-solid fa-clock" style="color: var(--color-blue-bright);"></i> 3-Day Expansion
+            </div>
+            <div class="bento-mock-step">
+              <i class="fa-solid fa-award" style="color: var(--color-purple);"></i> Long-term Memory
+            </div>
+          </div>
+        </div>
+
+        <!-- Bento Tile 2: AI Concept Synthesizer -->
+        <div class="bento-tile">
+          <div class="bento-tile-header">
+            <div class="bento-icon purple">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <span class="card-badge">AI Assistant</span>
+          </div>
+          <h3 class="bento-title">Lecture Notes AI Synthesizer</h3>
+          <p class="bento-desc">
+            Transform raw lecture transcripts, scientific abstracts, or textbook notes into structured, rigorous flashcard decks in seconds.
+          </p>
+        </div>
+
+        <!-- Bento Tile 3: Real-Time Cohort Analytics -->
+        <div class="bento-tile">
+          <div class="bento-tile-header">
+            <div class="bento-icon green">
+              <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <span class="card-badge">Analytics</span>
+          </div>
+          <h3 class="bento-title">Cohort Mastery Analytics</h3>
+          <p class="bento-desc">
+            Faculty administrators track real-time retention trend lines, module accuracy distributions, and identify struggling concepts instantly.
+          </p>
+        </div>
+
+        <!-- Bento Tile 4: Daily Mystery Word Streak -->
+        <div class="bento-tile bento-tile-large">
+          <div class="bento-tile-header">
+            <div class="bento-icon orange">
+              <i class="fa-solid fa-fire-flame-curved"></i>
+            </div>
+            <span class="card-badge">Gamified Habit</span>
+          </div>
+          <h3 class="bento-title">Daily Concept Challenge & Streak Tracking</h3>
+          <p class="bento-desc">
+            Engage with progressive clue unlocking puzzles daily. Reinforce interdisciplinary recall while building consecutive-day study habits.
+          </p>
+          <div class="bento-streak-strip">
+            <div class="bento-streak-pill active">
+              <i class="fa-solid fa-check"></i> Clue #1
+            </div>
+            <div class="bento-streak-pill active">
+              <i class="fa-solid fa-check"></i> Clue #2
+            </div>
+            <div class="bento-streak-pill">
+              <i class="fa-solid fa-lock"></i> Clue #3
+            </div>
+            <div class="bento-streak-pill">
+              <i class="fa-solid fa-lock"></i> Clue #4
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: How It Works Stepper -->
+    <section class="landing-section" id="how-it-works">
+      <div class="section-header-center">
+        <div class="section-pill">
+          <i class="fa-solid fa-route"></i>
+          <span>Simple Workflow</span>
+        </div>
+        <h2 class="section-title">How FlashLearn Accelerates Mastery</h2>
+        <p class="section-subtitle">
+          Three simple steps to transform your academic studying workflow.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number-circle">1</div>
+          <h4 class="step-card-title">Enroll or Synthesize</h4>
+          <p class="step-card-desc">Join your instructor's classroom using a course code, or paste lecture notes to synthesize custom study decks.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number-circle">2</div>
+          <h4 class="step-card-title">Practice Active Recall</h4>
+          <p class="step-card-desc">Flip 3D flashcards with keyboard shortcuts, test retrieval cues, and separate mastered cards from review queues.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number-circle">3</div>
+          <h4 class="step-card-title">Track Retention & Streaks</h4>
+          <p class="step-card-desc">Monitor dynamic mastery indexes, build daily learning streaks, and receive detailed cohort progress reports.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: High-Impact CTA Banner -->
+    <section class="landing-cta-section">
+      <div class="landing-cta-card">
+        <h2 class="landing-cta-title">Ready to Elevate Your Academic Retention?</h2>
+        <p class="landing-cta-desc">
+          Join thousands of scholars and educators using FlashLearn for active recall spaced repetition.
+        </p>
+        <button class="btn btn-primary btn-lg" onclick="showAuthView('register')" style="margin-top: 1rem;">
+          <span>Get Started Free</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- Comprehensive Multi-Column Footer -->
+    <footer class="landing-footer-modern">
+      <div class="footer-grid">
+        <div class="footer-col-brand">
+          <div class="brand-container" style="margin-bottom: 1rem;">
+            <img src="images/memoflip_logo.png" alt="FlashLearn Logo" class="brand-logo-img" />
+            <div class="brand-title">FlashLearn</div>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; max-width: 300px;">
+            Enterprise active recall flashcards, AI curriculum synthesis, and cohort mastery analytics.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Platform</h4>
+          <ul class="footer-links">
+            <li><a onclick="showLandingView()">Active Recall Engine</a></li>
+            <li><a onclick="showLandingView()">AI Deck Synthesizer</a></li>
+            <li><a onclick="showLandingView()">Cohort Analytics</a></li>
+            <li><a onclick="showLandingView()">Daily Mystery Word</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Portals</h4>
+          <ul class="footer-links">
+            <li><a onclick="showAuthView('login')">Faculty Admin Portal</a></li>
+            <li><a onclick="showAuthView('login')">Scholar Portal</a></li>
+            <li><a onclick="showAuthView('register')">Create Free Account</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Security & Terms</h4>
+          <ul class="footer-links">
+            <li><a>Privacy Policy</a></li>
+            <li><a>Terms of Service</a></li>
+            <li><a>Academic License</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom-bar">
+        <div>&copy; 2026 FlashLearn Academic Systems, Inc. Licensed under MIT. All rights reserved.</div>
+        <div style="display: flex; gap: 1.5rem;">
+          <a class="footer-social-link"><i class="fa-brands fa-github"></i></a>
+          <a class="footer-social-link"><i class="fa-brands fa-twitter"></i></a>
+          <a class="footer-social-link"><i class="fa-brands fa-linkedin"></i></a>
+        </div>
+      </div>
     </footer>
   </section>
 
@@ -943,6 +1246,7 @@
       document.getElementById('landing-view').style.display = 'flex';
       document.getElementById('auth-view').style.display = 'none';
       document.getElementById('dashboard-view').style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function showAuthView(tab = 'login') {
@@ -950,6 +1254,7 @@
       document.getElementById('auth-view').style.display = 'flex';
       document.getElementById('dashboard-view').style.display = 'none';
       toggleAuthTab(tab);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function switchTab(tabKey) {
@@ -974,6 +1279,7 @@
       if (tabKey === 'student-decks') renderStudentDecks();
       if (tabKey === 'student-streaks') renderDailyStreakGame();
       if (tabKey === 'profile') renderProfileView();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
