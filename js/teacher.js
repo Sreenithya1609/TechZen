@@ -532,14 +532,13 @@ async function handleCreateClassroom(event) {
   }
 }
 
-function handleAIFlashcardGenerate(event) {
+async function handleAIFlashcardGenerate(event) {
   event.preventDefault();
   const topicInput = document.getElementById('ai-topic-input');
   const countInput = document.getElementById('ai-count-input');
   const levelSelect = document.getElementById('ai-level-select');
   const resultContainer = document.getElementById('ai-generated-result');
   const generateBtn = document.getElementById('ai-generate-btn');
-
   const topic = topicInput.value.trim();
   const count = parseInt(countInput.value, 10) || 5;
 
@@ -549,69 +548,59 @@ function handleAIFlashcardGenerate(event) {
   }
 
   generateBtn.disabled = true;
-  generateBtn.innerHTML = `Generating Flashcards...`;
+  generateBtn.textContent = 'Generating Flashcards...';
 
-  setTimeout(() => {
-    try {
-      const generatedCards = createSimulatedCards(topic, levelSelect.value, count);
-      
-      // Save globally for upload callback
-      window.lastGeneratedCards = generatedCards;
-      window.lastGeneratedTopic = topic;
-      window.lastGeneratedLevel = levelSelect.value;
-
-      generateBtn.disabled = false;
-      generateBtn.innerHTML = `Generate Flashcards`;
-
-      showToast(`Generated ${generatedCards.length} flashcards for "${topic}"!`, 'success');
-
-      resultContainer.style.display = 'block';
-      resultContainer.innerHTML = `
-        <div style="background: var(--bg-card); border: 1px solid var(--border-blue); padding: 1.5rem; border-radius: var(--radius-lg); margin-top: 1.5rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="color: var(--color-blue-bright); font-size: 1.3rem;">✨ Generated Deck Preview: ${topic} (${levelSelect.value})</h3>
-            <span class="card-badge">${generatedCards.length} Cards</span>
-          </div>
-          <div style="display: flex; flex-direction: column; gap: 1.25rem; max-height: 350px; overflow-y: auto; margin-bottom: 1.5rem; padding-right: 4px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; background: var(--bg-card-subtle);">
-            ${generatedCards.map((card, idx) => `
-              <div class="ai-generated-card-edit-box" style="background: #ffffff; padding: 1rem; border-radius: var(--radius-md); border-left: 3px solid var(--color-blue-bright); box-shadow: 0 2px 8px rgba(0,0,0,0.02); border: 1px solid var(--border-subtle);">
-                <div style="font-weight: bold; color: var(--color-blue-dark); margin-bottom: 8px; font-size: 0.95rem;">Card #${idx + 1}</div>
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                  <div>
-                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 2px;">Question Front:</label>
-                    <input type="text" class="input-field ai-card-q-input" value="${card.question.replace(/"/g, '&quot;')}" style="width: 100%; padding: 7px; font-size: 0.9rem;" required />
-                  </div>
-                  <div>
-                    <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 2px;">Answer Back:</label>
-                    <textarea class="input-field ai-card-a-input" style="width: 100%; padding: 7px; height: 50px; font-family: inherit; font-size: 0.9rem; resize: vertical;" required>${card.answer}</textarea>
-                  </div>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-          <div style="display: flex; flex-direction: column; gap: 1rem; border-top: 1px solid var(--border-subtle); padding-top: 1.25rem;">
-            <div>
-              <label for="ai-upload-class-select" style="font-weight: 700; font-size: 0.9rem; color: var(--text-main); display: block; margin-bottom: 6px;">Select Course to Upload & Send to Enrolled Students:</label>
-              <select id="ai-upload-class-select" class="input-field" style="max-width: 100%; padding: 8px;">
-                ${state.data.classrooms.map(c => `
-                  <option value="${c.id}" ${c.id === activeMyClassId ? 'selected' : ''}>${c.name} (${c.code})</option>
-                `).join('')}
-                <option value="">Personal Deck (No Classroom)</option>
-              </select>
-            </div>
-            <button type="button" class="btn btn-primary" id="btn-ai-upload" style="justify-content: center; padding: 12px; font-weight: 600;" onclick="handleAIDeckUpload()">
-              📤 Upload & Send to Students
-            </button>
-          </div>
-        </div>
-      `;
-    } catch (e) {
-      console.error(e);
-      generateBtn.disabled = false;
-      generateBtn.innerHTML = `Generate Flashcards`;
-      showToast('An error occurred during AI generation.', 'error');
+  try {
+    const res = await fetch('/api/ai/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic, count, level: levelSelect.value })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showToast(data.error || 'AI generation failed.', 'error');
+      return;
     }
-  }, 1000);
+
+    const generatedCards = data.cards;
+    window.lastGeneratedCards = generatedCards;
+    window.lastGeneratedTopic = topic;
+    window.lastGeneratedLevel = levelSelect.value;
+    showToast(`Generated ${generatedCards.length} flashcards for "${topic}"!`, 'success');
+
+    resultContainer.style.display = 'block';
+    resultContainer.innerHTML = `
+      <div style="background: var(--bg-card); border: 1px solid var(--border-blue); padding: 1.5rem; border-radius: var(--radius-lg); margin-top: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 style="color: var(--color-blue-bright); font-size: 1.3rem;">✨ Generated Deck Preview: ${topic} (${levelSelect.value})</h3>
+          <span class="card-badge">${generatedCards.length} Cards</span>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 1.25rem; max-height: 350px; overflow-y: auto; margin-bottom: 1.5rem; padding: 12px; background: var(--bg-card-subtle);">
+          ${generatedCards.map((card, idx) => `
+            <div class="ai-generated-card-edit-box" style="background: #ffffff; padding: 1rem; border-radius: var(--radius-md); border-left: 3px solid var(--color-blue-bright);">
+              <div style="font-weight: bold; color: var(--color-blue-dark); margin-bottom: 8px;">Card #${idx + 1}</div>
+              <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 2px;">Question Front:</label>
+              <input type="text" class="input-field ai-card-q-input" value="${card.question.replace(/"/g, '&quot;')}" required />
+              <label style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; display: block; margin: 8px 0 2px;">Answer Back:</label>
+              <textarea class="input-field ai-card-a-input" required>${card.answer}</textarea>
+            </div>
+          `).join('')}
+        </div>
+        <label for="ai-upload-class-select">Select Course to Upload:</label>
+        <select id="ai-upload-class-select" class="input-field">
+          ${state.data.classrooms.map(c => `<option value="${c.id}" ${c.id === activeMyClassId ? 'selected' : ''}>${c.name} (${c.code})</option>`).join('')}
+          <option value="">Personal Deck (No Classroom)</option>
+        </select>
+        <button type="button" class="btn btn-primary" id="btn-ai-upload" style="margin-top: 1rem;" onclick="handleAIDeckUpload()">📤 Upload & Send to Students</button>
+      </div>
+    `;
+  } catch (e) {
+    console.error(e);
+    showToast('Could not connect to the AI service.', 'error');
+  } finally {
+    generateBtn.disabled = false;
+    generateBtn.textContent = 'Generate Flashcards';
+  }
 }
 
 async function handleAIDeckUpload() {

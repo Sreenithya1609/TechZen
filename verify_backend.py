@@ -1,5 +1,6 @@
 import os
 import unittest
+import unittest.mock
 import json
 import sqlite3
 from app import app
@@ -11,6 +12,8 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         # Configure app for testing
         app.config['TESTING'] = True
         app.config['SECRET_KEY'] = 'test-secret'
+        self.original_gemini_api_key = os.environ.get('GEMINI_API_KEY')
+        os.environ['GEMINI_API_KEY'] = 'test-gemini-key'
         # Override the database path to a test db
         self.test_db_path = os.path.join(os.path.dirname(__file__), 'test_flashlearn.db')
         database.connection.DB_PATH = self.test_db_path
@@ -20,6 +23,10 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         self.client = app.test_client()
 
     def tearDown(self):
+        if self.original_gemini_api_key is None:
+            os.environ.pop('GEMINI_API_KEY', None)
+        else:
+            os.environ['GEMINI_API_KEY'] = self.original_gemini_api_key
         # Remove test database file
         if os.path.exists(self.test_db_path):
             os.remove(self.test_db_path)
@@ -244,6 +251,66 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         # 4. Delete own deck -> must succeed
         resp = self.client.delete(f'/api/decks/{deck_id}')
         self.assertEqual(resp.status_code, 200)
+
+    @unittest.mock.patch('urllib.request.urlopen')
+    def test_ai_flashcard_generation_teacher(self, mock_urlopen):
+        mock_response = unittest.mock.Mock()
+        mock_response.read.return_value = json.dumps({
+            'candidates': [{
+                'content': {
+                    'parts': [{
+                        'text': '{"cards": [{"question": "Q1", "answer": "A1"}, {"question": "Q2", "answer": "A2"}]}'
+                    }]
+                }
+            }]
+        }).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        # Login as teacher
+        self.client.post('/api/auth/login', json={
+            'email': 'revathi@gmail.com',
+            'password': '123'
+        })
+
+        resp = self.client.post('/api/ai/generate', json={
+            'topic': 'Cloud computing',
+            'level': 'Intermediate Mastery',
+            'count': 2
+        })
+        self.assertEqual(resp.status_code, 200)
+        data = json.loads(resp.data)
+        self.assertEqual(len(data['cards']), 2)
+        self.assertEqual(data['cards'][0]['question'], 'Q1')
+
+    @unittest.mock.patch('urllib.request.urlopen')
+    def test_ai_flashcard_generation_student(self, mock_urlopen):
+        mock_response = unittest.mock.Mock()
+        mock_response.read.return_value = json.dumps({
+            'candidates': [{
+                'content': {
+                    'parts': [{
+                        'text': '{"cards": [{"question": "SQ1", "answer": "SA1"}]}'
+                    }]
+                }
+            }]
+        }).encode('utf-8')
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        # Login as student
+        self.client.post('/api/auth/login', json={
+            'email': 'student@gmail.com',
+            'password': '123'
+        })
+
+        resp = self.client.post('/api/ai/generate', json={
+            'topic': 'These are my custom study notes.',
+            'count': 1,
+            'is_notes': True
+        })
+        self.assertEqual(resp.status_code, 200)
+        data = json.loads(resp.data)
+        self.assertEqual(len(data['cards']), 1)
+        self.assertEqual(data['cards'][0]['question'], 'SQ1')
 
 if __name__ == '__main__':
     unittest.main()

@@ -265,11 +265,12 @@ function showDecksForClassroom(classId) {
 }
 
 /* Study Material Concept Generator */
-function handleGenerateFromStudyMaterial(event) {
+async function handleGenerateFromStudyMaterial(event) {
   event.preventDefault();
   const materialInput = document.getElementById('study-material-text');
   const titleInput = document.getElementById('study-material-title');
   const resultContainer = document.getElementById('study-material-questions-result');
+  const generateBtn = event.submitter || document.querySelector('#panel-student-create button[type="submit"]');
 
   const text = materialInput.value.trim();
   const title = titleInput.value.trim() || 'Custom Study Concept';
@@ -279,32 +280,55 @@ function handleGenerateFromStudyMaterial(event) {
     return;
   }
 
-  const generatedCards = extractFlashcardsFromNotes(text);
+  const originalBtnText = generateBtn.textContent;
+  generateBtn.disabled = true;
+  generateBtn.textContent = 'Generating Flashcards...';
 
-  resultContainer.style.display = 'block';
-  resultContainer.innerHTML = `
-    <div style="background: rgba(255, 255, 255, 0.95); border: 1px solid var(--border-blue); padding: 1.5rem; border-radius: var(--radius-lg); margin-top: 1.5rem; box-shadow: var(--shadow-main);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-        <h3 style="color: var(--color-blue-dark); font-size: 1.25rem;">✨ Generated Flashcards from Study Concept:</h3>
-        <span class="card-badge">${generatedCards.length} Possible Questions</span>
+  try {
+    const res = await fetch('/api/ai/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic: text, count: 5, is_notes: true })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      showToast(data.error || 'AI generation failed.', 'error');
+      return;
+    }
+
+    const generatedCards = data.cards;
+
+    resultContainer.style.display = 'block';
+    resultContainer.innerHTML = `
+      <div style="background: rgba(255, 255, 255, 0.95); border: 1px solid var(--border-blue); padding: 1.5rem; border-radius: var(--radius-lg); margin-top: 1.5rem; box-shadow: var(--shadow-main);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3 style="color: var(--color-blue-dark); font-size: 1.25rem;">✨ Generated Flashcards from Study Concept:</h3>
+          <span class="card-badge">${generatedCards.length} Possible Questions</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
+          ${generatedCards.map((c, idx) => `
+            <div style="background: #f8fafc; padding: 1rem; border-radius: var(--radius-md); border-left: 3px solid var(--color-blue-dark);">
+              <div style="font-weight: bold; color: var(--text-main); margin-bottom: 4px;">Q${idx + 1}: ${c.question}</div>
+              <div style="color: var(--text-muted); font-size: 0.95rem;">A: ${c.answer}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <button class="btn btn-primary" onclick="addGeneratedCardsToDeck('${title.replace(/'/g, "\\'")}', ${JSON.stringify(generatedCards).replace(/"/g, '&quot;')})">
+          Add Flashcards to My Decks 📚
+        </button>
       </div>
+    `;
 
-      <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
-        ${generatedCards.map((c, idx) => `
-          <div style="background: #f8fafc; padding: 1rem; border-radius: var(--radius-md); border-left: 3px solid var(--color-blue-dark);">
-            <div style="font-weight: bold; color: var(--text-main); margin-bottom: 4px;">Q${idx + 1}: ${c.question}</div>
-            <div style="color: var(--text-muted); font-size: 0.95rem;">A: ${c.answer}</div>
-          </div>
-        `).join('')}
-      </div>
-
-      <button class="btn btn-primary" onclick="addGeneratedCardsToDeck('${title.replace(/'/g, "\\'")}', ${JSON.stringify(generatedCards).replace(/"/g, '&quot;')})">
-        Add Flashcards to My Decks 📚
-      </button>
-    </div>
-  `;
-
-  showToast(`Synthesized ${generatedCards.length} flashcards from study notes!`, 'success');
+    showToast(`Synthesized ${generatedCards.length} flashcards from study notes!`, 'success');
+  } catch (e) {
+    console.error(e);
+    showToast('An error occurred during AI generation.', 'error');
+  } finally {
+    generateBtn.disabled = false;
+    generateBtn.textContent = originalBtnText;
+  }
 }
 
 async function addGeneratedCardsToDeck(title, cards) {
@@ -331,31 +355,6 @@ async function addGeneratedCardsToDeck(title, cards) {
     console.error(e);
     showToast('An error occurred saving deck.', 'error');
   }
-}
-
-function extractFlashcardsFromNotes(text) {
-  const sentences = text.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 10);
-  const cards = [];
-
-  sentences.forEach((sentence, idx) => {
-    if (idx < 5) {
-      const words = sentence.split(' ');
-      const keyTerm = words.slice(0, 3).join(' ');
-      cards.push({
-        question: `What concept is described by: "${keyTerm}..."?`,
-        answer: sentence
-      });
-    }
-  });
-
-  if (cards.length === 0) {
-    cards.push({
-      question: `What is the key principle summarized in this study concept?`,
-      answer: text.slice(0, 150) + '...'
-    });
-  }
-
-  return cards;
 }
 
 let manualCardCount = 1;
