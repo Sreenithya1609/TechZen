@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>FlashLearn | Enterprise Academic Spaced-Repetition Platform</title>
+  <meta name="description" content="FlashLearn - Enterprise-grade active recall flashcards, real-time cohort analytics, and AI-powered curriculum management." />
+  <link rel="icon" type="image/png" href="images/memoflip_logo.png" />
+  
+  <!-- Font Awesome 6 CDN (Free Icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- Google Fonts (Plus Jakarta Sans & Inter & JetBrains Mono) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/styles.css?v=2" />
+</head>
+<body>
+
+  <!-- ================= 1. BRAND NEW LANDING PAGE VIEW ================= -->
+  <section id="landing-view" class="landing-view">
+    <!-- Sticky Glass Header -->
+    <header class="landing-header">
+      <div class="brand-container" onclick="showLandingView()" style="cursor: pointer;">
+        <img src="images/memoflip_logo.png" alt="FlashLearn Logo" class="brand-logo-img" />
+        <div class="brand-title">FlashLearn</div>
+       
+      </div>
+
+      <div class="landing-nav-links" id="landing-nav-links">
+        <a class="landing-nav-link" href="#hero" onclick="closeMobileNav()">Overview</a>
+        <a class="landing-nav-link" href="#showcase" onclick="closeMobileNav()">Curriculum Decks</a>
+        <a class="landing-nav-link" href="#bento-features" onclick="closeMobileNav()">Platform Features</a>
+        <a class="landing-nav-link" href="#how-it-works" onclick="closeMobileNav()">How It Works</a>
+      </div>
+
+      <div class="landing-header-actions">
+        <button class="btn btn-secondary theme-toggle-circle-btn" onclick="toggleTheme()" title="Toggle Theme">
+          <i id="theme-landing-icon" class="fa-solid fa-moon"></i>
+        </button>
+        <button class="btn btn-primary landing-signin-btn" onclick="showAuthView('login')">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          <span>Sign In</span>
+        </button>
+        <button class="mobile-nav-toggle-btn" id="mobile-nav-toggle" onclick="toggleMobileNav()" title="Toggle Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Split Hero Section with Live 3D Interactive Card Preview -->
+    <div class="landing-hero-section" id="hero">
+      <div class="hero-split-container">
+        <!-- Hero Left Text Column -->
+        <div class="hero-text-col">
+        
+
+          <h1 class="hero-main-heading">
+            Master Any Subject with <span class="gradient-text">Active Recall</span>
+          </h1>
+
+          <p class="hero-main-subtext">
+            FlashLearn combines scientifically proven spaced repetition algorithms, AI-generated academic concept synthesizers, and real-time faculty cohort analytics for rapid mastery.
+          </p>
+
+          <div class="hero-cta-group">
+            <button class="btn btn-primary btn-lg" onclick="showAuthView('register')">
+              <span>Start Learning Free</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <a class="btn btn-secondary btn-lg" href="#showcase">
+              <i class="fa-solid fa-layer-group"></i>
+              <span>Explore Decks</span>
+            </a>
+          </div>
+
+        
+        </div>
+
+        <!-- Hero Right: Interactive 3D Card Widget (Try It Live) -->
+        <div class="hero-card-col">
+          <div class="hero-interactive-card-frame">
+            <div class="hero-card-header-bar">
+              <div class="hero-card-badge">
+                <i class="fa-solid fa-bolt"></i>
+                <span id="hero-demo-tag">Cognitive Science</span>
+              </div>
+              <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-subtle);">
+                Interactive Demo
+              </div>
+            </div>
+
+            <!-- 3D Flippable Widget -->
+            <div class="hero-demo-card-container" onclick="flipHeroDemoCard()">
+              <div class="hero-demo-card-inner" id="hero-demo-card-inner">
+                <!-- Front Side -->
+                <div class="hero-demo-card-front">
+                  <div class="hero-demo-card-kicker">
+                    <i class="fa-solid fa-circle-question"></i> Academic Question
+                  </div>
+                  <div class="hero-demo-question-text" id="hero-demo-question">
+                    How does Spaced Repetition optimize the human memory retention curve?
+                  </div>
+                  <div class="hero-demo-flip-hint">
+                    <i class="fa-solid fa-arrows-rotate"></i> Tap card to flip answer
+                  </div>
+                </div>
+
+                <!-- Back Side -->
+                <div class="hero-demo-card-back">
+                  <div class="hero-demo-card-kicker" style="color: var(--color-cyan);">
+                    <i class="fa-solid fa-lightbulb"></i> Key Concept & Answer
+                  </div>
+                  <div class="hero-demo-answer-text" id="hero-demo-answer">
+                    By systematically calculating expanding intervals between study sessions to interrupt the Ebbinghaus forgetting curve and solidify synaptic pathways.
+                  </div>
+                  <div class="hero-demo-flip-hint">
+                    <i class="fa-solid fa-arrows-rotate"></i> Tap card to flip back
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Demo Card Action Bar -->
+            <div class="hero-demo-actions">
+              <button class="btn btn-secondary btn-sm" onclick="nextHeroDemoCard(event)">
+                <i class="fa-solid fa-forward"></i>
+                <span>Next Sample Concept</span>
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="showAuthView('login')">
+                <i class="fa-solid fa-play"></i>
+                <span>Practice Full Deck</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform Metrics Glass Strip -->
+  
+
+    <!-- Section 2: Re-engineered Card View & Curriculum Showcase -->
+    <section class="landing-section" id="showcase">
+      <div class="section-header-center">
+        <div class="section-pill">
+          <i class="fa-solid fa-layer-group"></i>
+          <span>Curated Academic Modules</span>
+        </div>
+        <h2 class="section-title">Explore High-Yield Study Decks</h2>
+        <p class="section-subtitle">
+          Designed by university faculty and domain scholars for maximum active recall retention.
+        </p>
+
+        <!-- Category Filter Pills (Scrollable on mobile) -->
+        <div class="landing-filter-bar-wrapper">
+          <div class="landing-filter-bar">
+            <button class="landing-filter-btn active" data-filter="all" onclick="setLandingFilter('all')">
+              <i class="fa-solid fa-border-all"></i> All Curricula
+            </button>
+            <button class="landing-filter-btn" data-filter="biology" onclick="setLandingFilter('biology')">
+              <i class="fa-solid fa-dna"></i> Biology & Medicine
+            </button>
+            <button class="landing-filter-btn" data-filter="cs" onclick="setLandingFilter('cs')">
+              <i class="fa-solid fa-code"></i> Computer Science
+            </button>
+            <button class="landing-filter-btn" data-filter="tech" onclick="setLandingFilter('tech')">
+              <i class="fa-solid fa-cloud"></i> Cloud & Tech
+            </button>
+            <button class="landing-filter-btn" data-filter="humanities" onclick="setLandingFilter('humanities')">
+              <i class="fa-solid fa-landmark"></i> Humanities
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modern Deck Cards Grid -->
+      <div class="landing-decks-grid" id="landing-decks-showcase">
+        <!-- Rendered dynamically by landing.js -->
+      </div>
+    </section>
+
+    <!-- Section 3: Bento Grid Platform Capabilities -->
+    <section class="landing-section bg-alt" id="bento-features">
+      <div class="section-header-center">
+        <div class="section-pill">
+          <i class="fa-solid fa-cubes"></i>
+          <span>Engineered for Learning</span>
+        </div>
+        <h2 class="section-title">Enterprise Learning Architecture</h2>
+        <p class="section-subtitle">
+          A cohesive ecosystem engineered for student scholars and academic faculty alike.
+        </p>
+      </div>
+
+      <div class="bento-grid-container">
+        <!-- Bento Tile 1: Spaced Repetition -->
+        <div class="bento-tile bento-tile-large">
+          <div class="bento-tile-header">
+            <div class="bento-icon blue">
+              <i class="fa-solid fa-brain"></i>
+            </div>
+            <span class="card-badge">Core Engine</span>
+          </div>
+          <h3 class="bento-title">3D Active Recall & Spaced Repetition</h3>
+          <p class="bento-desc">
+            Scientifically calculated review cycles adapt to your individual mastery rate. Mastered flashcards are spaced further apart, while challenging concepts remain in your immediate review queue.
+          </p>
+          <div class="bento-mockup-bar">
+            <div class="bento-mock-step">
+              <i class="fa-solid fa-circle-check" style="color: var(--color-emerald);"></i> Immediate Review
+            </div>
+            <div class="bento-mock-step">
+             
+            </div>
+            <div class="bento-mock-step">
+              <i class="fa-solid fa-award" style="color: var(--color-purple);"></i> Long-term Memory
+            </div>
+          </div>
+        </div>
+
+        <!-- Bento Tile 2: AI Concept Synthesizer -->
+        <div class="bento-tile">
+          <div class="bento-tile-header">
+            <div class="bento-icon purple">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <span class="card-badge">AI Assistant</span>
+          </div>
+          <h3 class="bento-title">Lecture Notes AI Synthesizer</h3>
+          <p class="bento-desc">
+            Transform raw lecture transcripts, scientific abstracts, or textbook notes into structured, rigorous flashcard decks in seconds.
+          </p>
+        </div>
+
+        <!-- Bento Tile 3: Real-Time Cohort Analytics -->
+        <div class="bento-tile">
+          <div class="bento-tile-header">
+            <div class="bento-icon green">
+              <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <span class="card-badge">Analytics</span>
+          </div>
+          <h3 class="bento-title">Cohort Mastery Analytics</h3>
+          <p class="bento-desc">
+            Faculty administrators track real-time retention trend lines, module accuracy distributions, and identify struggling concepts instantly.
+          </p>
+        </div>
+
+        <!-- Bento Tile 4: Daily Mystery Word Streak -->
+        <div class="bento-tile bento-tile-large">
+          <div class="bento-tile-header">
+            <div class="bento-icon orange">
+              <i class="fa-solid fa-fire-flame-curved"></i>
+            </div>
+            <span class="card-badge">Gamified Habit</span>
+          </div>
+          <h3 class="bento-title">Daily Concept Challenge & Streak Tracking</h3>
+          <p class="bento-desc">
+            Engage with progressive clue unlocking puzzles daily. Reinforce interdisciplinary recall while building consecutive-day study habits.
+          </p>
+          <div class="bento-streak-strip">
+            <div class="bento-streak-pill active">
+              <i class="fa-solid fa-check"></i> Clue #1
+            </div>
+            <div class="bento-streak-pill active">
+              <i class="fa-solid fa-check"></i> Clue #2
+            </div>
+            <div class="bento-streak-pill">
+              <i class="fa-solid fa-lock"></i> Clue #3
+            </div>
+            <div class="bento-streak-pill">
+              <i class="fa-solid fa-lock"></i> Clue #4
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: How It Works Stepper -->
+    <section class="landing-section" id="how-it-works">
+      <div class="section-header-center">
+        <div class="section-pill">
+          <i class="fa-solid fa-route"></i>
+          <span>Simple Workflow</span>
+        </div>
+        <h2 class="section-title">How FlashLearn Accelerates Mastery</h2>
+        <p class="section-subtitle">
+          Three simple steps to transform your academic studying workflow.
+        </p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number-circle">1</div>
+          <h4 class="step-card-title">Enroll or Synthesize</h4>
+          <p class="step-card-desc">Join your instructor's classroom using a course code, or paste lecture notes to synthesize custom study decks.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number-circle">2</div>
+          <h4 class="step-card-title">Practice Active Recall</h4>
+          <p class="step-card-desc">Flip 3D flashcards with keyboard shortcuts, test retrieval cues, and separate mastered cards from review queues.</p>
+        </div>
+
+        <div class="step-card">
+          <div class="step-number-circle">3</div>
+          <h4 class="step-card-title">Track Retention & Streaks</h4>
+          <p class="step-card-desc">Monitor dynamic mastery indexes, build daily learning streaks, and receive detailed cohort progress reports.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: High-Impact CTA Banner -->
+    <section class="landing-cta-section">
+      <div class="landing-cta-card">
+        <h2 class="landing-cta-title">Ready to Elevate Your Academic Retention?</h2>
+        <p class="landing-cta-desc">
+          Join thousands of scholars and educators using FlashLearn for active recall spaced repetition.
+        </p>
+        <button class="btn btn-primary btn-lg" onclick="showAuthView('register')" style="margin-top: 1rem;">
+          <span>Get Started Free</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- Comprehensive Multi-Column Footer -->
+    <footer class="landing-footer-modern">
+      <div class="footer-grid">
+        <div class="footer-col-brand">
+          <div class="brand-container" style="margin-bottom: 1rem;">
+            <img src="images/memoflip_logo.png" alt="FlashLearn Logo" class="brand-logo-img" />
+            <div class="brand-title">FlashLearn</div>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; max-width: 300px;">
+            Enterprise active recall flashcards, AI curriculum synthesis, and cohort mastery analytics.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Platform</h4>
+          <ul class="footer-links">
+            <li><a onclick="showLandingView()">Active Recall Engine</a></li>
+            <li><a onclick="showLandingView()">AI Deck Synthesizer</a></li>
+            <li><a onclick="showLandingView()">Cohort Analytics</a></li>
+            <li><a onclick="showLandingView()">Daily Mystery Word</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Portals</h4>
+          <ul class="footer-links">
+            <li><a onclick="showAuthView('login')">Faculty Admin Portal</a></li>
+            <li><a onclick="showAuthView('login')">Scholar Portal</a></li>
+            <li><a onclick="showAuthView('register')">Create Free Account</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Security & Terms</h4>
+          <ul class="footer-links">
+            <li><a>Privacy Policy</a></li>
+            <li><a>Terms of Service</a></li>
+            <li><a>Academic License</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom-bar">
+        <div>&copy; 2026 FlashLearn Academic Systems, Inc. Licensed under MIT. All rights reserved.</div>
+        <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
+          <a href="mailto:aadhibarani98@gmail.com" class="footer-social-link" title="Gmail"><i class="fa-solid fa-envelope"></i></a>
+          <a href="https://github.com/Sreenithya1609" target="_blank" class="footer-social-link" title="GitHub"><i class="fa-brands fa-github"></i> </a>
+        </div>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ================= 2. NEXT-GEN OBSIDIAN GLASS AUTH CYBER-CONSOLE ================= -->
+  <section class="auth-cosmic-viewport" id="auth-view" style="display: none;">
+    <!-- Ambient Animated Mesh Glow Orbs -->
+    <div class="cosmic-orb orb-primary"></div>
+    <div class="cosmic-orb orb-secondary"></div>
+    <div class="cosmic-orb orb-tertiary"></div>
+    <div class="cosmic-grid-overlay"></div>
+
+    <div class="auth-obsidian-card">
+      <!-- Top Laser Light Accent Bar -->
+      <div class="laser-light-bar"></div>
+
+    
+
+      <!-- Floating Holographic Brand Header -->
+      <div class="auth-brand-header">
+        <div class="auth-brand-logo-glow" onclick="showLandingView()" title="Return to Platform Overview">
+          <img src="images/memoflip_logo.png" alt="FlashLearn Logo" />
+        </div>
+   
+        <p class="auth-brand-tagline">Active Recall Spaced Repetition & Academic Analytics</p>
+      </div>
+
+      <!-- Futuristic Segmented Tab Switcher -->
+      <div class="auth-cyber-tabs">
+        <button type="button" class="auth-cyber-tab active" id="tab-btn-login" onclick="toggleAuthTab('login')">
+          <i class="fa-solid fa-right-to-bracket"></i> Sign In
+        </button>
+        <button type="button" class="auth-cyber-tab" id="tab-btn-reg" onclick="toggleAuthTab('register')">
+          <i class="fa-solid fa-user-plus"></i> Create Account
+        </button>
+      </div>
+
+      <!-- Sign In Form -->
+      <form id="auth-login-form" onsubmit="handleLogin(event)" class="auth-cyber-form">
+        <div class="form-group-cyber">
+          <label class="form-label-cyber">Work / Institutional Email</label>
+          <div class="input-cyber-wrapper">
+            <i class="fa-solid fa-envelope input-icon-neon"></i>
+            <input type="email" id="login-email" class="input-cyber" placeholder="scholar@domain.edu" required />
+          </div>
+        </div>
+
+        <div class="form-group-cyber">
+          <div class="form-label-cyber-row">
+            <label class="form-label-cyber">Secure Password</label>
+          </div>
+          <div class="input-cyber-wrapper">
+            <i class="fa-solid fa-lock input-icon-neon"></i>
+            <input type="password" id="login-password" class="input-cyber" placeholder="••••••••" required />
+            <i class="fa-solid fa-eye input-eye-neon" id="login-pwd-eye" onclick="togglePasswordVisibility('login-password', 'login-pwd-eye')" title="Toggle Password Visibility"></i>
+          </div>
+        </div>
+
+        <div class="form-options-row">
+          <label class="checkbox-cyber-label">
+            <input type="checkbox" checked class="checkbox-cyber" />
+            <span>Remember this device</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-cyber-primary">
+          <span class="btn-shimmer"></span>
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Sign In to FlashLearn</span>
+        </button>
+      </form>
+
+      <!-- Registration Form -->
+      <form id="auth-reg-form" onsubmit="handleRegister(event)" class="auth-cyber-form" style="display: none;">
+        <div class="form-group-cyber">
+          <label class="form-label-cyber">Full Legal Name</label>
+          <div class="input-cyber-wrapper">
+            <i class="fa-solid fa-user input-icon-neon"></i>
+            <input type="text" id="reg-name" class="input-cyber" placeholder="e.g. Eleanor Vance" required />
+          </div>
+        </div>
+
+        <div class="form-group-cyber">
+          <label class="form-label-cyber">Institutional Email</label>
+          <div class="input-cyber-wrapper">
+            <i class="fa-solid fa-envelope input-icon-neon"></i>
+            <input type="email" id="reg-email" class="input-cyber" placeholder="name@domain.edu" required />
+          </div>
+        </div>
+
+        <div class="form-group-cyber">
+          <label class="form-label-cyber">Create Master Password</label>
+          <div class="input-cyber-wrapper">
+            <i class="fa-solid fa-key input-icon-neon"></i>
+            <input type="password" id="reg-password" class="input-cyber" placeholder="Min. 6 chars (letters, numbers & symbols)" minlength="6" required />
+            <i class="fa-solid fa-eye input-eye-neon" id="reg-pwd-eye" onclick="togglePasswordVisibility('reg-password', 'reg-pwd-eye')" title="Toggle Password Visibility"></i>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-cyber-primary">
+          <span class="btn-shimmer"></span>
+          <i class="fa-solid fa-user-plus"></i>
+          <span>Create Account</span>
+        </button>
+      </form>
+
+      <!-- Return Footer -->
+      <div class="auth-cyber-footer">
+        <a onclick="showLandingView()" class="cyber-return-link">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Return to Platform Overview</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3. MAIN APPLICATION WORKSPACE ================= -->
+  <div id="dashboard-view" style="display: none; flex-direction: column; min-height: 100vh;">
+
+    <!-- Top Header Navigation -->
+    <header class="app-header">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button class="mobile-sidebar-toggle-btn" id="sidebar-toggle-btn" onclick="toggleMobileSidebar()" title="Toggle Navigation Sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="brand-container" onclick="switchTab('profile')" style="cursor: pointer;" title="Go to Profile">
+          <img src="images/memoflip_logo.png" alt="FlashLearn Logo" class="brand-logo-img" />
+          <div class="brand-title">FlashLearn</div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Header Dynamic Streak Badge -->
+        <div id="header-streak-badge" class="streak-pill-badge" style="display: none; cursor: pointer;" onclick="openDailyStreakModal()" title="Click to test your daily streak challenge!">
+          <i class="fa-solid fa-fire-flame-curved"></i>
+          <span><strong id="header-streak-count">0</strong> Day Streak</span>
+        </div>
+
+        <!-- User Dropdown Menu -->
+        <div class="user-dropdown-container" id="user-header-dropdown-container">
+          <div class="user-dropdown-trigger" onclick="toggleUserHeaderMenu()">
+            <div class="user-avatar-mini" id="header-avatar-mini">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <strong id="header-user-fullname" style="font-weight: 600; font-size: 0.92rem; color: var(--text-main);">User Name</strong>
+            <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; color: var(--text-subtle);"></i>
+          </div>
+
+          <div class="header-dropdown-menu" id="user-header-menu">
+            <div class="dropdown-header-info">
+              <div class="dropdown-user-name" id="dropdown-user-name">User Name</div>
+              <div class="dropdown-user-role" id="dropdown-user-role">Scholar</div>
+            </div>
+            <a class="dropdown-item" onclick="switchTab('profile'); toggleUserHeaderMenu();">
+              <i class="fa-solid fa-id-card"></i>
+              <span>My Profile</span>
+            </a>
+            <a class="dropdown-item" onclick="toggleTheme();">
+              <i id="theme-dropdown-icon" class="fa-solid fa-sun"></i>
+              <span id="theme-dropdown-label">Theme Mode</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" onclick="handleLogout(); toggleUserHeaderMenu();" style="color: var(--color-rose);">
+              <i class="fa-solid fa-arrow-right-from-bracket" style="color: var(--color-rose);"></i>
+              <span>Sign Out</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleMobileSidebar()"></div>
+
+    <div class="app-container">
+
+      <!-- Left Sidebar Navigation -->
+      <aside class="sidebar" id="app-sidebar">
+
+        <div class="sidebar-user-card" onclick="switchTab('profile')" title="View Account Settings">
+          <div class="user-avatar-large" id="sidebar-user-avatar">US</div>
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name" id="sidebar-user-name">User Name</span>
+            <span class="sidebar-user-badge" id="sidebar-user-badge">Faculty Admin</span>
+          </div>
+        </div>
+        
+        <!-- Teacher Nav Group -->
+        <div id="teacher-nav-group">
+          <div class="nav-section-title">Faculty Portal</div>
+          <ul class="nav-list">
+            <li>
+              <a class="nav-item active" id="nav-teacher-dashboard" onclick="switchTab('teacher-dashboard')">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Analytics & KPI</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-teacher-myclasses" onclick="switchTab('teacher-myclasses')">
+                <i class="fa-solid fa-chalkboard-user"></i>
+                <span>My Courses</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-teacher-classrooms" onclick="switchTab('teacher-classrooms')">
+                <i class="fa-solid fa-circle-plus"></i>
+                <span>Create Classroom</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-teacher-ai" onclick="switchTab('teacher-ai')">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>AI Deck Generator</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Student Nav Group -->
+        <div id="student-nav-group" style="display: none;">
+          <div class="nav-section-title">Student Portal</div>
+          <ul class="nav-list">
+            <li>
+              <a class="nav-item" id="nav-student-dashboard" onclick="switchTab('student-dashboard')">
+                <i class="fa-solid fa-gauge-high"></i>
+                <span>Overview</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-student-classrooms" onclick="switchTab('student-classrooms')">
+                <i class="fa-solid fa-school"></i>
+                <span>Joined Classrooms</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-student-decks" onclick="activeClassroomIdFilter = null; switchTab('student-decks')">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>Decks & Practice</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-student-create" onclick="switchTab('student-create')">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Create Flashcards</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Viewport Content Panels -->
+      <main class="main-content">
+
+        <!-- PANEL 1: Teacher Dashboard (STATS + ANALYTICS GRAPHS + ACTIVITY STREAM) -->
+        <section class="view-panel active" id="panel-teacher-dashboard">
+          <div class="panel-header-row">
+        
+            <button class="btn btn-primary" onclick="openModal('modal-create-classroom')">
+              <i class="fa-solid fa-plus"></i>
+              <span>New Classroom</span>
+            </button>
+          </div>
+
+          <div class="dash-stats-grid" style="margin-bottom: 1.5rem;">
+            <div class="stat-card">
+              <div class="stat-icon-box blue-bg">
+                <i class="fa-solid fa-school"></i>
+              </div>
+              <div>
+                <div class="stat-label">Total Classes</div>
+                <div class="stat-value" id="stat-total-classes">3</div>
+                <div class="stat-trend green"><i class="fa-solid fa-arrow-trend-up"></i> Active curriculum</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box green-bg">
+                <i class="fa-solid fa-users"></i>
+              </div>
+              <div>
+                <div class="stat-label">Total Students</div>
+                <div class="stat-value" id="stat-total-students">6</div>
+                <div class="stat-trend green"><i class="fa-solid fa-user-check"></i> Enrolled scholars</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box purple-bg">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
+              <div>
+                <div class="stat-label">Flashcard Decks</div>
+                <div class="stat-value" id="stat-total-decks">3</div>
+                <div class="stat-trend green"><i class="fa-solid fa-bolt"></i> Published modules</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box orange-bg">
+                <i class="fa-solid fa-award"></i>
+              </div>
+              <div>
+                <div class="stat-label">Avg Performance</div>
+                <div class="stat-value" id="stat-avg-performance">78%</div>
+                <div class="stat-trend green"><i class="fa-solid fa-arrow-trend-up"></i> Cohort mastery</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Class Analytics Visualizations (Contains Curves + Donut) -->
+          <div id="dashboard-analytics-container">
+            <!-- Rendered dynamically by teacher.js -->
+          </div>
+        </section>
+
+        <!-- PANEL 2: Teacher My Classes (WITH COURSE SEARCH BAR & ROSTER/CARDS CRUD) -->
+        <section class="view-panel" id="panel-teacher-myclasses">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-book-bookmark"></i> Course Curriculum & Rosters
+              </h2>
+              <p class="panel-subtitle">Filter cohorts, inspect student progress reports, and organize course flashcards.</p>
+            </div>
+            <div class="search-field-wrapper">
+              <div class="input-group">
+                <i class="fa-solid fa-magnifying-glass input-icon-left"></i>
+                <input type="text" id="myclasses-search-input" class="input-field" placeholder="Search courses..." oninput="renderMyClassesPanel(this.value)" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Course Cards Grid -->
+          <div class="grid-cards" id="myclasses-grid">
+            <!-- Rendered by teacher.js -->
+          </div>
+
+          <!-- Active Course Detail (Enrolled Students + Flashcards CRUD for Selected Course) -->
+          <div id="myclasses-course-detail" style="margin-top: 2rem;">
+            <!-- Rendered dynamically when clicking a course -->
+          </div>
+        </section>
+
+        <!-- PANEL 3: Teacher Create Classroom -->
+        <section class="view-panel" id="panel-teacher-classrooms">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-chalkboard"></i> Active Classrooms
+              </h2>
+              <p class="panel-subtitle">Generate access codes and distribute course modules to students.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('modal-create-classroom')">
+              <i class="fa-solid fa-plus"></i>
+              <span>Create Classroom</span>
+            </button>
+          </div>
+
+          <div class="grid-cards" id="teacher-classrooms-grid"></div>
+        </section>
+
+        <!-- PANEL 4: Teacher Flashcards Generator -->
+        <section class="view-panel" id="panel-teacher-ai">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Academic Flashcard Generator
+              </h2>
+              <p class="panel-subtitle">Synthesize comprehensive question-and-answer pairs across academic domains.</p>
+            </div>
+          </div>
+
+          <div class="ai-prompt-studio">
+            <form onsubmit="handleAIFlashcardGenerate(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+              <div>
+                <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Academic Subject or Topic</label>
+                <div class="input-group">
+                  <i class="fa-solid fa-book input-icon-left"></i>
+                  <input type="text" id="ai-topic-input" class="input-field" placeholder="e.g. Distributed Consensus in Cloud Systems" required />
+                </div>
+                <!-- Preset Topic Chips -->
+                <div class="ai-preset-chips">
+                  <span class="ai-chip" onclick="setAIPresetTopic('Cloud Architecture & Microservices')"><i class="fa-solid fa-cloud"></i> Cloud Architecture</span>
+                  <span class="ai-chip" onclick="setAIPresetTopic('Cellular Respiration & ATP Cycle')"><i class="fa-solid fa-dna"></i> Cellular Respiration</span>
+                  <span class="ai-chip" onclick="setAIPresetTopic('Organic Chemistry Reaction Mechanisms')"><i class="fa-solid fa-flask"></i> Organic Chemistry</span>
+                  <span class="ai-chip" onclick="setAIPresetTopic('Quantum Mechanics Wave Functions')"><i class="fa-solid fa-atom"></i> Quantum Mechanics</span>
+                  <span class="ai-chip" onclick="setAIPresetTopic('Data Structures: Trees & Graphs')"><i class="fa-solid fa-code"></i> Data Structures</span>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                <div>
+                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Number of Flashcards</label>
+                  <div class="input-group">
+                    <i class="fa-solid fa-list-ol input-icon-left"></i>
+                    <input type="number" id="ai-count-input" class="input-field" min="1" max="20" value="5" required />
+                  </div>
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Rigor & Mastery Level</label>
+                  <select id="ai-level-select" class="select-field">
+                    <option value="Basic Fundamentals">Basic Fundamentals</option>
+                    <option value="Intermediate Mastery" selected>Intermediate Mastery</option>
+                    <option value="Advanced Honors / AP">Advanced Honors / AP</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="submit" id="ai-generate-btn" class="btn btn-primary" style="align-self: flex-start;">
+                <i class="fa-solid fa-bolt"></i>
+                <span>Generate Flashcards</span>
+              </button>
+            </form>
+
+            <div id="ai-generated-result" style="display: none;"></div>
+          </div>
+        </section>
+
+        <!-- PANEL 5: Student Dashboard -->
+        <section class="view-panel" id="panel-student-dashboard">
+          <!-- Personalized Scholar Hero Banner & Target Goal Progress -->
+          <div id="student-dashboard-hero-banner"></div>
+
+          <div class="panel-header-row" style="margin-top: 1.5rem;">
+            <div>
+              <h2 class="panel-title" id="student-welcome-msg">
+                <i class="fa-solid fa-gauge-high"></i> Scholar Overview
+              </h2>
+              <p class="panel-subtitle">Your personal active recall metrics, joined subjects, and streak progress.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('modal-join-classroom')">
+              <i class="fa-solid fa-key"></i>
+              <span>Join Course with Code</span>
+            </button>
+          </div>
+
+          <div class="dash-stats-grid" style="margin-bottom: 2rem;">
+            <div class="stat-card">
+              <div class="stat-icon-box blue-bg">
+                <i class="fa-solid fa-school"></i>
+              </div>
+              <div>
+                <div class="stat-label">Joined Subjects</div>
+                <div class="stat-value" id="student-stat-classes">2</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box green-bg">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
+              <div>
+                <div class="stat-label">Completed Decks</div>
+                <div class="stat-value" id="student-stat-completed-decks">7 Decks</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box purple-bg">
+                <i class="fa-solid fa-bullseye"></i>
+              </div>
+              <div>
+                <div class="stat-label">Overall Accuracy</div>
+                <div class="stat-value" id="student-stat-accuracy">92%</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box orange-bg">
+                <i class="fa-solid fa-fire"></i>
+              </div>
+              <div>
+                <div class="stat-label">Daily Streak</div>
+                <div class="stat-value" id="student-stat-streak">5 Days</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem;">
+              <i class="fa-solid fa-book-open-reader" style="color: var(--color-blue-bright); margin-right: 8px;"></i>
+              My Joined Subjects
+            </h3>
+            <div class="grid-cards" id="student-dashboard-subjects"></div>
+          </div>
+        </section>
+
+        <!-- PANEL 6: Student Joined Classrooms -->
+        <section class="view-panel" id="panel-student-classrooms">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-school"></i> My Classrooms
+              </h2>
+              <p class="panel-subtitle">Access your courses and faculty study materials.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('modal-join-classroom')">
+              <i class="fa-solid fa-plus"></i>
+              <span>Join Classroom with Code</span>
+            </button>
+          </div>
+
+          <div class="grid-cards" id="student-classrooms-grid"></div>
+        </section>
+
+        <!-- PANEL 7: Student Decks -->
+        <section class="view-panel" id="panel-student-decks">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-layer-group"></i> Flashcard Decks
+              </h2>
+              <p class="panel-subtitle">Review active study decks or build your custom sets.</p>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <div class="search-field-wrapper">
+                <div class="input-group">
+                  <i class="fa-solid fa-magnifying-glass input-icon-left"></i>
+                  <input type="text" class="input-field" placeholder="Search decks..." oninput="handleStudentDeckSearch(this.value)" />
+                </div>
+              </div>
+          
+            </div>
+          </div>
+
+          <!-- Student Deck Filter Tabs -->
+          <div class="landing-filter-bar-wrapper" style="margin-bottom: 1.5rem;">
+            <div class="landing-filter-bar" style="justify-content: flex-start; margin-top: 0;">
+              <button class="landing-filter-btn active" id="filter-student-all" onclick="activeClassroomIdFilter = null; renderStudentDecks('all')">
+                <i class="fa-solid fa-border-all"></i> All Decks
+              </button>
+              <button class="landing-filter-btn" id="filter-student-classroom" onclick="activeClassroomIdFilter = null; renderStudentDecks('classroom')">
+                <i class="fa-solid fa-chalkboard"></i> Classroom Decks
+              </button>
+              <button class="landing-filter-btn" id="filter-student-custom" onclick="activeClassroomIdFilter = null; renderStudentDecks('custom')">
+                <i class="fa-solid fa-file-lines"></i> My Notes & Custom
+              </button>
+            </div>
+          </div>
+
+          <div class="grid-cards" id="student-decks-grid"></div>
+        </section>
+
+        <!-- PANEL 8: Student Create Flashcards -->
+        <section class="view-panel" id="panel-student-create">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-pen-to-square"></i> Create a Study Deck 
+              </h2>
+              <p class="panel-subtitle">Generate flashcards from lecture notes or enter terms manually.</p>
+            </div>
+          </div>
+
+          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2rem; max-width: 850px; margin: 0 auto; box-shadow: var(--shadow-main);">
+            <form onsubmit="handleGenerateFromStudyMaterial(event)" style="margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-subtle);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;">
+                <h3 style="color: var(--color-blue-bright); font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-file-invoice"></i> Study Notes AI Synthesizer
+                </h3>
+              </div>
+
+              <!-- Preset Sample Notes Chips -->
+              <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.85rem; color: var(--text-subtle);">Load Sample Academic Notes:</label>
+                <div class="sample-note-chips">
+                  <span class="sample-note-chip" onclick="loadSampleStudyNotes('cellular')"><i class="fa-solid fa-dna"></i> Cellular Respiration</span>
+                  <span class="sample-note-chip" onclick="loadSampleStudyNotes('distributed')"><i class="fa-solid fa-cloud"></i> Distributed Systems Consensus</span>
+                  <span class="sample-note-chip" onclick="loadSampleStudyNotes('memory')"><i class="fa-solid fa-brain"></i> Memory & Spaced Repetition</span>
+                </div>
+              </div>
+              
+              <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck Title / Concept Name</label>
+                <input type="text" id="study-material-title" class="input-field" placeholder="e.g. Cellular Respiration Lecture Notes" />
+              </div>
+
+              <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Paste Lecture Notes or Summary Text</label>
+                <textarea id="study-material-text" class="textarea-field" rows="5" placeholder="Paste study text, textbook sections, or summary concepts here..."></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Synthesize Flashcards</span>
+              </button>
+
+              <div id="study-material-questions-result" style="display: none; margin-top: 1.5rem;"></div>
+            </form>
+
+            <div>
+              <h3 style="color: var(--text-main); font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-pencil"></i> Create Flashcards Manually
+              </h3>
+              <form onsubmit="handleCreateManualDeck(event)">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                  <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck Title</label>
+                    <input type="text" id="deck-title-input" class="input-field" placeholder="e.g. Organic Chemistry Reactions" required />
+                  </div>
+                  <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject Tag</label>
+                    <input type="text" id="deck-subject-input" class="input-field" placeholder="Chemistry" required />
+                  </div>
+                </div>
+
+                <div id="manual-cards-container">
+                  <div class="manual-card-row" style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                      <span style="font-weight: 700; color: var(--color-blue-bright); font-size: 0.9rem;">Card #1</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                      <input type="text" class="input-field card-q-input" placeholder="Question Front..." required />
+                      <input type="text" class="input-field card-a-input" placeholder="Answer Back..." required />
+                    </div>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                  <button type="button" class="btn btn-secondary" onclick="addManualCardRow()">
+                    <i class="fa-solid fa-plus"></i> Add Card
+                  </button>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Manual Deck
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- PANEL 9: Student Daily Streaks Game -->
+        <section class="view-panel" id="panel-student-streaks">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-fire" style="color: var(--color-orange);"></i> Daily Mystery Word Challenge
+              </h2>
+              <p class="panel-subtitle">Unlock clues and solve the academic concept to build your streak.</p>
+            </div>
+          </div>
+
+          <div class="streak-arena-card">
+            <div class="streak-flame-badge">
+              <i class="fa-solid fa-fire-flame-curved"></i>
+              <span><strong id="streak-count-val">5</strong> Day Active Streak</span>
+            </div>
+            
+            <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Daily Concept Challenge</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">Guess the single academic term or concept connecting all revealed clues.</p>
+
+            <div class="clues-grid" id="clues-grid-container"></div>
+
+            <div style="display: flex; justify-content: center; margin-bottom: 1.5rem;">
+              <button class="btn btn-secondary" id="btn-next-clue" onclick="handleNextClue()">
+                <span>Unlock Next Clue</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+
+            <form onsubmit="handleStreakGuess(event)" style="display: flex; gap: 12px; max-width: 500px; margin: 0 auto; flex-wrap: wrap;">
+              <input type="text" id="streak-guess-input" class="input-field" placeholder="Enter word guess..." style="text-transform: uppercase; font-weight: bold; text-align: center; letter-spacing: 1px; flex: 1; min-width: 180px;" required />
+              <button type="submit" id="streak-submit-btn" class="btn btn-primary" style="flex-shrink: 0; min-width: 140px;">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Submit Guess</span>
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- PANEL 10: Profile Page -->
+        <section class="view-panel" id="panel-profile">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-id-card"></i> Account Profile & Settings
+              </h2>
+              <p class="panel-subtitle">Manage your credential preferences, theme options, and profile details.</p>
+            </div>
+          </div>
+
+          <div style="max-width: 780px; margin: 0 auto;">
+            <!-- Profile Identity Banner -->
+            <div class="profile-identity-card">
+              <div class="user-avatar-large" style="width: 64px; height: 64px; font-size: 1.5rem;">
+                US
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <h2 style="font-size: 1.6rem; font-weight: 800; color: #ffffff;" id="profile-identity-name">User Name</h2>
+                  <span class="card-badge" style="background: rgba(255,255,255,0.2); color: #ffffff;">Verified Scholar</span>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--sidebar-text-muted);" id="profile-identity-email">user@domain.com</p>
+                <div class="profile-meta-grid">
+                  <div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: var(--sidebar-text-muted); text-transform: uppercase;">Status</div>
+                    <strong style="color: #60a5fa;">Active Member</strong>
+                  </div>
+                  <div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: var(--sidebar-text-muted); text-transform: uppercase;">Security</div>
+                    <strong style="color: var(--color-emerald);"><i class="fa-solid fa-shield-check"></i> Encrypted</strong>
+                  </div>
+                  <div>
+                    <div style="font-size: 0.72rem; font-weight: 700; color: var(--sidebar-text-muted); text-transform: uppercase;">Joined</div>
+                    <strong style="color: #ffffff;">2026 Academic Term</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Profile Settings Form Card -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-main);">
+              <form onsubmit="handleUpdateProfile(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div>
+                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Full Name</label>
+                  <div class="input-group">
+                    <i class="fa-solid fa-user input-icon-left"></i>
+                    <input type="text" id="profile-name-input" class="input-field" required />
+                  </div>
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Email Address</label>
+                  <div class="input-group">
+                    <i class="fa-solid fa-envelope input-icon-left"></i>
+                    <input type="email" id="profile-email-input" class="input-field" required />
+                  </div>
+                </div>
+                <div>
+                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">New Password (optional)</label>
+                  <div class="input-group">
+                    <i class="fa-solid fa-key input-icon-left"></i>
+                    <input type="password" id="profile-password-input" class="input-field" placeholder="Leave blank to keep existing password" />
+                  </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 0.5rem; flex-wrap: wrap;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Save Profile Changes</span>
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="toggleTheme()">
+                    <i class="fa-solid fa-circle-half-stroke"></i>
+                    <span>Switch Theme Mode</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+  <!-- Student Progress Report Modal -->
+  <div class="modal-backdrop" id="modal-student-report">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-clipboard-user" style="color: var(--color-blue-bright);"></i>
+          <span>Student Mastery Report</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-student-report')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="student-report-content"></div>
+    </div>
+  </div>
+
+  <!-- Edit Deck Modal -->
+  <div class="modal-backdrop" id="modal-edit-deck">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-pen-to-square" style="color: var(--color-blue-bright);"></i>
+          <span>Edit Flashcard Deck</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-edit-deck')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form onsubmit="handleSaveEditedDeck(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck Title</label>
+          <input type="text" id="edit-deck-title" class="input-field" required />
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject Tag</label>
+          <input type="text" id="edit-deck-subject" class="input-field" required />
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck Flashcards</label>
+          <div id="edit-deck-cards-container" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; background: var(--bg-card-subtle);">
+            <!-- Dynamic cards rendered here -->
+          </div>
+        </div>
+        <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-deck')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Save Changes</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Create Classroom Modal -->
+  <div class="modal-backdrop" id="modal-create-classroom">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-school" style="color: var(--color-blue-bright);"></i>
+          <span>Create Classroom</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-create-classroom')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form onsubmit="handleCreateClassroom(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Course Title</label>
+          <input type="text" id="new-class-name" class="input-field" placeholder="e.g. Distributed Systems 201" required />
+        </div>
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject Tag</label>
+          <input type="text" id="new-class-subject" class="input-field" placeholder="e.g. Computer Science" required />
+        </div>
+        <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-classroom')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-key"></i>
+            <span>Create & Generate Code</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Daily Streak Challenge Modal -->
+  <div class="modal-backdrop" id="modal-streak-challenge">
+    <div class="modal-card" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-fire" style="color: var(--color-rose);"></i>
+          <span>Daily Streak Challenge</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-streak-challenge')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Answer this random daily question correctly to keep your study streak active!</p>
+        
+        <div id="streak-question-box" style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); min-height: 80px; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 700; font-size: 1rem; color: var(--text-main);">
+          Loading challenge question...
+        </div>
+
+        <div id="streak-answer-input-container">
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Your Answer</label>
+          <input type="text" id="streak-challenge-answer" class="input-field" placeholder="Type your answer here..." required />
+        </div>
+
+        <div id="streak-feedback-box" style="display: none; padding: 10px 14px; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 600;"></div>
+
+        <div style="display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" id="btn-streak-view-solution" onclick="handleViewStreakSolution()" style="display: none;">
+            <i class="fa-solid fa-eye"></i> View Solution
+          </button>
+          <div style="display: flex; gap: 10px; margin-left: auto;">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('modal-streak-challenge')">Close</button>
+            <button type="button" class="btn btn-primary" id="btn-streak-submit" onclick="handleSubmitStreakAnswer()">
+              <i class="fa-solid fa-paper-plane"></i> Submit Answer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Join Classroom Modal -->
+  <div class="modal-backdrop" id="modal-join-classroom">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-right-to-bracket" style="color: var(--color-blue-bright);"></i>
+          <span>Join Classroom</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-join-classroom')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form onsubmit="handleJoinClassroom(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div>
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Classroom Access Code</label>
+          <input type="text" id="join-class-code" class="input-field" placeholder="e.g. BIO101X" style="font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px;" required />
+        </div>
+        <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-join-classroom')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-check"></i>
+            <span>Join Course</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3D PRACTICE FLASHCARD SESSION MODAL -->
+  <div class="modal-backdrop" id="modal-study-session">
+    <div class="modal-card" style="max-width: 760px;">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-brain" style="color: var(--color-blue-bright);"></i>
+          <span id="study-modal-deck-title">Practice Flashcards</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-study-session')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="study-viewport">
+        <div class="study-progress-container">
+          <div class="study-stats-row">
+            <span id="study-card-counter">Card 1 of 5</span>
+            <span id="study-cards-remaining">5 cards remaining</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="study-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="card-flip-container" id="study-flip-card" onclick="studyEngine.flipCard()">
+          <div class="card-flip-inner">
+            <div class="card-flip-front">
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--color-blue-bright); text-transform: uppercase; letter-spacing: 0.5px;">Question / Concept</div>
+              <div class="card-question-text" id="card-question-display">Loading question...</div>
+              <div class="card-flip-hint">
+                <i class="fa-solid fa-arrows-rotate"></i> Tap card or press Space to flip
+              </div>
+            </div>
+            <div class="card-flip-back">
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--color-cyan); text-transform: uppercase; letter-spacing: 0.5px;">Explanation / Answer</div>
+              <div class="card-answer-text" id="card-answer-display">Loading answer...</div>
+              <div class="card-flip-hint">
+                <i class="fa-solid fa-arrows-rotate"></i> Tap card or press Space to flip back
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="study-controls" id="study-active-controls">
+          <button class="btn btn-danger" onclick="studyEngine.markCard('review')" style="flex: 1;">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Review Again</span>
+          </button>
+          <button class="btn btn-secondary" onclick="studyEngine.shuffleCards()" title="Shuffle order">
+            <i class="fa-solid fa-shuffle"></i>
+            <span>Shuffle</span>
+          </button>
+          <button class="btn btn-success" onclick="studyEngine.markCard('know')" style="flex: 1;">
+            <i class="fa-solid fa-check"></i>
+            <span>Know It</span>
+          </button>
+        </div>
+
+        <div id="study-summary-view" style="display: none; width: 100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/landing.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/teacher.js"></script>
+  <script src="js/student.js"></script>
+  <script src="js/study.js"></script>
+
+  <script>
+    function showLandingView() {
+      localStorage.setItem('currentView', 'landing');
+      document.getElementById('landing-view').style.display = 'flex';
+      document.getElementById('auth-view').style.display = 'none';
+      document.getElementById('dashboard-view').style.display = 'none';
+      closeMobileSidebar();
+      closeMobileNav();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showAuthView(tab = 'login') {
+      localStorage.setItem('currentView', 'auth:' + tab);
+      document.getElementById('landing-view').style.display = 'none';
+      document.getElementById('auth-view').style.display = 'flex';
+      document.getElementById('dashboard-view').style.display = 'none';
+      closeMobileSidebar();
+      closeMobileNav();
+      toggleAuthTab(tab);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function switchTab(tabKey) {
+      localStorage.setItem('currentView', 'tab:' + tabKey);
+      document.getElementById('landing-view').style.display = 'none';
+      document.getElementById('auth-view').style.display = 'none';
+      document.getElementById('dashboard-view').style.display = 'flex';
+
+      document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+      const targetPanel = document.getElementById(`panel-${tabKey}`);
+      const targetNav = document.getElementById(`nav-${tabKey}`);
+
+      if (targetPanel) targetPanel.classList.add('active');
+      if (targetNav) targetNav.classList.add('active');
+
+      if (tabKey === 'teacher-dashboard') renderTeacherDashboard();
+      if (tabKey === 'teacher-myclasses') renderMyClassesPanel();
+      if (tabKey === 'teacher-classrooms') renderTeacherClassrooms();
+      if (tabKey === 'student-dashboard') renderStudentDashboard();
+      if (tabKey === 'student-classrooms') renderStudentClassrooms();
+      if (tabKey === 'student-decks') renderStudentDecks(activeStudentDeckFilter || 'all');
+      if (tabKey === 'student-streaks') renderDailyStreakGame();
+      if (tabKey === 'profile') renderProfileView();
+
+      closeMobileSidebar();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleMobileNav() {
+      const links = document.getElementById('landing-nav-links');
+      if (links) links.classList.toggle('mobile-open');
+    }
+
+    function closeMobileNav() {
+      const links = document.getElementById('landing-nav-links');
+      if (links) links.classList.remove('mobile-open');
+    }
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('app-sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (sidebar) sidebar.classList.toggle('mobile-open');
+      if (backdrop) backdrop.classList.toggle('active');
+    }
+
+    function closeMobileSidebar() {
+      const sidebar = document.getElementById('app-sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (sidebar) sidebar.classList.remove('mobile-open');
+      if (backdrop) backdrop.classList.remove('active');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Instantly apply theme from localStorage to avoid flashing wrong theme
+      const savedTheme = localStorage.getItem('theme');
+      const isDark = savedTheme === 'dark';
+      document.body.classList.toggle('dark-theme', isDark);
+      syncThemeUI(isDark);
+
+      await state.loadState();
+      
+      // Sync theme classes if state theme differs (and user is logged in)
+      if (state.data.currentUser && state.data.theme) {
+        const serverDark = state.data.theme === 'dark';
+        document.body.classList.toggle('dark-theme', serverDark);
+        localStorage.setItem('theme', state.data.theme);
+        syncThemeUI(serverDark);
+      }
+
+      const currentView = localStorage.getItem('currentView');
+
+      if (state.data.currentUser) {
+        updateAppAuthUI(true); // skip default tab switching
+        
+        // Restore view if it was a dashboard tab
+        if (currentView && currentView.startsWith('tab:')) {
+          const tabKey = currentView.split(':')[1];
+          const isTeacher = state.data.currentUser.role === 'teacher';
+          const isTeacherTab = tabKey.startsWith('teacher-');
+          const isStudentTab = tabKey.startsWith('student-');
+          
+          if ((isTeacher && isTeacherTab) || (!isTeacher && isStudentTab) || tabKey === 'profile') {
+            switchTab(tabKey);
+          } else {
+            switchTab(isTeacher ? 'teacher-dashboard' : 'student-dashboard');
+          }
+        } else {
+          const isTeacher = state.data.currentUser.role === 'teacher';
+          switchTab(isTeacher ? 'teacher-dashboard' : 'student-dashboard');
+        }
+      } else {
+        if (currentView && currentView.startsWith('auth:')) {
+          const tab = currentView.split(':')[1];
+          showAuthView(tab);
+        } else {
+          showLandingView();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
