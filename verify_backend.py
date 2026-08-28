@@ -326,5 +326,30 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         self.assertEqual(len(data['cards']), 1)
         self.assertEqual(data['cards'][0]['question'], 'SQ1')
 
+    def test_student_lagging_performance(self):
+        # Login as teacher Revathi
+        login_resp = self.client.post('/api/auth/login', json={
+            'email': 'revathi@gmail.com',
+            'password': 'Password123!'
+        })
+        self.assertEqual(login_resp.status_code, 200)
+
+        # Query all student performance
+        perf_resp = self.client.get('/api/teacher/student-performance')
+        self.assertEqual(perf_resp.status_code, 200)
+        students_perf = json.loads(perf_resp.data)
+        self.assertTrue(len(students_perf) > 0)
+
+        for student in students_perf:
+            self.assertIn('studentId', student)
+            self.assertIn('studentName', student)
+            self.assertIn('subjects', student)
+            self.assertIn('laggingSubjects', student)
+            for sub in student['subjects']:
+                self.assertIn('subject', sub)
+                self.assertIn('accuracy', sub)
+                self.assertIn('status', sub)
+                self.assertIn(sub['status'], ['GOOD', 'LAGGING', 'NO_ATTEMPTS'])
+
 if __name__ == '__main__':
     unittest.main()

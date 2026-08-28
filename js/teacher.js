@@ -10,6 +10,11 @@ function renderTeacherDashboard(timeframe = activeAnalyticsTimeframe) {
   const classrooms = state.data.classrooms || [];
   const decks = state.data.decks || [];
 
+  const welcomeEl = document.getElementById('teacher-welcome-name');
+  if (welcomeEl && state.data.currentUser) {
+    welcomeEl.textContent = `Hello, ${state.data.currentUser.name}!`;
+  }
+
   // Calculate Aggregates
   const totalClasses = classrooms.length;
   let totalStudents = 0;
@@ -220,15 +225,19 @@ function renderTeacherDashboard(timeframe = activeAnalyticsTimeframe) {
             const icon = icons[idx % icons.length];
             const colorClass = iconColors[idx % iconColors.length];
 
+            const isWeak = sp.mark < 50 || (sp.overallAccuracy !== undefined && sp.overallAccuracy > 0 && sp.overallAccuracy < 50) || (sp.laggingSubjects && sp.laggingSubjects.length > 0);
+            const nameColor = isWeak ? '#ef4444' : 'var(--text-main)';
+            const weakBadge = isWeak ? `<span class="card-badge" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; font-size: 0.72rem; margin-left: 6px; padding: 2px 6px;"><i class="fa-solid fa-triangle-exclamation"></i> Weak Topic (<50%)</span>` : '';
+
             return `
-              <div class="activity-item">
+              <div class="activity-item" style="${isWeak ? 'border-left: 3px solid #ef4444;' : ''}">
                 <div class="activity-item-left">
-                  <div class="activity-icon ${colorClass}">
-                    <i class="fa-solid ${icon}"></i>
+                  <div class="activity-icon ${isWeak ? 'red' : colorClass}">
+                    <i class="fa-solid ${isWeak ? 'fa-triangle-exclamation' : icon}"></i>
                   </div>
                   <div>
-                    <strong style="font-size: 0.9rem; color: var(--text-main);">${sp.name}</strong>
-                    <span style="font-size: 0.82rem; color: var(--text-muted);"> completed <strong>${sp.completedDecks}</strong> decks in <em>${sp.course}</em> with <strong>${sp.mark}%</strong> accuracy</span>
+                    <strong style="font-size: 0.9rem; color: ${nameColor};">${sp.name}</strong>${weakBadge}
+                    <span style="font-size: 0.82rem; color: var(--text-muted);"> completed <strong>${sp.completedDecks}</strong> decks in <em>${sp.course}</em> with <strong style="${isWeak ? 'color: #ef4444;' : ''}">${sp.mark}%</strong> accuracy</span>
                   </div>
                 </div>
                 <span style="font-size: 0.78rem; color: var(--text-subtle); font-family: var(--font-mono);">${timeLabel}</span>
@@ -413,14 +422,18 @@ function renderSelectedCourseDetails(classId) {
                   </tr>
                 </thead>
                 <tbody>
-                  ${enrolled.map(st => `
+                  ${enrolled.map(st => {
+                    const isWeak = st.mark < 50;
+                    const nameColor = isWeak ? '#ef4444' : 'var(--text-main)';
+                    const weakTag = isWeak ? `<span class="card-badge" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; font-size: 0.72rem; margin-left: 6px;"><i class="fa-solid fa-triangle-exclamation"></i> Weak (<50%)</span>` : '';
+                    return `
                     <tr>
                       <td class="roster-td">
                         <div class="roster-avatar-cell">
-                          <div class="roster-avatar-circle">
+                          <div class="roster-avatar-circle" style="${isWeak ? 'background: rgba(239, 68, 68, 0.15); color: #ef4444;' : ''}">
                             ${st.name ? st.name.slice(0, 2).toUpperCase() : 'ST'}
                           </div>
-                          <strong>${st.name}</strong>
+                          <strong style="color: ${nameColor};">${st.name}</strong>${weakTag}
                         </div>
                       </td>
                       <td class="roster-td" style="color: var(--text-muted); font-family: var(--font-mono); font-size: 0.85rem;">
@@ -428,9 +441,9 @@ function renderSelectedCourseDetails(classId) {
                       </td>
                       <td class="roster-td">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                          <strong style="color: var(--color-blue-bright); width: 35px;">${st.mark}%</strong>
+                          <strong style="color: ${isWeak ? '#ef4444' : 'var(--color-blue-bright)'}; width: 35px;">${st.mark}%</strong>
                           <div class="progress-bar-bg" style="width: 120px;">
-                            <div class="progress-bar-fill" style="width: ${st.mark}%;"></div>
+                            <div class="progress-bar-fill" style="width: ${st.mark}%; ${isWeak ? 'background: #ef4444;' : ''}"></div>
                           </div>
                         </div>
                       </td>
@@ -445,7 +458,8 @@ function renderSelectedCourseDetails(classId) {
                         </button>
                       </td>
                     </tr>
-                  `).join('')}
+                    `;
+                  }).join('')}
                 </tbody>
               </table>
             </div>

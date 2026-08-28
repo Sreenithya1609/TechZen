@@ -40,8 +40,11 @@ function renderStudentDashboard() {
   if (streakEl) streakEl.textContent = `${streakVal} Days`;
 
   // Dynamic daily goal from backend database card attempts
+  const studentDecks = state.data.decks || [];
   const studiedCount = state.data.cardsStudiedToday || 0;
-  const targetTotal = 20;
+  const totalCardsInBackend = studentDecks.reduce((sum, d) => sum + (d.cards ? d.cards.length : 0), 0);
+  const targetTotal = totalCardsInBackend > 0 ? totalCardsInBackend : 20;
+
   const targetPct = Math.min(100, Math.round((studiedCount / targetTotal) * 100));
   const remainingTarget = Math.max(0, targetTotal - studiedCount);
   const targetMessage = remainingTarget > 0 
@@ -49,7 +52,6 @@ function renderStudentDashboard() {
     : `Daily target completed! Great work on active recall today.`;
 
   // Dynamic Spaced Repetition Priority Queue
-  const studentDecks = state.data.decks || [];
   let dueQueueHTML = '';
   let dueQueueBadge = '';
 
@@ -101,7 +103,7 @@ function renderStudentDashboard() {
             <i class="fa-solid fa-graduation-cap"></i>
             <span>Active Scholar Workspace</span>
           </div>
-          <h2 class="portal-hero-title">Welcome back, ${currentUserName}!</h2>
+          <h2 class="portal-hero-title">Hello, ${currentUserName}!</h2>
           <p class="portal-hero-desc">You're on a <strong>${streakVal}-day consecutive study streak</strong>. Spaced repetition interval is optimized for peak memory retention.</p>
         </div>
         <div class="portal-hero-actions">
@@ -492,32 +494,54 @@ async function handleGenerateFromStudyMaterial(event) {
       return;
     }
 
-    const generatedCards = data.cards;
+    const generatedCards = data.cards || [];
 
     resultContainer.style.display = 'block';
     resultContainer.innerHTML = `
       <div style="background: var(--bg-card); border: 1px solid var(--border-blue); padding: 1.5rem; border-radius: var(--radius-xl); margin-top: 1.5rem; box-shadow: var(--shadow-main);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
           <h3 style="color: var(--color-blue-bright); font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-sparkles"></i>
             <span>Synthesized Concept Flashcards</span>
           </h3>
-          <span class="card-badge">${generatedCards.length} Questions</span>
+          <span class="card-badge" id="student-ai-card-badge">${generatedCards.length} Questions</span>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; max-height: 320px; overflow-y: auto;">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          <i class="fa-solid fa-pencil" style="color: var(--color-blue-bright);"></i> You can edit questions, answers, delete unwanted cards, or add manual cards to this deck before saving.
+        </p>
+
+        <div id="student-ai-cards-list" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.25rem;">
           ${generatedCards.map((c, idx) => `
-            <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-md); border-left: 3px solid var(--color-blue-bright);">
-              <div style="font-weight: 700; color: var(--text-main); margin-bottom: 4px; font-size: 0.92rem;">Q${idx + 1}: ${c.question}</div>
-              <div style="color: var(--text-muted); font-size: 0.88rem;">A: ${c.answer}</div>
+            <div class="student-ai-card-row" style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); border-left: 3px solid var(--color-blue-bright);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span style="font-weight: 700; color: var(--color-blue-bright); font-size: 0.9rem;">Flashcard #${idx + 1}</span>
+                <button type="button" class="btn btn-danger" style="padding: 4px 10px; font-size: 0.8rem;" onclick="this.closest('.student-ai-card-row').remove(); updateStudentAIPreviewCount();">
+                  <i class="fa-solid fa-trash"></i> Delete
+                </button>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div>
+                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-subtle); display: block; margin-bottom: 4px;">Question Front</label>
+                  <input type="text" class="input-field student-ai-card-q" value="${c.question.replace(/"/g, '&quot;')}" placeholder="Question Front..." required />
+                </div>
+                <div>
+                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-subtle); display: block; margin-bottom: 4px;">Answer Back</label>
+                  <textarea class="input-field student-ai-card-a" rows="2" placeholder="Answer Back..." required>${c.answer}</textarea>
+                </div>
+              </div>
             </div>
           `).join('')}
         </div>
 
-        <button class="btn btn-primary" onclick="addGeneratedCardsToDeck('${title.replace(/'/g, "\\'")}', ${JSON.stringify(generatedCards).replace(/"/g, '&quot;')})">
-          <i class="fa-solid fa-floppy-disk"></i>
-          <span>Save to My Decks</span>
-        </button>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" onclick="addStudentAIPendingCardRow()">
+            <i class="fa-solid fa-plus"></i> Add Flashcard to Deck
+          </button>
+          <button type="button" class="btn btn-primary" onclick="saveStudentAIPendingDeck()">
+            <i class="fa-solid fa-floppy-disk"></i> Save to My Decks
+          </button>
+        </div>
       </div>
     `;
 
@@ -531,7 +555,66 @@ async function handleGenerateFromStudyMaterial(event) {
   }
 }
 
-async function addGeneratedCardsToDeck(title, cards) {
+function updateStudentAIPreviewCount() {
+  const container = document.getElementById('student-ai-cards-list');
+  const badge = document.getElementById('student-ai-card-badge');
+  if (container && badge) {
+    const count = container.querySelectorAll('.student-ai-card-row').length;
+    badge.textContent = `${count} Questions`;
+  }
+}
+
+function addStudentAIPendingCardRow() {
+  const container = document.getElementById('student-ai-cards-list');
+  if (!container) return;
+
+  const count = container.querySelectorAll('.student-ai-card-row').length + 1;
+  const row = document.createElement('div');
+  row.className = 'student-ai-card-row';
+  row.style.cssText = 'background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); border-left: 3px solid var(--color-purple);';
+  row.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+      <span style="font-weight: 700; color: var(--color-purple); font-size: 0.9rem;">Manual Flashcard #${count}</span>
+      <button type="button" class="btn btn-danger" style="padding: 4px 10px; font-size: 0.8rem;" onclick="this.closest('.student-ai-card-row').remove(); updateStudentAIPreviewCount();">
+        <i class="fa-solid fa-trash"></i> Delete
+      </button>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <div>
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-subtle); display: block; margin-bottom: 4px;">Question Front</label>
+        <input type="text" class="input-field student-ai-card-q" placeholder="Enter question..." required />
+      </div>
+      <div>
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-subtle); display: block; margin-bottom: 4px;">Answer Back</label>
+        <textarea class="input-field student-ai-card-a" rows="2" placeholder="Enter answer..." required></textarea>
+      </div>
+    </div>
+  `;
+  container.appendChild(row);
+  updateStudentAIPreviewCount();
+}
+
+async function saveStudentAIPendingDeck() {
+  const titleInput = document.getElementById('study-material-title');
+  const title = (titleInput && titleInput.value.trim()) ? titleInput.value.trim() : 'Custom Study Notes';
+
+  const qInputs = document.querySelectorAll('#student-ai-cards-list .student-ai-card-q');
+  const aInputs = document.querySelectorAll('#student-ai-cards-list .student-ai-card-a');
+
+  const cards = [];
+  qInputs.forEach((qInput, idx) => {
+    const qVal = qInput.value.trim();
+    const aVal = aInputs[idx] ? aInputs[idx].value.trim() : '';
+    if (qVal && aVal) {
+      cards.push({ question: qVal, answer: aVal });
+    }
+  });
+
+  if (cards.length === 0) {
+    showToast('Please provide at least one valid question & answer card in the deck.', 'error');
+    return;
+  }
+
   try {
     const res = await fetch('/api/decks', {
       method: 'POST',

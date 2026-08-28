@@ -3,6 +3,66 @@ from datetime import datetime, timedelta
 from database.connection import get_db_connection
 from services.streak_service import calculate_streak
 
+def calculate_student_subject_performance(cursor, student_id):
+    cursor.execute('''
+        SELECT c.id as classroom_id, c.name as course_name, c.subject
+        FROM classroom_enrollments ce
+        JOIN classrooms c ON ce.classroom_id = c.id
+        WHERE ce.student_id = ?
+        ORDER BY c.subject ASC
+    ''', (student_id,))
+    enrolled = cursor.fetchall()
+    
+    subjects_perf = []
+    total_known_all = 0
+    total_attempted_all = 0
+    
+    for r in enrolled:
+        cls_id = r['classroom_id']
+        course_name = r['course_name']
+        subject_name = r['subject']
+        
+        cursor.execute('''
+            SELECT COUNT(*) FROM card_attempts
+            WHERE user_id = ? AND classroom_id = ? AND result = 'known'
+        ''', (student_id, cls_id))
+        known = cursor.fetchone()[0] or 0
+        
+        cursor.execute('''
+            SELECT COUNT(*) FROM card_attempts
+            WHERE user_id = ? AND classroom_id = ?
+        ''', (student_id, cls_id))
+        total = cursor.fetchone()[0] or 0
+        
+        incorrect = total - known
+        accuracy = round((known / total) * 100) if total > 0 else 0
+        
+        total_known_all += known
+        total_attempted_all += total
+        
+        subjects_perf.append({
+            'classroomId': cls_id,
+            'course': course_name,
+            'subject': subject_name,
+            'totalAttempted': total,
+            'correctAnswers': known,
+            'incorrectAnswers': incorrect,
+            'accuracy': accuracy,
+            'status': 'GOOD'
+        })
+        
+    overall_accuracy = round((total_known_all / total_attempted_all) * 100) if total_attempted_all > 0 else 0
+    
+    for s in subjects_perf:
+        if s['totalAttempted'] == 0:
+            s['status'] = 'NO_ATTEMPTS'
+        elif s['accuracy'] < 50:
+            s['status'] = 'LAGGING'
+        else:
+            s['status'] = 'GOOD'
+            
+    return overall_accuracy, subjects_perf
+
 def get_state_json(user_id=None):
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -138,24 +198,35 @@ def get_state_json(user_id=None):
             'classroom_id': d_row['classroom_id']
         })
 
-    # 4. Student Progress
+    # 4. Student Progress (Include ALL registered students via LEFT JOIN)
     cursor.execute('''
-        SELECT u.id, u.name, u.email, c.name as course, ce.completed_decks, ce.mark
-        FROM classroom_enrollments ce
-        JOIN users u ON ce.student_id = u.id
-        JOIN classrooms c ON ce.classroom_id = c.id
+        SELECT u.id, u.name, u.email, 
+               COALESCE(c.name, 'General Active Recall') as course, 
+               COALESCE(ce.completed_decks, 0) as completed_decks, 
+               COALESCE(ce.mark, 0) as mark
+        FROM users u
+        LEFT JOIN classroom_enrollments ce ON u.id = ce.student_id
+        LEFT JOIN classrooms c ON ce.classroom_id = c.id
+        WHERE u.role = 'student'
         ORDER BY u.name ASC
     ''')
-    student_progress = [
-        {
+    rows = cursor.fetchall()
+    student_progress = []
+    for r in rows:
+        stu_id = r['id']
+        overall_acc, subjects_perf = calculate_student_subject_performance(cursor, stu_id)
+        lagging_list = [s['subject'] for s in subjects_perf if s['status'] == 'LAGGING']
+        student_progress.append({
             'id': r['id'],
             'name': r['name'],
             'email': r['email'],
             'course': r['course'],
             'completedDecks': r['completed_decks'],
-            'mark': r['mark']
-        } for r in cursor.fetchall()
-    ]
+            'mark': r['mark'],
+            'overallAccuracy': overall_acc,
+            'subjects': subjects_perf,
+            'laggingSubjects': lagging_list
+        })
 
     # Security check: Students should ONLY see their own progress record
     if current_user and current_user['role'] == 'student':

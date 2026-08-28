@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, session
 from database.connection import get_db_connection
 from services.user_service import db_register_user, db_login_user, db_update_profile, db_update_theme
-from services.state_service import get_state_json
+from services.state_service import get_state_json, calculate_student_subject_performance
 
 user_bp = Blueprint('user_bp', __name__)
 
@@ -106,6 +106,8 @@ def get_student_progress(student_id):
             average_mark = 0
             completed_decks = 0
             enrolled_classes = []
+            subjects_perf = []
+            lagging_subjects = []
         else:
             conn.close()
             return jsonify({'error': 'Student not found.'}), 404
@@ -137,14 +139,53 @@ def get_student_progress(student_id):
             })
         average_mark = int(round(total_mark / len(rows))) if rows else 0
         completed_decks = sum(r['completed_decks'] for r in rows)
+        
+        overall_acc, subjects_perf = calculate_student_subject_performance(cursor, student_id)
+        lagging_subjects = [sub['subject'] for sub in subjects_perf if sub['status'] == 'LAGGING']
 
     conn.close()
 
     return jsonify({
         'success': True,
+        'student_id': student_id,
         'student_name': student_name,
         'student_email': student_email,
         'average_mark': average_mark,
         'completed_decks': completed_decks,
-        'enrolled_classes': enrolled_classes
+        'enrolled_classes': enrolled_classes,
+        'subjects': subjects_perf,
+        'laggingSubjects': lagging_subjects
     })
+
+@user_bp.route('/api/teacher/student-performance', methods=['GET'])
+def get_all_student_performance():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required.'}), 401
+
+    conn = get_db_connection()
+    current_user = conn.execute("SELECT role FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not current_user or current_user['role'] != 'teacher':
+        conn.close()
+        return jsonify({'error': 'Forbidden: Only faculty administrators can view student performance.'}), 403
+
+    cursor = conn.cursor()
+    cursor.execute("SELECT DISTINCT u.id, u.name, u.email FROM classroom_enrollments ce JOIN users u ON ce.student_id = u.id ORDER BY u.name ASC")
+    students = cursor.fetchall()
+
+    result = []
+    for s in students:
+        stu_id = s['id']
+        overall_acc, subjects_perf = calculate_student_subject_performance(cursor, stu_id)
+        lagging_list = [sub['subject'] for sub in subjects_perf if sub['status'] == 'LAGGING']
+        result.append({
+            'studentId': stu_id,
+            'studentName': s['name'],
+            'studentEmail': s['email'],
+            'overallAccuracy': overall_acc,
+            'subjects': subjects_perf,
+            'laggingSubjects': lagging_list
+        })
+
+    conn.close()
+    return jsonify(result)

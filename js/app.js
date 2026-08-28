@@ -188,7 +188,7 @@ async function handleLogin(event) {
     const backendState = await res.json();
     state.data = backendState;
 
-    showToast(`Welcome back, ${state.data.currentUser.name}!`, 'success');
+    showToast(`Hello, ${state.data.currentUser.name}!`, 'success');
     updateAppAuthUI();
   } catch (e) {
     console.error(e);
