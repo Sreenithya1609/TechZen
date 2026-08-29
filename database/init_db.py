@@ -92,6 +92,21 @@ def init_db():
     )
     ''')
 
+    # Create card_attempts table for tracking real-time flashcard attempts
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS card_attempts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        card_id TEXT NOT NULL,
+        classroom_id TEXT,
+        result TEXT NOT NULL CHECK(result IN ('known', 'review')),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE,
+        FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE
+    )
+    ''')
+
     conn.commit()
 
     # Seed Default Data if empty
@@ -99,7 +114,7 @@ def init_db():
     if cursor.fetchone()[0] == 0:
         print("Seeding database with secure enterprise default values...")
         
-        default_pwd_hash = generate_password_hash('123')
+        default_pwd_hash = generate_password_hash('Password123!')
 
         # 1. Users (revathi@gmail.com is TEACHER / Faculty Admin. All others are STUDENT)
         users = [
@@ -169,6 +184,38 @@ def init_db():
             "INSERT INTO daily_streaks (user_id, count, last_played_date, secret_word, clues, current_clue_index, solved) VALUES (?, ?, ?, ?, ?, ?, ?)",
             ('usr-student-1', 5, None, 'GRAVITY', json.dumps(clues), 0, 0)
         )
+
+        # 7. Card Attempts Seed
+        card_attempts = [
+            ('usr-student-1', 'card-1-1', 'cls-1', 'known'),
+            ('usr-student-1', 'card-1-2', 'cls-1', 'known'),
+            ('usr-student-1', 'card-1-3', 'cls-1', 'known'),
+            ('usr-student-1', 'card-1-4', 'cls-1', 'known'),
+            ('st-3', 'card-1-1', 'cls-1', 'known'),
+            ('st-3', 'card-1-2', 'cls-1', 'known'),
+            ('st-3', 'card-1-3', 'cls-1', 'known'),
+            ('st-3', 'card-1-4', 'cls-1', 'review'),
+            ('st-2', 'card-1-1', 'cls-1', 'known'),
+            ('st-2', 'card-1-2', 'cls-1', 'known'),
+            ('st-2', 'card-1-3', 'cls-1', 'review'),
+            ('st-2', 'card-1-4', 'cls-1', 'review'),
+
+            ('usr-student-1', 'card-2-1', 'cls-2', 'known'),
+            ('usr-student-1', 'card-2-2', 'cls-2', 'known'),
+            ('usr-student-1', 'card-2-3', 'cls-2', 'review'),
+            ('st-5', 'card-2-1', 'cls-2', 'known'),
+            ('st-5', 'card-2-2', 'cls-2', 'known'),
+            ('st-5', 'card-2-3', 'cls-2', 'known'),
+            ('st-4', 'card-2-1', 'cls-2', 'known'),
+            ('st-4', 'card-2-2', 'cls-2', 'review'),
+            ('st-4', 'card-2-3', 'cls-2', 'review'),
+
+            ('st-5', 'card-3-1', 'cls-3', 'known'),
+            ('st-5', 'card-3-2', 'cls-3', 'known'),
+            ('st-2', 'card-3-1', 'cls-3', 'known'),
+            ('st-2', 'card-3-2', 'cls-3', 'review'),
+        ]
+        cursor.executemany("INSERT INTO card_attempts (user_id, card_id, classroom_id, result) VALUES (?, ?, ?, ?)", card_attempts)
 
         conn.commit()
 

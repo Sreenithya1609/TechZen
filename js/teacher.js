@@ -10,6 +10,11 @@ function renderTeacherDashboard(timeframe = activeAnalyticsTimeframe) {
   const classrooms = state.data.classrooms || [];
   const decks = state.data.decks || [];
 
+  const welcomeEl = document.getElementById('teacher-welcome-name');
+  if (welcomeEl && state.data.currentUser) {
+    welcomeEl.textContent = `Hello, ${state.data.currentUser.name}!`;
+  }
+
   // Calculate Aggregates
   const totalClasses = classrooms.length;
   let totalStudents = 0;
@@ -45,46 +50,78 @@ function renderTeacherDashboard(timeframe = activeAnalyticsTimeframe) {
     const accuracy = avgPerformance;
     const progressDegree = Math.round((accuracy / 100) * 360);
 
-    // Dynamic curve points based on selected timeframe
-    let pathD = "M 0,130 C 80,120 120,95 200,90 C 280,85 320,50 400,42 C 450,38 480,25 500,20";
-    let fillD = "M 0,130 C 80,120 120,95 200,90 C 280,85 320,50 400,42 C 450,38 480,25 500,20 L 500,150 L 0,150 Z";
-    let growthBadge = "+14.2% Growth";
-    let labels = ["Week 1 (Baseline)", "Week 2 (Recall)", "Week 3 (Interval)", "Week 4 (Mastery 94%)"];
-
+    // Get daily activity log from backend (past 30 days)
+    const rawActivity = state.data.dailyActivity || [];
+    let activityData = [];
     if (timeframe === '7d') {
-      pathD = "M 0,110 C 80,105 150,80 250,75 C 350,70 420,35 500,25";
-      fillD = "M 0,110 C 80,105 150,80 250,75 C 350,70 420,35 500,25 L 500,150 L 0,150 Z";
-      growthBadge = "+8.6% This Week";
-      labels = ["Mon", "Wed", "Fri", "Sun (96%)"];
-    } else if (timeframe === 'all') {
-      pathD = "M 0,140 C 100,130 180,100 280,70 C 380,50 450,30 500,15";
-      fillD = "M 0,140 C 100,130 180,100 280,70 C 380,50 450,30 500,15 L 500,150 L 0,150 Z";
-      growthBadge = "+26.8% All-Time";
-      labels = ["Semester Start", "Midterm", "Interval Cycles", "Final Benchmark (98%)"];
+      activityData = rawActivity.slice(-7);
+    } else {
+      activityData = rawActivity.slice(-30);
     }
 
-    analyticsContainer.innerHTML = `
-      <!-- Executive Welcome Hero Banner -->
-      <div class="portal-hero-banner portal-hero-faculty">
-        <div>
-          <div class="portal-hero-kicker">
-            <i class="fa-solid fa-graduation-cap"></i>
-            <span>Academic Faculty Command Center</span>
-          </div>
-          <h2 class="portal-hero-title">Welcome back, Professor ${state.data.currentUser ? state.data.currentUser.name : 'Faculty'}</h2>
-          <p class="portal-hero-desc">Monitor real-time cohort retention curves, distribute AI-synthesized modules, and review student mastery benchmarks.</p>
-        </div>
-        <div class="portal-hero-actions">
-          <button class="btn btn-secondary" onclick="openModal('modal-create-classroom')" style="background: rgba(255,255,255,0.15); color: #ffffff; border-color: rgba(255,255,255,0.25);">
-            <i class="fa-solid fa-plus"></i> New Course
-          </button>
-          <button class="btn btn-primary" onclick="switchTab('teacher-ai')" style="background: #ffffff; color: var(--color-blue-dark); box-shadow: 0 4px 14px rgba(0,0,0,0.15);">
-            <i class="fa-solid fa-wand-magic-sparkles"></i> AI Generator
-          </button>
-        </div>
-      </div>
+    // Default placeholder data if no database activity exists
+    if (activityData.length === 0) {
+      activityData = Array.from({ length: timeframe === '7d' ? 7 : 30 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (timeframe === '7d' ? 6 - i : 29 - i));
+        return {
+          label: d.toLocaleDateString('en-US', { weekday: 'short' }),
+          count: 0
+        };
+      });
+    }
 
-      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-top: 1.5rem;" class="teacher-analytics-grid">
+    const counts = activityData.map(d => d.count);
+    const maxCount = Math.max(1, ...counts);
+
+    // Calculate dynamic coordinates (Y range [130, 20])
+    const points = activityData.map((d, idx) => {
+      const x = Math.round((idx / (activityData.length - 1)) * 500);
+      const y = Math.round(130 - (d.count / maxCount) * 110);
+      return { x, y, label: d.label, count: d.count };
+    });
+
+    let pathD = '';
+    let fillD = '';
+    if (points.length > 0) {
+      pathD = `M ${points[0].x},${points[0].y}`;
+      for (let i = 1; i < points.length; i++) {
+        pathD += ` L ${points[i].x},${points[i].y}`;
+      }
+      fillD = `${pathD} L 500,150 L 0,150 Z`;
+    }
+
+    // Calculate growth percentage
+    let growthBadge = '';
+    if (points.length >= 2) {
+      const firstHalf = counts.slice(0, Math.floor(counts.length / 2)).reduce((a, b) => a + b, 0);
+      const secondHalf = counts.slice(Math.floor(counts.length / 2)).reduce((a, b) => a + b, 0);
+      if (firstHalf === 0) {
+        growthBadge = secondHalf > 0 ? `+${secondHalf} Daily Activity` : 'Stable Trend';
+      } else {
+        const growth = Math.round(((secondHalf - firstHalf) / firstHalf) * 100);
+        growthBadge = growth >= 0 ? `+${growth}% Growth` : `${growth}% Decline`;
+      }
+    } else {
+      growthBadge = 'Active Recalls Logged';
+    }
+
+    const circlesHTML = points.map((p, idx) => {
+      const isLast = idx === points.length - 1;
+      const radius = isLast ? 5.5 : 3.5;
+      const fill = isLast ? 'var(--color-emerald)' : 'var(--color-blue-bright)';
+      const sw = isLast ? 2.5 : 1.5;
+      return `<circle cx="${p.x}" cy="${p.y}" r="${radius}" fill="${fill}" stroke="var(--bg-card)" stroke-width="${sw}"/>`;
+    }).join('');
+
+    const labelsHTML = `
+      <span>${points[0].label}</span>
+      <span>${points[Math.floor(points.length / 2)].label}</span>
+      <span>${points[points.length - 1].label} (${points[points.length - 1].count} Active)</span>
+    `;
+
+    analyticsContainer.innerHTML = `
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;" class="teacher-analytics-grid">
         
         <!-- Cohort Retention & Performance Trend Line -->
         <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 1.75rem; box-shadow: var(--shadow-main);">
@@ -101,7 +138,6 @@ function renderTeacherDashboard(timeframe = activeAnalyticsTimeframe) {
               <div class="timeframe-pill-group">
                 <button class="timeframe-pill ${timeframe === '7d' ? 'active' : ''}" onclick="renderTeacherDashboard('7d')">7D</button>
                 <button class="timeframe-pill ${timeframe === '30d' ? 'active' : ''}" onclick="renderTeacherDashboard('30d')">30D</button>
-                <button class="timeframe-pill ${timeframe === 'all' ? 'active' : ''}" onclick="renderTeacherDashboard('all')">All</button>
               </div>
               <span class="card-badge" style="background: rgba(5, 150, 105, 0.1); color: var(--color-emerald);">
                 <i class="fa-solid fa-arrow-trend-up"></i> ${growthBadge}
@@ -122,18 +158,12 @@ function renderTeacherDashboard(timeframe = activeAnalyticsTimeframe) {
               <line x1="0" y1="120" x2="500" y2="120" stroke="var(--border-subtle)" stroke-dasharray="3,3" />
               
               <path d="${fillD}" fill="url(#curveGrad)" />
-              <path d="${pathD}" fill="none" stroke="var(--color-blue-bright)" stroke-width="3.5" stroke-linecap="round" />
+              <path d="${pathD}" fill="none" stroke="var(--color-blue-bright)" stroke-width="3" stroke-linecap="round" />
               
-              <circle cx="0" cy="130" r="4.5" fill="var(--color-blue-bright)" stroke="var(--bg-card)" stroke-width="2"/>
-              <circle cx="200" cy="90" r="4.5" fill="var(--color-blue-bright)" stroke="var(--bg-card)" stroke-width="2"/>
-              <circle cx="400" cy="42" r="4.5" fill="var(--color-blue-bright)" stroke="var(--bg-card)" stroke-width="2"/>
-              <circle cx="500" cy="20" r="5.5" fill="var(--color-emerald)" stroke="var(--bg-card)" stroke-width="2.5"/>
+              ${circlesHTML}
             </svg>
             <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-subtle); margin-top: 6px;">
-              <span>${labels[0]}</span>
-              <span>${labels[1]}</span>
-              <span>${labels[2]}</span>
-              <span style="font-weight: 700; color: var(--color-emerald);">${labels[3]}</span>
+              ${labelsHTML}
             </div>
           </div>
         </div>
@@ -182,44 +212,38 @@ function renderTeacherDashboard(timeframe = activeAnalyticsTimeframe) {
         </div>
 
         <div class="activity-feed-list">
-          <div class="activity-item">
-            <div class="activity-item-left">
-              <div class="activity-icon green">
-                <i class="fa-solid fa-circle-check"></i>
-              </div>
-              <div>
-                <strong style="font-size: 0.9rem; color: var(--text-main);">Scholar Alex Chen</strong>
-                <span style="font-size: 0.82rem; color: var(--text-muted);"> completed <em>Distributed Systems 201</em> deck with <strong>96% accuracy</strong></span>
-              </div>
+          ${(state.data.studentProgress || []).length === 0 ? `
+            <div style="text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.88rem;">
+              No cohort practice activity recorded yet.
             </div>
-            <span style="font-size: 0.78rem; color: var(--text-subtle); font-family: var(--font-mono);">2 mins ago</span>
-          </div>
+          ` : (state.data.studentProgress || []).slice(0, 3).map((sp, idx) => {
+            const timeLabels = ['Recently', 'Today', 'Yesterday'];
+            const icons = ['fa-circle-check', 'fa-bolt', 'fa-user-graduate'];
+            const iconColors = ['green', 'blue', 'purple'];
+            
+            const timeLabel = timeLabels[idx % timeLabels.length];
+            const icon = icons[idx % icons.length];
+            const colorClass = iconColors[idx % iconColors.length];
 
-          <div class="activity-item">
-            <div class="activity-item-left">
-              <div class="activity-icon blue">
-                <i class="fa-solid fa-bolt"></i>
-              </div>
-              <div>
-                <strong style="font-size: 0.9rem; color: var(--text-main);">Scholar Eleanor Vance</strong>
-                <span style="font-size: 0.82rem; color: var(--text-muted);"> achieved a <strong>5-day study streak</strong></span>
-              </div>
-            </div>
-            <span style="font-size: 0.78rem; color: var(--text-subtle); font-family: var(--font-mono);">14 mins ago</span>
-          </div>
+            const isWeak = sp.mark < 50 || (sp.overallAccuracy !== undefined && sp.overallAccuracy > 0 && sp.overallAccuracy < 50) || (sp.laggingSubjects && sp.laggingSubjects.length > 0);
+            const nameColor = isWeak ? '#ef4444' : 'var(--text-main)';
+            const weakBadge = isWeak ? `<span class="card-badge" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; font-size: 0.72rem; margin-left: 6px; padding: 2px 6px;"><i class="fa-solid fa-triangle-exclamation"></i> Weak Topic (<50%)</span>` : '';
 
-          <div class="activity-item">
-            <div class="activity-item-left">
-              <div class="activity-icon purple">
-                <i class="fa-solid fa-user-plus"></i>
+            return `
+              <div class="activity-item" style="${isWeak ? 'border-left: 3px solid #ef4444;' : ''}">
+                <div class="activity-item-left">
+                  <div class="activity-icon ${isWeak ? 'red' : colorClass}">
+                    <i class="fa-solid ${isWeak ? 'fa-triangle-exclamation' : icon}"></i>
+                  </div>
+                  <div>
+                    <strong style="font-size: 0.9rem; color: ${nameColor};">${sp.name}</strong>${weakBadge}
+                    <span style="font-size: 0.82rem; color: var(--text-muted);"> completed <strong>${sp.completedDecks}</strong> decks in <em>${sp.course}</em> with <strong style="${isWeak ? 'color: #ef4444;' : ''}">${sp.mark}%</strong> accuracy</span>
+                  </div>
+                </div>
+                <span style="font-size: 0.78rem; color: var(--text-subtle); font-family: var(--font-mono);">${timeLabel}</span>
               </div>
-              <div>
-                <strong style="font-size: 0.9rem; color: var(--text-main);">Scholar Marcus Aurelius</strong>
-                <span style="font-size: 0.82rem; color: var(--text-muted);"> enrolled in <em>Cognitive Neuroscience</em> via code</span>
-              </div>
-            </div>
-            <span style="font-size: 0.78rem; color: var(--text-subtle); font-family: var(--font-mono);">1 hour ago</span>
-          </div>
+            `;
+          }).join('')}
         </div>
       </div>
     `;
@@ -258,9 +282,8 @@ function renderMyClassesPanel(searchFilter = '') {
     const studentCount = cls.enrolledStudents ? cls.enrolledStudents.length : 0;
     const isSelected = activeCourseId === cls.id;
 
-    const avg = studentCount > 0 
-      ? Math.round(cls.enrolledStudents.reduce((acc, s) => acc + s.mark, 0) / studentCount)
-      : 84;
+    const avg = cls.avgPerformance !== undefined ? cls.avgPerformance : 0;
+    const avgDisplay = avg > 0 ? `${avg}%` : 'No activity';
 
     return `
       <div class="course-modern-card ${isSelected ? 'selected' : ''}" style="${isSelected ? 'border-color: var(--color-blue-bright); box-shadow: var(--shadow-hover);' : ''}">
@@ -288,7 +311,7 @@ function renderMyClassesPanel(searchFilter = '') {
             <div style="background: var(--bg-card-subtle); padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
               <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-subtle); text-transform: uppercase;">Class Mastery</div>
               <div style="font-size: 1.25rem; font-weight: 800; color: var(--color-emerald); margin-top: 2px;">
-                ${avg}%
+                ${avgDisplay}
               </div>
             </div>
           </div>
@@ -338,7 +361,9 @@ function renderSelectedCourseDetails(classId) {
   }
 
   const enrolled = cls.enrolledStudents || [];
-  const decks = cls.decks || [];
+  const decks = (cls.decks || []).map(deckId => {
+    return (state.data.decks || []).find(d => d.id === deckId);
+  }).filter(Boolean);
 
   detailContainer.innerHTML = `
     <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-main);">
@@ -397,14 +422,18 @@ function renderSelectedCourseDetails(classId) {
                   </tr>
                 </thead>
                 <tbody>
-                  ${enrolled.map(st => `
+                  ${enrolled.map(st => {
+                    const isWeak = st.mark < 50;
+                    const nameColor = isWeak ? '#ef4444' : 'var(--text-main)';
+                    const weakTag = isWeak ? `<span class="card-badge" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; font-size: 0.72rem; margin-left: 6px;"><i class="fa-solid fa-triangle-exclamation"></i> Weak (<50%)</span>` : '';
+                    return `
                     <tr>
                       <td class="roster-td">
                         <div class="roster-avatar-cell">
-                          <div class="roster-avatar-circle">
+                          <div class="roster-avatar-circle" style="${isWeak ? 'background: rgba(239, 68, 68, 0.15); color: #ef4444;' : ''}">
                             ${st.name ? st.name.slice(0, 2).toUpperCase() : 'ST'}
                           </div>
-                          <strong>${st.name}</strong>
+                          <strong style="color: ${nameColor};">${st.name}</strong>${weakTag}
                         </div>
                       </td>
                       <td class="roster-td" style="color: var(--text-muted); font-family: var(--font-mono); font-size: 0.85rem;">
@@ -412,9 +441,9 @@ function renderSelectedCourseDetails(classId) {
                       </td>
                       <td class="roster-td">
                         <div style="display: flex; align-items: center; gap: 10px;">
-                          <strong style="color: var(--color-blue-bright); width: 35px;">${st.mark}%</strong>
+                          <strong style="color: ${isWeak ? '#ef4444' : 'var(--color-blue-bright)'}; width: 35px;">${st.mark}%</strong>
                           <div class="progress-bar-bg" style="width: 120px;">
-                            <div class="progress-bar-fill" style="width: ${st.mark}%;"></div>
+                            <div class="progress-bar-fill" style="width: ${st.mark}%; ${isWeak ? 'background: #ef4444;' : ''}"></div>
                           </div>
                         </div>
                       </td>
@@ -429,7 +458,8 @@ function renderSelectedCourseDetails(classId) {
                         </button>
                       </td>
                     </tr>
-                  `).join('')}
+                    `;
+                  }).join('')}
                 </tbody>
               </table>
             </div>
@@ -466,9 +496,6 @@ function renderSelectedCourseDetails(classId) {
                     <button class="btn btn-secondary" style="flex: 1; font-size: 0.85rem; padding: 7px;" onclick="openEditDeckModal('${deck.id}')">
                       <i class="fa-solid fa-pen"></i> Edit
                     </button>
-                    <button class="btn btn-primary" style="flex: 1; font-size: 0.85rem; padding: 7px;" onclick="launchStudySession('${deck.id}')">
-                      <i class="fa-solid fa-play"></i> Practice
-                    </button>
                     <button class="btn btn-danger" style="padding: 7px 10px; font-size: 0.85rem;" onclick="deleteDeckDirect('${deck.id}')">
                       <i class="fa-solid fa-trash"></i>
                     </button>
@@ -492,8 +519,9 @@ function copyClassCode(code) {
 }
 
 function openCreateDeckForClassModal(classId) {
+  state.aiTargetClassroomId = classId;
   switchTab('teacher-ai');
-  showToast('Use AI Generator or Manual Builder to create flashcards for this course.', 'info');
+  showToast('Use AI Generator to create flashcards for this course.', 'info');
 }
 
 // Render Teacher Classrooms Grid
@@ -677,6 +705,9 @@ async function handleAIFlashcardGenerate(event) {
 
     const generatedCards = data.cards;
 
+    const targetClassroomId = state.aiTargetClassroomId || '';
+    state.aiTargetClassroomId = null; // reset
+
     resultContainer.style.display = 'block';
     resultContainer.innerHTML = `
       <div style="background: var(--bg-card); border: 1px solid var(--border-blue); padding: 1.75rem; border-radius: var(--radius-xl); margin-top: 1.75rem; box-shadow: var(--shadow-main);">
@@ -692,21 +723,24 @@ async function handleAIFlashcardGenerate(event) {
 
         <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; max-height: 340px; overflow-y: auto;">
           ${generatedCards.map((c, idx) => `
-            <div style="background: var(--bg-card-subtle); padding: 1.15rem; border-radius: var(--radius-md); border-left: 3.5px solid var(--color-blue-bright);">
-              <div style="font-weight: 700; color: var(--text-main); margin-bottom: 4px; font-size: 0.95rem;">Q${idx + 1}: ${c.question}</div>
-              <div style="color: var(--text-muted); font-size: 0.9rem;">A: ${c.answer}</div>
+            <div class="ai-generated-card-row" style="background: var(--bg-card-subtle); padding: 1.15rem; border-radius: var(--radius-md); border-left: 3.5px solid var(--color-blue-bright); display: flex; flex-direction: column; gap: 8px;">
+              <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-blue-bright);">Card #${idx + 1}</span>
+              <input type="text" class="input-field ai-card-q" value="${c.question.replace(/"/g, '&quot;')}" placeholder="Question Front..." style="width: 100%; font-weight: 700;" />
+              <textarea class="input-field ai-card-a" placeholder="Answer Back..." style="width: 100%; font-family: inherit; font-size: 0.9rem; resize: vertical; min-height: 60px;">${c.answer}</textarea>
             </div>
           `).join('')}
         </div>
 
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-          <select id="ai-target-classroom-select" class="select-field" style="width: auto; flex: 1; min-width: 200px;">
+          <select id="ai-target-classroom-select" class="select-field" style="width: auto; flex: 1; min-width: 200px;" onchange="updateAISubjectTagFromClassroom(this)">
             <option value="">-- Save to Standalone Decks --</option>
             ${(state.data.classrooms || []).map(cls => `
-              <option value="${cls.id}">Publish to: ${cls.name}</option>
+              <option value="${cls.id}" ${cls.id === targetClassroomId ? 'selected' : ''}>Publish to: ${cls.name}</option>
             `).join('')}
+            <option value="other">Other (Create New Course)</option>
           </select>
-          <button class="btn btn-primary" onclick="saveAIGeneratedDeck('${topic.replace(/'/g, "\\'")}', ${JSON.stringify(generatedCards).replace(/"/g, '&quot;')})">
+          <input type="text" id="ai-custom-classroom-input" class="input-field" placeholder="Enter Custom Course Name..." style="display: none; width: auto; flex: 1; min-width: 200px;" />
+          <button class="btn btn-primary" onclick="saveAIGeneratedDeck()">
             <i class="fa-solid fa-floppy-disk"></i>
             <span>Save & Publish Deck</span>
           </button>
@@ -724,9 +758,94 @@ async function handleAIFlashcardGenerate(event) {
   }
 }
 
-async function saveAIGeneratedDeck(title, cards) {
+function updateAISubjectTagFromClassroom(selectEl) {
+  const customClassInput = document.getElementById('ai-custom-classroom-input');
+  if (customClassInput) {
+    if (selectEl.value === 'other') {
+      customClassInput.style.display = 'block';
+      customClassInput.required = true;
+    } else {
+      customClassInput.style.display = 'none';
+      customClassInput.required = false;
+      customClassInput.value = '';
+    }
+  }
+}
+
+async function saveAIGeneratedDeck() {
   const select = document.getElementById('ai-target-classroom-select');
   const classroomId = select ? select.value : '';
+
+  const topicInput = document.getElementById('ai-topic-input');
+  const topicVal = topicInput ? topicInput.value.trim() : 'AI Deck';
+  const title = topicVal.charAt(0).toUpperCase() + topicVal.slice(1);
+
+  let subject = title;
+  if (classroomId && classroomId !== 'other') {
+    const cls = (state.data.classrooms || []).find(c => c.id === classroomId);
+    if (cls) {
+      subject = cls.subject;
+    }
+  }
+
+  const qInputs = document.querySelectorAll('.ai-card-q');
+  const aInputs = document.querySelectorAll('.ai-card-a');
+
+  const cards = [];
+  qInputs.forEach((qInput, idx) => {
+    const qVal = qInput.value.trim();
+    const aVal = aInputs[idx] ? aInputs[idx].value.trim() : '';
+    if (qVal && aVal) {
+      cards.push({ question: qVal, answer: aVal });
+    }
+  });
+
+  if (!title || !subject || cards.length === 0) {
+    showToast('Please provide a valid topic and at least one card.', 'error');
+    return;
+  }
+
+  let finalClassroomId = classroomId;
+
+  // If selecting a custom course name, create the classroom first
+  if (classroomId === 'other') {
+    const customClassInput = document.getElementById('ai-custom-classroom-input');
+    const customClassName = customClassInput ? customClassInput.value.trim() : '';
+    if (!customClassName) {
+      showToast('Please enter a custom course name.', 'error');
+      return;
+    }
+
+    try {
+      const classRes = await fetch('/api/classrooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: customClassName, subject: subject })
+      });
+
+      if (!classRes.ok) {
+        const classErr = await classRes.json();
+        showToast(classErr.error || 'Failed to create custom classroom.', 'error');
+        return;
+      }
+
+      const updatedState = await classRes.json();
+      state.data = updatedState;
+
+      // Find the newly created classroom ID
+      const newClass = (state.data.classrooms || []).find(c => c.name === customClassName && c.subject === subject);
+      if (newClass) {
+        finalClassroomId = newClass.id;
+      } else {
+        showToast('Created custom classroom but failed to retrieve its ID.', 'error');
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+      showToast('An error occurred creating custom classroom.', 'error');
+      return;
+    }
+  }
 
   try {
     const res = await fetch('/api/decks', {
@@ -734,9 +853,9 @@ async function saveAIGeneratedDeck(title, cards) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title,
-        subject: 'AI Generated',
+        subject,
         cards,
-        classroom_id: classroomId || null
+        classroom_id: finalClassroomId || null
       })
     });
 
@@ -753,7 +872,20 @@ async function saveAIGeneratedDeck(title, cards) {
     renderMyClassesPanel();
     showToast(`Deck "${title}" saved and published!`, 'success');
 
-    if (classroomId) {
+    // Clear result container after save
+    const resultContainer = document.getElementById('ai-generated-result');
+    if (resultContainer) {
+      resultContainer.innerHTML = '';
+      resultContainer.style.display = 'none';
+    }
+
+    // Reset inputs
+    const topicInputEl = document.getElementById('ai-topic-input');
+    if (topicInputEl) topicInputEl.value = '';
+
+    if (finalClassroomId) {
+      activeCourseId = finalClassroomId;
+      activeCourseSubTab = 'curriculum';
       switchTab('teacher-myclasses');
     }
   } catch (e) {
@@ -902,5 +1034,29 @@ async function openStudentReportModal(studentId) {
   } catch (e) {
     console.error(e);
     content.innerHTML = '<div style="color: var(--color-rose); padding: 1rem;">An error occurred loading report.</div>';
+  }
+}
+
+async function deleteDeckDirect(deckId) {
+  if (!confirm('Are you sure you want to delete this flashcard deck?')) return;
+
+  try {
+    const res = await fetch(`/api/decks/${deckId}`, {
+      method: 'DELETE'
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      showToast(err.error || 'Failed to delete deck.', 'error');
+      return;
+    }
+    const backendState = await res.json();
+    state.data = backendState;
+    showToast('Deck deleted.', 'info');
+    
+    renderTeacherDashboard();
+    renderMyClassesPanel();
+  } catch (e) {
+    console.error(e);
+    showToast('An error occurred deleting deck.', 'error');
   }
 }
