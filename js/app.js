@@ -59,12 +59,8 @@ function showToast(message, type = 'info') {
   }, 4000);
 }
 
-// Theme Switcher (Light / Dark)
-async function toggleTheme() {
-  const isDark = document.body.classList.toggle('dark-theme');
-  const theme = isDark ? 'dark' : 'light';
-  state.data.theme = theme;
-
+// Sync Theme Icons & Labels
+function syncThemeUI(isDark) {
   const iconEl = document.getElementById('theme-dropdown-icon');
   const labelEl = document.getElementById('theme-dropdown-label');
   const landingIcon = document.getElementById('theme-landing-icon');
@@ -72,12 +68,22 @@ async function toggleTheme() {
   if (iconEl) iconEl.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
   if (labelEl) labelEl.textContent = isDark ? 'Light Mode' : 'Dark Mode';
   if (landingIcon) landingIcon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+}
+
+// Theme Switcher (Light / Dark)
+async function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark-theme');
+  const theme = isDark ? 'dark' : 'light';
+  state.data.theme = theme;
+  localStorage.setItem('theme', theme);
+
+  syncThemeUI(isDark);
 
   showToast(`Switched to ${isDark ? 'Dark' : 'Light'} theme`, 'info');
 
   try {
-    await fetch('/api/theme', {
-      method: 'POST',
+    await fetch('/api/auth/theme', {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ theme })
     });
@@ -108,6 +114,8 @@ function toggleAuthTab(tab) {
   const tabLogin = document.getElementById('tab-btn-login');
   const tabReg = document.getElementById('tab-btn-reg');
 
+  localStorage.setItem('currentView', 'auth:' + tab);
+
   if (tab === 'login') {
     if (loginForm) loginForm.style.display = 'block';
     if (regForm) regForm.style.display = 'none';
@@ -129,11 +137,11 @@ function quickFillDemoUser(role) {
 
   if (role === 'teacher') {
     if (emailInput) emailInput.value = 'revathi@gmail.com';
-    if (pwdInput) pwdInput.value = '123';
+    if (pwdInput) pwdInput.value = 'Password123!';
     showToast('Loaded Faculty Admin credentials (revathi@gmail.com)', 'info');
   } else if (role === 'student') {
     if (emailInput) emailInput.value = 'student@gmail.com';
-    if (pwdInput) pwdInput.value = '123';
+    if (pwdInput) pwdInput.value = 'Password123!';
     showToast('Loaded Scholar credentials (student@gmail.com)', 'info');
   }
 }
@@ -180,7 +188,7 @@ async function handleLogin(event) {
     const backendState = await res.json();
     state.data = backendState;
 
-    showToast(`Welcome back, ${state.data.currentUser.name}!`, 'success');
+    showToast(`Hello, ${state.data.currentUser.name}!`, 'success');
     updateAppAuthUI();
   } catch (e) {
     console.error(e);
@@ -197,6 +205,24 @@ async function handleRegister(event) {
 
   if (!name || !email || !password) {
     showToast('Please fill out all registration fields.', 'error');
+    return;
+  }
+
+  // Password Validation Checks
+  if (password.length < 6) {
+    showToast('Password must be at least 6 characters long.', 'error');
+    return;
+  }
+  if (!/[a-zA-Z]/.test(password)) {
+    showToast('Password must contain at least one letter.', 'error');
+    return;
+  }
+  if (!/[0-9]/.test(password)) {
+    showToast('Password must contain at least one number.', 'error');
+    return;
+  }
+  if (!/[^a-zA-Z0-9\s]/.test(password)) {
+    showToast('Password must contain at least one symbol.', 'error');
     return;
   }
 
@@ -233,12 +259,13 @@ async function handleLogout() {
   }
 
   state.data.currentUser = null;
+  localStorage.removeItem('currentView'); // Clear persisted view on logout
   showLandingView();
   showToast('You have been signed out.', 'info');
 }
 
 // Update UI According to Current Auth State
-function updateAppAuthUI() {
+function updateAppAuthUI(skipSwitchTab = false) {
   const user = state.data.currentUser;
   if (!user) {
     showLandingView();
@@ -275,13 +302,17 @@ function updateAppAuthUI() {
     if (teacherNav) teacherNav.style.display = 'block';
     if (studentNav) studentNav.style.display = 'none';
     if (streakBadge) streakBadge.style.display = 'none';
-    switchTab('teacher-dashboard');
+    if (!skipSwitchTab) {
+      switchTab('teacher-dashboard');
+    }
   } else {
     if (teacherNav) teacherNav.style.display = 'none';
     if (studentNav) studentNav.style.display = 'block';
     if (streakBadge) streakBadge.style.display = 'inline-flex';
     updateHeaderStreak();
-    switchTab('student-dashboard');
+    if (!skipSwitchTab) {
+      switchTab('student-dashboard');
+    }
   }
 }
 
@@ -319,6 +350,25 @@ async function handleUpdateProfile(event) {
   if (!name || !email) {
     showToast('Name and email are required.', 'error');
     return;
+  }
+
+  if (password) {
+    if (password.length < 6) {
+      showToast('New password must be at least 6 characters long.', 'error');
+      return;
+    }
+    if (!/[a-zA-Z]/.test(password)) {
+      showToast('New password must contain at least one letter.', 'error');
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      showToast('New password must contain at least one number.', 'error');
+      return;
+    }
+    if (!/[^a-zA-Z0-9\s]/.test(password)) {
+      showToast('New password must contain at least one symbol.', 'error');
+      return;
+    }
   }
 
   try {
@@ -362,3 +412,20 @@ document.addEventListener('click', (e) => {
     e.target.classList.remove('active');
   }
 });
+
+// Periodic dashboard background polling for real-time Class Mastery & progress updates
+setInterval(async () => {
+  if (state.data && state.data.currentUser) {
+    const currentView = localStorage.getItem('currentView') || '';
+    await state.loadState();
+    
+    // Only refresh active UI if on a dashboard panel
+    if (currentView === 'tab:teacher-dashboard' && typeof renderTeacherDashboard === 'function') {
+      renderTeacherDashboard();
+    } else if (currentView === 'tab:teacher-myclasses' && typeof renderMyClassesPanel === 'function') {
+      renderMyClassesPanel();
+    } else if (currentView === 'tab:student-dashboard' && typeof renderStudentDashboard === 'function') {
+      renderStudentDashboard();
+    }
+  }
+}, 20000);

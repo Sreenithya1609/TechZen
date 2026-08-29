@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
   
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css?v=2" />
 </head>
 <body>
 
@@ -26,7 +26,7 @@
       <div class="brand-container" onclick="showLandingView()" style="cursor: pointer;">
         <img src="images/memoflip_logo.png" alt="FlashLearn Logo" class="brand-logo-img" />
         <div class="brand-title">FlashLearn</div>
-        <span class="brand-badge">v2.5</span>
+       
       </div>
 
       <div class="landing-nav-links" id="landing-nav-links">
@@ -55,10 +55,7 @@
       <div class="hero-split-container">
         <!-- Hero Left Text Column -->
         <div class="hero-text-col">
-          <div class="hero-pill-badge">
-            <i class="fa-solid fa-sparkles"></i>
-            <span>AI Spaced Repetition Engine</span>
-          </div>
+        
 
           <h1 class="hero-main-heading">
             Master Any Subject with <span class="gradient-text">Active Recall</span>
@@ -79,17 +76,7 @@
             </a>
           </div>
 
-          <div class="hero-trust-indicators">
-            <div class="trust-avatar-group">
-              <div class="trust-avatar" style="background: #2563eb;">EV</div>
-              <div class="trust-avatar" style="background: #059669;">MA</div>
-              <div class="trust-avatar" style="background: #7c3aed;">SL</div>
-              <div class="trust-avatar" style="background: #ea580c;">JT</div>
-            </div>
-            <div class="trust-text">
-              <strong>15,000+</strong> scholars & educators actively practicing daily
-            </div>
-          </div>
+        
         </div>
 
         <!-- Hero Right: Interactive 3D Card Widget (Try It Live) -->
@@ -153,29 +140,7 @@
     </div>
 
     <!-- Platform Metrics Glass Strip -->
-    <div class="landing-metrics-strip">
-      <div class="metrics-strip-inner">
-        <div class="metric-block">
-          <div class="metric-number">98.4%</div>
-          <div class="metric-label">Retention Improvement</div>
-        </div>
-        <div class="metric-divider"></div>
-        <div class="metric-block">
-          <div class="metric-number">50,000+</div>
-          <div class="metric-label">Active Recall Sessions</div>
-        </div>
-        <div class="metric-divider"></div>
-        <div class="metric-block">
-          <div class="metric-number">150+</div>
-          <div class="metric-label">Academic Institutions</div>
-        </div>
-        <div class="metric-divider"></div>
-        <div class="metric-block">
-          <div class="metric-number">4.9 / 5</div>
-          <div class="metric-label">Faculty & Student Rating</div>
-        </div>
-      </div>
-    </div>
+  
 
     <!-- Section 2: Re-engineered Card View & Curriculum Showcase -->
     <section class="landing-section" id="showcase">
@@ -248,7 +213,7 @@
               <i class="fa-solid fa-circle-check" style="color: var(--color-emerald);"></i> Immediate Review
             </div>
             <div class="bento-mock-step">
-              <i class="fa-solid fa-clock" style="color: var(--color-blue-bright);"></i> 3-Day Expansion
+             
             </div>
             <div class="bento-mock-step">
               <i class="fa-solid fa-award" style="color: var(--color-purple);"></i> Long-term Memory
@@ -406,10 +371,9 @@
 
       <div class="footer-bottom-bar">
         <div>&copy; 2026 FlashLearn Academic Systems, Inc. Licensed under MIT. All rights reserved.</div>
-        <div style="display: flex; gap: 1.5rem;">
-          <a class="footer-social-link"><i class="fa-brands fa-github"></i></a>
-          <a class="footer-social-link"><i class="fa-brands fa-twitter"></i></a>
-          <a class="footer-social-link"><i class="fa-brands fa-linkedin"></i></a>
+        <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
+          <a href="mailto:aadhibarani98@gmail.com" class="footer-social-link" title="Gmail"><i class="fa-solid fa-envelope"></i></a>
+          <a href="https://github.com/Sreenithya1609" target="_blank" class="footer-social-link" title="GitHub"><i class="fa-brands fa-github"></i> </a>
         </div>
       </div>
     </footer>
@@ -427,18 +391,14 @@
       <!-- Top Laser Light Accent Bar -->
       <div class="laser-light-bar"></div>
 
-      <!-- Top Tech Badge Row -->
-      <div class="auth-tech-badge-row">
-        <span class="auth-cyber-badge"><i class="fa-solid fa-shield-halved"></i> AES-256 ENCRYPTED</span>
-        <span class="auth-cyber-badge"><i class="fa-solid fa-bolt"></i> SPATIAL RECALL</span>
-      </div>
+    
 
       <!-- Floating Holographic Brand Header -->
       <div class="auth-brand-header">
         <div class="auth-brand-logo-glow" onclick="showLandingView()" title="Return to Platform Overview">
           <img src="images/memoflip_logo.png" alt="FlashLearn Logo" />
         </div>
-        <h1 class="auth-brand-name">FlashLearn <span class="brand-badge-neon">v2.5</span></h1>
+   
         <p class="auth-brand-tagline">Active Recall Spaced Repetition & Academic Analytics</p>
       </div>
 
@@ -509,7 +469,7 @@
           <label class="form-label-cyber">Create Master Password</label>
           <div class="input-cyber-wrapper">
             <i class="fa-solid fa-key input-icon-neon"></i>
-            <input type="password" id="reg-password" class="input-cyber" placeholder="Min. 6 alphanumeric characters" minlength="6" required />
+            <input type="password" id="reg-password" class="input-cyber" placeholder="Min. 6 chars (letters, numbers & symbols)" minlength="6" required />
             <i class="fa-solid fa-eye input-eye-neon" id="reg-pwd-eye" onclick="togglePasswordVisibility('reg-password', 'reg-pwd-eye')" title="Toggle Password Visibility"></i>
           </div>
         </div>
@@ -540,7 +500,7 @@
         <button class="mobile-sidebar-toggle-btn" id="sidebar-toggle-btn" onclick="toggleMobileSidebar()" title="Toggle Navigation Sidebar">
           <i class="fa-solid fa-bars"></i>
         </button>
-        <div class="brand-container" onclick="showLandingView()" style="cursor: pointer;" title="Go to Landing Page">
+        <div class="brand-container" onclick="switchTab('profile')" style="cursor: pointer;" title="Go to Profile">
           <img src="images/memoflip_logo.png" alt="FlashLearn Logo" class="brand-logo-img" />
           <div class="brand-title">FlashLearn</div>
         </div>
@@ -548,7 +508,7 @@
 
       <div class="header-right">
         <!-- Header Dynamic Streak Badge -->
-        <div id="header-streak-badge" class="streak-pill-badge" style="display: none;">
+        <div id="header-streak-badge" class="streak-pill-badge" style="display: none; cursor: pointer;" onclick="openDailyStreakModal()" title="Click to test your daily streak challenge!">
           <i class="fa-solid fa-fire-flame-curved"></i>
           <span><strong id="header-streak-count">0</strong> Day Streak</span>
         </div>
@@ -650,7 +610,7 @@
               </a>
             </li>
             <li>
-              <a class="nav-item" id="nav-student-decks" onclick="switchTab('student-decks')">
+              <a class="nav-item" id="nav-student-decks" onclick="activeClassroomIdFilter = null; switchTab('student-decks')">
                 <i class="fa-solid fa-layer-group"></i>
                 <span>Decks & Practice</span>
               </a>
@@ -659,12 +619,6 @@
               <a class="nav-item" id="nav-student-create" onclick="switchTab('student-create')">
                 <i class="fa-solid fa-pen-to-square"></i>
                 <span>Create Flashcards</span>
-              </a>
-            </li>
-            <li>
-              <a class="nav-item" id="nav-student-streaks" onclick="switchTab('student-streaks')">
-                <i class="fa-solid fa-fire"></i>
-                <span>Daily Mystery Word</span>
               </a>
             </li>
           </ul>
@@ -678,10 +632,11 @@
         <section class="view-panel active" id="panel-teacher-dashboard">
           <div class="panel-header-row">
             <div>
-              <h2 class="panel-title" id="teacher-welcome-msg">
-                <i class="fa-solid fa-chalkboard-user"></i> Faculty Dashboard
+              <h2 class="panel-title" id="teacher-dashboard-title">
+                <i class="fa-solid fa-gauge-high" style="color: var(--color-blue-bright);"></i>
+                <span id="teacher-welcome-name">Hello, Professor!</span>
               </h2>
-              <p class="panel-subtitle">Academic cohort metrics, accuracy distribution, and active curricula.</p>
+              <p class="panel-subtitle">Faculty Analytics & Cohort Mastery Performance Overview</p>
             </div>
             <button class="btn btn-primary" onclick="openModal('modal-create-classroom')">
               <i class="fa-solid fa-plus"></i>
@@ -689,12 +644,7 @@
             </button>
           </div>
 
-          <!-- Class Analytics Visualizations (Contains Welcome Banner + Curves) -->
-          <div id="dashboard-analytics-container">
-            <!-- Rendered dynamically by teacher.js -->
-          </div>
-
-          <div class="dash-stats-grid" style="margin-top: 1.75rem;">
+          <div class="dash-stats-grid" style="margin-bottom: 1.5rem;">
             <div class="stat-card">
               <div class="stat-icon-box blue-bg">
                 <i class="fa-solid fa-school"></i>
@@ -738,6 +688,11 @@
                 <div class="stat-trend green"><i class="fa-solid fa-arrow-trend-up"></i> Cohort mastery</div>
               </div>
             </div>
+          </div>
+
+          <!-- Class Analytics Visualizations (Contains Curves + Donut) -->
+          <div id="dashboard-analytics-container">
+            <!-- Rendered dynamically by teacher.js -->
           </div>
         </section>
 
@@ -918,7 +873,7 @@
           <div class="panel-header-row">
             <div>
               <h2 class="panel-title">
-                <i class="fa-solid fa-school"></i> Joined Classrooms
+                <i class="fa-solid fa-school"></i> My Classrooms
               </h2>
               <p class="panel-subtitle">Access your courses and faculty study materials.</p>
             </div>
@@ -936,7 +891,7 @@
           <div class="panel-header-row">
             <div>
               <h2 class="panel-title">
-                <i class="fa-solid fa-layer-group"></i> Flashcard Decks & Practice
+                <i class="fa-solid fa-layer-group"></i> Flashcard Decks
               </h2>
               <p class="panel-subtitle">Review active study decks or build your custom sets.</p>
             </div>
@@ -947,23 +902,20 @@
                   <input type="text" class="input-field" placeholder="Search decks..." oninput="handleStudentDeckSearch(this.value)" />
                 </div>
               </div>
-              <button class="btn btn-primary" onclick="switchTab('student-create')">
-                <i class="fa-solid fa-plus"></i>
-                <span>Create New Deck</span>
-              </button>
+          
             </div>
           </div>
 
           <!-- Student Deck Filter Tabs -->
           <div class="landing-filter-bar-wrapper" style="margin-bottom: 1.5rem;">
             <div class="landing-filter-bar" style="justify-content: flex-start; margin-top: 0;">
-              <button class="landing-filter-btn active" id="filter-student-all" onclick="renderStudentDecks('all')">
+              <button class="landing-filter-btn active" id="filter-student-all" onclick="activeClassroomIdFilter = null; renderStudentDecks('all')">
                 <i class="fa-solid fa-border-all"></i> All Decks
               </button>
-              <button class="landing-filter-btn" id="filter-student-classroom" onclick="renderStudentDecks('classroom')">
+              <button class="landing-filter-btn" id="filter-student-classroom" onclick="activeClassroomIdFilter = null; renderStudentDecks('classroom')">
                 <i class="fa-solid fa-chalkboard"></i> Classroom Decks
               </button>
-              <button class="landing-filter-btn" id="filter-student-custom" onclick="renderStudentDecks('custom')">
+              <button class="landing-filter-btn" id="filter-student-custom" onclick="activeClassroomIdFilter = null; renderStudentDecks('custom')">
                 <i class="fa-solid fa-file-lines"></i> My Notes & Custom
               </button>
             </div>
@@ -977,7 +929,7 @@
           <div class="panel-header-row">
             <div>
               <h2 class="panel-title">
-                <i class="fa-solid fa-pen-to-square"></i> Create Flashcards
+                <i class="fa-solid fa-pen-to-square"></i> Create a Study Deck 
               </h2>
               <p class="panel-subtitle">Generate flashcards from lecture notes or enter terms manually.</p>
             </div>
@@ -1269,6 +1221,47 @@
     </div>
   </div>
 
+  <!-- Daily Streak Challenge Modal -->
+  <div class="modal-backdrop" id="modal-streak-challenge">
+    <div class="modal-card" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-fire" style="color: var(--color-rose);"></i>
+          <span>Daily Streak Challenge</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-streak-challenge')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Answer this random daily question correctly to keep your study streak active!</p>
+        
+        <div id="streak-question-box" style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); min-height: 80px; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 700; font-size: 1rem; color: var(--text-main);">
+          Loading challenge question...
+        </div>
+
+        <div id="streak-answer-input-container">
+          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Your Answer</label>
+          <input type="text" id="streak-challenge-answer" class="input-field" placeholder="Type your answer here..." required />
+        </div>
+
+        <div id="streak-feedback-box" style="display: none; padding: 10px 14px; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 600;"></div>
+
+        <div style="display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" id="btn-streak-view-solution" onclick="handleViewStreakSolution()" style="display: none;">
+            <i class="fa-solid fa-eye"></i> View Solution
+          </button>
+          <div style="display: flex; gap: 10px; margin-left: auto;">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('modal-streak-challenge')">Close</button>
+            <button type="button" class="btn btn-primary" id="btn-streak-submit" onclick="handleSubmitStreakAnswer()">
+              <i class="fa-solid fa-paper-plane"></i> Submit Answer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Join Classroom Modal -->
   <div class="modal-backdrop" id="modal-join-classroom">
     <div class="modal-card">
@@ -1371,6 +1364,7 @@
 
   <script>
     function showLandingView() {
+      localStorage.setItem('currentView', 'landing');
       document.getElementById('landing-view').style.display = 'flex';
       document.getElementById('auth-view').style.display = 'none';
       document.getElementById('dashboard-view').style.display = 'none';
@@ -1380,6 +1374,7 @@
     }
 
     function showAuthView(tab = 'login') {
+      localStorage.setItem('currentView', 'auth:' + tab);
       document.getElementById('landing-view').style.display = 'none';
       document.getElementById('auth-view').style.display = 'flex';
       document.getElementById('dashboard-view').style.display = 'none';
@@ -1390,6 +1385,7 @@
     }
 
     function switchTab(tabKey) {
+      localStorage.setItem('currentView', 'tab:' + tabKey);
       document.getElementById('landing-view').style.display = 'none';
       document.getElementById('auth-view').style.display = 'none';
       document.getElementById('dashboard-view').style.display = 'flex';
@@ -1441,23 +1437,50 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Instantly apply theme from localStorage to avoid flashing wrong theme
+      const savedTheme = localStorage.getItem('theme');
+      const isDark = savedTheme === 'dark';
+      document.body.classList.toggle('dark-theme', isDark);
+      syncThemeUI(isDark);
+
       await state.loadState();
       
-      // Sync theme classes
-      if (state.data.theme === 'dark') {
-        document.body.classList.add('dark-theme');
-        const iconEl = document.getElementById('theme-dropdown-icon');
-        const labelEl = document.getElementById('theme-dropdown-label');
-        const landingIcon = document.getElementById('theme-landing-icon');
-        if (iconEl) iconEl.className = 'fa-solid fa-moon';
-        if (labelEl) labelEl.textContent = 'Dark Mode';
-        if (landingIcon) landingIcon.className = 'fa-solid fa-sun';
+      // Sync theme classes if state theme differs (and user is logged in)
+      if (state.data.currentUser && state.data.theme) {
+        const serverDark = state.data.theme === 'dark';
+        document.body.classList.toggle('dark-theme', serverDark);
+        localStorage.setItem('theme', state.data.theme);
+        syncThemeUI(serverDark);
       }
 
+      const currentView = localStorage.getItem('currentView');
+
       if (state.data.currentUser) {
-        updateAppAuthUI();
+        updateAppAuthUI(true); // skip default tab switching
+        
+        // Restore view if it was a dashboard tab
+        if (currentView && currentView.startsWith('tab:')) {
+          const tabKey = currentView.split(':')[1];
+          const isTeacher = state.data.currentUser.role === 'teacher';
+          const isTeacherTab = tabKey.startsWith('teacher-');
+          const isStudentTab = tabKey.startsWith('student-');
+          
+          if ((isTeacher && isTeacherTab) || (!isTeacher && isStudentTab) || tabKey === 'profile') {
+            switchTab(tabKey);
+          } else {
+            switchTab(isTeacher ? 'teacher-dashboard' : 'student-dashboard');
+          }
+        } else {
+          const isTeacher = state.data.currentUser.role === 'teacher';
+          switchTab(isTeacher ? 'teacher-dashboard' : 'student-dashboard');
+        }
       } else {
-        showLandingView();
+        if (currentView && currentView.startsWith('auth:')) {
+          const tab = currentView.split(':')[1];
+          showAuthView(tab);
+        } else {
+          showLandingView();
+        }
       }
     });
   </script>

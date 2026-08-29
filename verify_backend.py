@@ -43,7 +43,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         resp = self.client.post('/api/auth/register', json={
             'name': 'Test Student',
             'email': 'student-test@gmail.com',
-            'password': 'password123'
+            'password': 'Password123!'
         })
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data)
@@ -53,7 +53,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         # 2. Login again
         resp = self.client.post('/api/auth/login', json={
             'email': 'student-test@gmail.com',
-            'password': 'password123'
+            'password': 'Password123!'
         })
         self.assertEqual(resp.status_code, 200)
 
@@ -61,7 +61,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         resp = self.client.put('/api/auth/profile', json={
             'name': 'Updated Test Student',
             'email': 'student-test-new@gmail.com',
-            'password': 'password1234'
+            'password': 'Password1234!'
         })
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data)
@@ -73,7 +73,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         resp = self.client.post('/api/auth/register', json={
             'name': 'Invalid Email User',
             'email': 'not-an-email',
-            'password': 'password123'
+            'password': 'Password123!'
         })
         self.assertEqual(resp.status_code, 400)
 
@@ -89,7 +89,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         # 1. Login as seeded teacher
         resp = self.client.post('/api/auth/login', json={
             'email': 'revathi@gmail.com',
-            'password': '123'
+            'password': 'Password123!'
         })
         self.assertEqual(resp.status_code, 200)
 
@@ -111,7 +111,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         # 4. Login as student
         resp = self.client.post('/api/auth/login', json={
             'email': 'student@gmail.com',
-            'password': '123'
+            'password': 'Password123!'
         })
         self.assertEqual(resp.status_code, 200)
 
@@ -127,7 +127,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         # 1. Login teacher
         self.client.post('/api/auth/login', json={
             'email': 'revathi@gmail.com',
-            'password': '123'
+            'password': 'Password123!'
         })
 
         # 2. Create custom deck
@@ -169,7 +169,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         resp = self.client.post('/api/auth/register', json={
             'name': 'Varsha',
             'email': 'varsha@gmail.com',
-            'password': 'password123'
+            'password': 'Password123!'
         })
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data)
@@ -180,7 +180,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         resp = self.client.post('/api/auth/register', json={
             'name': 'Revathi',
             'email': 'revathi@gmail.com',
-            'password': '123'
+            'password': 'Password123!'
         })
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.data)
@@ -190,7 +190,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         # 1. Login as student
         self.client.post('/api/auth/login', json={
             'email': 'student@gmail.com',
-            'password': '123'
+            'password': 'Password123!'
         })
 
         # 2. Student tries to create classroom -> must get 403
@@ -219,7 +219,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         # 1. Login student
         self.client.post('/api/auth/login', json={
             'email': 'student@gmail.com',
-            'password': '123'
+            'password': 'Password123!'
         })
 
         # 2. Daily streak count should initially be 0
@@ -237,7 +237,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         # 1. Login student
         self.client.post('/api/auth/login', json={
             'email': 'student@gmail.com',
-            'password': '123'
+            'password': 'Password123!'
         })
         
         # 2. Create custom deck as student
@@ -283,7 +283,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         # Login as teacher
         self.client.post('/api/auth/login', json={
             'email': 'revathi@gmail.com',
-            'password': '123'
+            'password': 'Password123!'
         })
 
         resp = self.client.post('/api/ai/generate', json={
@@ -313,7 +313,7 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         # Login as student
         self.client.post('/api/auth/login', json={
             'email': 'student@gmail.com',
-            'password': '123'
+            'password': 'Password123!'
         })
 
         resp = self.client.post('/api/ai/generate', json={
@@ -325,6 +325,31 @@ class FlashLearnBackendTestCase(unittest.TestCase):
         data = json.loads(resp.data)
         self.assertEqual(len(data['cards']), 1)
         self.assertEqual(data['cards'][0]['question'], 'SQ1')
+
+    def test_student_lagging_performance(self):
+        # Login as teacher Revathi
+        login_resp = self.client.post('/api/auth/login', json={
+            'email': 'revathi@gmail.com',
+            'password': 'Password123!'
+        })
+        self.assertEqual(login_resp.status_code, 200)
+
+        # Query all student performance
+        perf_resp = self.client.get('/api/teacher/student-performance')
+        self.assertEqual(perf_resp.status_code, 200)
+        students_perf = json.loads(perf_resp.data)
+        self.assertTrue(len(students_perf) > 0)
+
+        for student in students_perf:
+            self.assertIn('studentId', student)
+            self.assertIn('studentName', student)
+            self.assertIn('subjects', student)
+            self.assertIn('laggingSubjects', student)
+            for sub in student['subjects']:
+                self.assertIn('subject', sub)
+                self.assertIn('accuracy', sub)
+                self.assertIn('status', sub)
+                self.assertIn(sub['status'], ['GOOD', 'LAGGING', 'NO_ATTEMPTS'])
 
 if __name__ == '__main__':
     unittest.main()

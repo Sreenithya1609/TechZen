@@ -2,6 +2,7 @@
 
 let activeStudentDeckFilter = 'all';
 let studentDeckSearchQuery = '';
+let activeClassroomIdFilter = null;
 
 // Render Student Scholar Dashboard
 function renderStudentDashboard() {
@@ -26,17 +27,71 @@ function renderStudentDashboard() {
     const info = cls.enrolledStudents ? cls.enrolledStudents.find(s => s.id === currentUserId) : null;
     return sum + (info ? info.mark : 85);
   }, 0);
-  const avgAccuracy = classrooms.length > 0 ? Math.round(totalMark / classrooms.length) : 92;
+  const avgAccuracy = classrooms.length > 0 ? Math.round(totalMark / classrooms.length) : 0;
 
-  const streakVal = state.data.dailyStreak ? state.data.dailyStreak.count : 5;
+  const streakVal = state.data.dailyStreak ? state.data.dailyStreak.count : 0;
 
   const completedDecksEl = document.getElementById('student-stat-completed-decks');
   const accuracyEl = document.getElementById('student-stat-accuracy');
   const streakEl = document.getElementById('student-stat-streak');
 
-  if (completedDecksEl) completedDecksEl.textContent = `${totalCompleted || 7} Decks`;
+  if (completedDecksEl) completedDecksEl.textContent = `${totalCompleted} Decks`;
   if (accuracyEl) accuracyEl.textContent = `${avgAccuracy}%`;
   if (streakEl) streakEl.textContent = `${streakVal} Days`;
+
+  // Dynamic daily goal from backend database card attempts
+  const studentDecks = state.data.decks || [];
+  const studiedCount = state.data.cardsStudiedToday || 0;
+  const totalCardsInBackend = studentDecks.reduce((sum, d) => sum + (d.cards ? d.cards.length : 0), 0);
+  const targetTotal = totalCardsInBackend > 0 ? totalCardsInBackend : 20;
+
+  const targetPct = Math.min(100, Math.round((studiedCount / targetTotal) * 100));
+  const remainingTarget = Math.max(0, targetTotal - studiedCount);
+  const targetMessage = remainingTarget > 0 
+    ? `${remainingTarget} more cards to complete today's retention objective.`
+    : `Daily target completed! Great work on active recall today.`;
+
+  // Dynamic Spaced Repetition Priority Queue
+  let dueQueueHTML = '';
+  let dueQueueBadge = '';
+
+  if (studentDecks.length === 0) {
+    dueQueueBadge = '0 Decks Due';
+    dueQueueHTML = `
+      <div style="text-align: center; padding: 2rem 1rem; color: var(--text-muted); font-size: 0.85rem;">
+        <i class="fa-solid fa-circle-check" style="color: var(--color-emerald); font-size: 1.5rem; margin-bottom: 8px; display: block;"></i>
+        <span>All memory recall queues are fully current.</span>
+      </div>
+    `;
+  } else {
+    dueQueueBadge = `${Math.min(2, studentDecks.length)} Decks Due`;
+    dueQueueHTML = studentDecks.slice(0, 2).map((deck, idx) => {
+      const intervals = ['3-day recall check', '7-day memory retention'];
+      const icons = ['fa-brain', 'fa-dna'];
+      const colors = ['purple', 'blue'];
+      
+      const interval = intervals[idx % intervals.length];
+      const icon = icons[idx % icons.length];
+      const color = colors[idx % colors.length];
+
+      return `
+        <div class="activity-item" onclick="launchStudySession('${deck.id}')" style="cursor: pointer;">
+          <div class="activity-item-left">
+            <div class="activity-icon ${color}">
+              <i class="fa-solid ${icon}"></i>
+            </div>
+            <div>
+              <strong style="font-size: 0.88rem; color: var(--text-main);">${deck.title}</strong>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Interval: ${interval}</div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" style="padding: 4px 10px; font-size: 0.75rem;">
+            <i class="fa-solid fa-play"></i> Practice
+          </button>
+        </div>
+      `;
+    }).join('');
+  }
 
   // Render Scholar Welcome Hero Banner
   const heroBannerContainer = document.getElementById('student-dashboard-hero-banner');
@@ -48,7 +103,7 @@ function renderStudentDashboard() {
             <i class="fa-solid fa-graduation-cap"></i>
             <span>Active Scholar Workspace</span>
           </div>
-          <h2 class="portal-hero-title">Welcome back, ${currentUserName}!</h2>
+          <h2 class="portal-hero-title">Hello, ${currentUserName}!</h2>
           <p class="portal-hero-desc">You're on a <strong>${streakVal}-day consecutive study streak</strong>. Spaced repetition interval is optimized for peak memory retention.</p>
         </div>
         <div class="portal-hero-actions">
@@ -68,14 +123,14 @@ function renderStudentDashboard() {
         <div class="scholar-goal-card" style="margin-bottom: 0;">
           <div>
             <span class="card-badge" style="background: rgba(37, 99, 235, 0.1); color: var(--color-blue-bright); margin-bottom: 8px;">Daily Study Target</span>
-            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">16 / 20 Flashcards Mastered</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">4 more cards to complete today's retention objective.</p>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">${studiedCount} / ${targetTotal} Flashcards Mastered</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">${targetMessage}</p>
             <div class="progress-bar-bg" style="height: 10px; width: 100%;">
-              <div class="progress-bar-fill" style="width: 80%;"></div>
+              <div class="progress-bar-fill" style="width: ${targetPct}%;"></div>
             </div>
           </div>
           <div style="text-align: right; flex-shrink: 0;">
-            <div style="font-size: 2rem; font-weight: 800; color: var(--color-blue-bright);">80%</div>
+            <div style="font-size: 2rem; font-weight: 800; color: var(--color-blue-bright);">${targetPct}%</div>
             <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-subtle); text-transform: uppercase;">Completed</div>
           </div>
         </div>
@@ -87,39 +142,11 @@ function renderStudentDashboard() {
               <i class="fa-solid fa-clock" style="color: var(--color-purple);"></i>
               <span>Due for Spaced Review</span>
             </h3>
-            <span class="card-badge">2 Decks Due</span>
+            <span class="card-badge">${dueQueueBadge}</span>
           </div>
 
           <div class="activity-feed-list" style="margin-top: 0.85rem;">
-            <div class="activity-item" onclick="switchTab('student-decks')" style="cursor: pointer;">
-              <div class="activity-item-left">
-                <div class="activity-icon purple">
-                  <i class="fa-solid fa-brain"></i>
-                </div>
-                <div>
-                  <strong style="font-size: 0.88rem; color: var(--text-main);">Distributed Systems Core</strong>
-                  <div style="font-size: 0.78rem; color: var(--text-muted);">Interval: 3-day recall check</div>
-                </div>
-              </div>
-              <button class="btn btn-primary btn-sm" style="padding: 4px 10px; font-size: 0.75rem;">
-                <i class="fa-solid fa-play"></i> Practice
-              </button>
-            </div>
-
-            <div class="activity-item" onclick="switchTab('student-decks')" style="cursor: pointer;">
-              <div class="activity-item-left">
-                <div class="activity-icon blue">
-                  <i class="fa-solid fa-dna"></i>
-                </div>
-                <div>
-                  <strong style="font-size: 0.88rem; color: var(--text-main);">Cellular Respiration Cycle</strong>
-                  <div style="font-size: 0.78rem; color: var(--text-muted);">Interval: 7-day memory retention</div>
-                </div>
-              </div>
-              <button class="btn btn-primary btn-sm" style="padding: 4px 10px; font-size: 0.75rem;">
-                <i class="fa-solid fa-play"></i> Practice
-              </button>
-            </div>
+            ${dueQueueHTML}
           </div>
         </div>
       </div>
@@ -292,6 +319,11 @@ function renderStudentDecks(categoryFilter = activeStudentDeckFilter) {
     filtered = decks.filter(d => !d.classroom_id && d.creator === currentUserName);
   }
 
+  // Apply course-specific filter if navigated via View Flashcards
+  if (activeClassroomIdFilter) {
+    filtered = filtered.filter(d => d.classroom_id === activeClassroomIdFilter);
+  }
+
   if (studentDeckSearchQuery) {
     const q = studentDeckSearchQuery.toLowerCase();
     filtered = filtered.filter(d => d.title.toLowerCase().includes(q) || (d.subject && d.subject.toLowerCase().includes(q)));
@@ -397,8 +429,10 @@ async function deleteDeckDirect(deckId) {
 }
 
 function showDecksForClassroom(classId) {
+  activeClassroomIdFilter = classId;
+  activeStudentDeckFilter = 'classroom';
   switchTab('student-decks');
-  showToast('Displaying flashcard modules.', 'info');
+  showToast('Displaying course flashcard modules.', 'info');
 }
 
 /* Study Material Concept Generator */
@@ -460,32 +494,54 @@ async function handleGenerateFromStudyMaterial(event) {
       return;
     }
 
-    const generatedCards = data.cards;
+    const generatedCards = data.cards || [];
 
     resultContainer.style.display = 'block';
     resultContainer.innerHTML = `
       <div style="background: var(--bg-card); border: 1px solid var(--border-blue); padding: 1.5rem; border-radius: var(--radius-xl); margin-top: 1.5rem; box-shadow: var(--shadow-main);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
           <h3 style="color: var(--color-blue-bright); font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-sparkles"></i>
             <span>Synthesized Concept Flashcards</span>
           </h3>
-          <span class="card-badge">${generatedCards.length} Questions</span>
+          <span class="card-badge" id="student-ai-card-badge">${generatedCards.length} Questions</span>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; max-height: 320px; overflow-y: auto;">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          <i class="fa-solid fa-pencil" style="color: var(--color-blue-bright);"></i> You can edit questions, answers, delete unwanted cards, or add manual cards to this deck before saving.
+        </p>
+
+        <div id="student-ai-cards-list" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.25rem;">
           ${generatedCards.map((c, idx) => `
-            <div style="background: var(--bg-card-subtle); padding: 1rem; border-radius: var(--radius-md); border-left: 3px solid var(--color-blue-bright);">
-              <div style="font-weight: 700; color: var(--text-main); margin-bottom: 4px; font-size: 0.92rem;">Q${idx + 1}: ${c.question}</div>
-              <div style="color: var(--text-muted); font-size: 0.88rem;">A: ${c.answer}</div>
+            <div class="student-ai-card-row" style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); border-left: 3px solid var(--color-blue-bright);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <span style="font-weight: 700; color: var(--color-blue-bright); font-size: 0.9rem;">Flashcard #${idx + 1}</span>
+                <button type="button" class="btn btn-danger" style="padding: 4px 10px; font-size: 0.8rem;" onclick="this.closest('.student-ai-card-row').remove(); updateStudentAIPreviewCount();">
+                  <i class="fa-solid fa-trash"></i> Delete
+                </button>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div>
+                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-subtle); display: block; margin-bottom: 4px;">Question Front</label>
+                  <input type="text" class="input-field student-ai-card-q" value="${c.question.replace(/"/g, '&quot;')}" placeholder="Question Front..." required />
+                </div>
+                <div>
+                  <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-subtle); display: block; margin-bottom: 4px;">Answer Back</label>
+                  <textarea class="input-field student-ai-card-a" rows="2" placeholder="Answer Back..." required>${c.answer}</textarea>
+                </div>
+              </div>
             </div>
           `).join('')}
         </div>
 
-        <button class="btn btn-primary" onclick="addGeneratedCardsToDeck('${title.replace(/'/g, "\\'")}', ${JSON.stringify(generatedCards).replace(/"/g, '&quot;')})">
-          <i class="fa-solid fa-floppy-disk"></i>
-          <span>Save to My Decks</span>
-        </button>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" onclick="addStudentAIPendingCardRow()">
+            <i class="fa-solid fa-plus"></i> Add Flashcard to Deck
+          </button>
+          <button type="button" class="btn btn-primary" onclick="saveStudentAIPendingDeck()">
+            <i class="fa-solid fa-floppy-disk"></i> Save to My Decks
+          </button>
+        </div>
       </div>
     `;
 
@@ -499,7 +555,66 @@ async function handleGenerateFromStudyMaterial(event) {
   }
 }
 
-async function addGeneratedCardsToDeck(title, cards) {
+function updateStudentAIPreviewCount() {
+  const container = document.getElementById('student-ai-cards-list');
+  const badge = document.getElementById('student-ai-card-badge');
+  if (container && badge) {
+    const count = container.querySelectorAll('.student-ai-card-row').length;
+    badge.textContent = `${count} Questions`;
+  }
+}
+
+function addStudentAIPendingCardRow() {
+  const container = document.getElementById('student-ai-cards-list');
+  if (!container) return;
+
+  const count = container.querySelectorAll('.student-ai-card-row').length + 1;
+  const row = document.createElement('div');
+  row.className = 'student-ai-card-row';
+  row.style.cssText = 'background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); border-left: 3px solid var(--color-purple);';
+  row.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+      <span style="font-weight: 700; color: var(--color-purple); font-size: 0.9rem;">Manual Flashcard #${count}</span>
+      <button type="button" class="btn btn-danger" style="padding: 4px 10px; font-size: 0.8rem;" onclick="this.closest('.student-ai-card-row').remove(); updateStudentAIPreviewCount();">
+        <i class="fa-solid fa-trash"></i> Delete
+      </button>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <div>
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-subtle); display: block; margin-bottom: 4px;">Question Front</label>
+        <input type="text" class="input-field student-ai-card-q" placeholder="Enter question..." required />
+      </div>
+      <div>
+        <label style="font-size: 0.78rem; font-weight: 700; color: var(--text-subtle); display: block; margin-bottom: 4px;">Answer Back</label>
+        <textarea class="input-field student-ai-card-a" rows="2" placeholder="Enter answer..." required></textarea>
+      </div>
+    </div>
+  `;
+  container.appendChild(row);
+  updateStudentAIPreviewCount();
+}
+
+async function saveStudentAIPendingDeck() {
+  const titleInput = document.getElementById('study-material-title');
+  const title = (titleInput && titleInput.value.trim()) ? titleInput.value.trim() : 'Custom Study Notes';
+
+  const qInputs = document.querySelectorAll('#student-ai-cards-list .student-ai-card-q');
+  const aInputs = document.querySelectorAll('#student-ai-cards-list .student-ai-card-a');
+
+  const cards = [];
+  qInputs.forEach((qInput, idx) => {
+    const qVal = qInput.value.trim();
+    const aVal = aInputs[idx] ? aInputs[idx].value.trim() : '';
+    if (qVal && aVal) {
+      cards.push({ question: qVal, answer: aVal });
+    }
+  });
+
+  if (cards.length === 0) {
+    showToast('Please provide at least one valid question & answer card in the deck.', 'error');
+    return;
+  }
+
   try {
     const res = await fetch('/api/decks', {
       method: 'POST',
@@ -724,4 +839,181 @@ async function handleStreakGuess(event) {
     console.error(e);
     showToast('An error occurred submitting guess.', 'error');
   }
+}
+
+function renderDailyStreakChallengeModal() {
+  const streak = state.data.dailyStreak;
+  if (!streak) return;
+
+  const qBox = document.getElementById('streak-question-box');
+  const inputContainer = document.getElementById('streak-answer-input-container');
+  const feedbackBox = document.getElementById('streak-feedback-box');
+  const submitBtn = document.getElementById('btn-streak-submit');
+  const solutionBtn = document.getElementById('btn-streak-view-solution');
+
+  // Build clues rendering layout
+  let cluesHTML = `<div style="display: flex; flex-direction: column; gap: 10px; width: 100%; text-align: left;">`;
+  streak.clues.forEach((clue, idx) => {
+    const isRevealed = idx <= streak.currentClueIndex;
+    cluesHTML += `
+      <div style="background: ${isRevealed ? 'var(--bg-card-subtle)' : 'rgba(0,0,0,0.02)'}; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid ${isRevealed ? 'var(--border-blue)' : 'var(--border-subtle)'}; display: flex; flex-direction: column; gap: 4px;">
+        <span style="font-size: 0.78rem; font-weight: 800; color: ${isRevealed ? 'var(--color-blue-bright)' : 'var(--text-subtle)'}; display: flex; align-items: center; gap: 6px;">
+          <i class="fa-solid ${isRevealed ? 'fa-circle-check' : 'fa-lock'}"></i>
+          <span>Clue #${idx + 1} ${isRevealed ? '(Unlocked)' : '(Locked)'}</span>
+        </span>
+        <span style="font-size: 0.9rem; font-weight: ${isRevealed ? '700' : 'normal'}; color: ${isRevealed ? 'var(--text-main)' : 'var(--text-muted)'};">
+          ${isRevealed ? clue : 'Unlock the next clue to reveal this concept hint.'}
+        </span>
+      </div>
+    `;
+  });
+  cluesHTML += `</div>`;
+  
+  if (qBox) qBox.innerHTML = cluesHTML;
+
+  // Render modal next clue button
+  let nextClueBtn = document.getElementById('btn-streak-next-clue');
+  if (!nextClueBtn) {
+    const footerButtons = submitBtn.parentElement;
+    nextClueBtn = document.createElement('button');
+    nextClueBtn.type = 'button';
+    nextClueBtn.className = 'btn btn-secondary';
+    nextClueBtn.id = 'btn-streak-next-clue';
+    nextClueBtn.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Next Clue';
+    nextClueBtn.onclick = handleStreakNextClueInModal;
+    footerButtons.insertBefore(nextClueBtn, submitBtn);
+  }
+
+  // Update button visibility
+  if (streak.currentClueIndex >= 3 || streak.solved) {
+    nextClueBtn.style.display = 'none';
+  } else {
+    nextClueBtn.style.display = 'inline-flex';
+  }
+
+  const isAllCluesViewed = streak.currentClueIndex >= 3;
+  if (inputContainer) {
+    inputContainer.style.display = isAllCluesViewed && !streak.solved ? 'block' : 'none';
+  }
+  if (submitBtn) {
+    submitBtn.style.display = isAllCluesViewed && !streak.solved ? 'inline-flex' : 'none';
+  }
+  if (solutionBtn) {
+    solutionBtn.style.display = isAllCluesViewed && !streak.solved ? 'inline-flex' : 'none';
+  }
+
+  if (streak.solved) {
+    if (feedbackBox) {
+      feedbackBox.style.display = 'block';
+      feedbackBox.className = 'toast toast-success';
+      feedbackBox.style.background = 'rgba(5, 150, 105, 0.1)';
+      feedbackBox.style.color = 'var(--color-emerald)';
+      feedbackBox.textContent = `Solved! The correct answer is: "${streak.secretWord}". Streak increased!`;
+    }
+  }
+}
+
+async function handleStreakNextClueInModal() {
+  try {
+    const res = await fetch('/api/streak/next-clue', { method: 'POST' });
+    if (res.ok) {
+      const backendState = await res.json();
+      state.data = backendState;
+      renderDailyStreakChallengeModal();
+      showToast(`Unlocked Clue #${state.data.dailyStreak.currentClueIndex + 1}!`, 'info');
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function openDailyStreakModal() {
+  const ansInput = document.getElementById('streak-challenge-answer');
+  const feedbackBox = document.getElementById('streak-feedback-box');
+  
+  if (ansInput) {
+    ansInput.value = '';
+    ansInput.disabled = false;
+  }
+  if (feedbackBox) {
+    feedbackBox.style.display = 'none';
+    feedbackBox.className = '';
+    feedbackBox.textContent = '';
+  }
+
+  openModal('modal-streak-challenge');
+  renderDailyStreakChallengeModal();
+}
+
+async function handleSubmitStreakAnswer() {
+  const ansInput = document.getElementById('streak-challenge-answer');
+  const ans = ansInput ? ansInput.value.trim() : '';
+  if (!ans) {
+    showToast('Please type an answer.', 'warning');
+    return;
+  }
+
+  const feedbackBox = document.getElementById('streak-feedback-box');
+  const submitBtn = document.getElementById('btn-streak-submit');
+  const solutionBtn = document.getElementById('btn-streak-view-solution');
+  const nextClueBtn = document.getElementById('btn-streak-next-clue');
+
+  try {
+    const res = await fetch('/api/streak/guess', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guess: ans })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      showToast(err.error || 'Failed to submit guess.', 'error');
+      return;
+    }
+
+    const result = await res.json();
+    state.data = result.state;
+
+    // Update streak badges
+    updateHeaderStreak();
+    if (typeof renderStudentDashboard === 'function') renderStudentDashboard();
+    
+    renderDailyStreakChallengeModal();
+
+    if (result.correct) {
+      showToast(`Correct! Concept solved!`, 'success');
+    } else {
+      if (feedbackBox) {
+        feedbackBox.style.display = 'block';
+        feedbackBox.className = 'toast toast-error';
+        feedbackBox.style.background = 'rgba(244, 63, 94, 0.1)';
+        feedbackBox.style.color = 'var(--color-rose)';
+        feedbackBox.textContent = `Incorrect answer. The correct solution is: "${state.data.dailyStreak.secretWord}"`;
+      }
+      if (submitBtn) submitBtn.style.display = 'none';
+      if (solutionBtn) solutionBtn.style.display = 'none';
+      if (nextClueBtn) nextClueBtn.style.display = 'none';
+    }
+  } catch (e) {
+    console.error(e);
+    showToast('An error occurred submitting answer.', 'error');
+  }
+}
+
+function handleViewStreakSolution() {
+  const feedbackBox = document.getElementById('streak-feedback-box');
+  const submitBtn = document.getElementById('btn-streak-submit');
+  const solutionBtn = document.getElementById('btn-streak-view-solution');
+  const nextClueBtn = document.getElementById('btn-streak-next-clue');
+
+  if (feedbackBox) {
+    feedbackBox.style.display = 'block';
+    feedbackBox.className = 'toast toast-info';
+    feedbackBox.style.background = 'rgba(37, 99, 235, 0.1)';
+    feedbackBox.style.color = 'var(--color-blue-bright)';
+    feedbackBox.textContent = `Solution: ${state.data.dailyStreak.secretWord}`;
+  }
+  if (submitBtn) submitBtn.style.display = 'none';
+  if (solutionBtn) solutionBtn.style.display = 'none';
+  if (nextClueBtn) nextClueBtn.style.display = 'none';
 }

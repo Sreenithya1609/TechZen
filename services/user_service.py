@@ -17,11 +17,25 @@ def validate_user_input(name, email, password=None, is_registration=True):
         return 'Email address is too long.'
 
     if is_registration:
-        if not password or len(password) < 3:
-            return 'Password must be at least 3 characters long.'
+        if not password:
+            return 'Password is required.'
+        if len(password) < 6:
+            return 'Password must be at least 6 characters long.'
+        if not any(c.isalpha() for c in password):
+            return 'Password must contain at least one letter.'
+        if not any(c.isdigit() for c in password):
+            return 'Password must contain at least one number.'
+        if not any(not c.isalnum() and not c.isspace() for c in password):
+            return 'Password must contain at least one symbol.'
     elif password:
-        if len(password) < 3:
-            return 'New password must be at least 3 characters long.'
+        if len(password) < 6:
+            return 'New password must be at least 6 characters long.'
+        if not any(c.isalpha() for c in password):
+            return 'New password must contain at least one letter.'
+        if not any(c.isdigit() for c in password):
+            return 'New password must contain at least one number.'
+        if not any(not c.isalnum() and not c.isspace() for c in password):
+            return 'New password must contain at least one symbol.'
 
     return None
 

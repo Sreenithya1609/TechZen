@@ -41,6 +41,7 @@ def db_make_guess(user_id, guess):
         )
         conn.commit()
         conn.close()
+        record_study_activity(user_id)
         return True, True
     else:
         conn.close()

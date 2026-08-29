@@ -105,25 +105,11 @@ function renderLandingDecks(category = 'all') {
           <i class="fa-solid ${deck.tagIcon}"></i>
           <span>${deck.subject}</span>
         </div>
-        <div class="deck-modern-rating">
-          <i class="fa-solid fa-star"></i>
-          <span>${deck.rating}</span>
-        </div>
       </div>
 
       <div class="deck-modern-body">
         <h3 class="deck-modern-title">${deck.title}</h3>
         <p class="deck-modern-desc">${deck.description}</p>
-        
-        <div class="deck-modern-progress-wrap">
-          <div class="deck-modern-progress-label">
-            <span>Cohort Mastery Rate</span>
-            <strong>${deck.mastery}%</strong>
-          </div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" style="width: ${deck.mastery}%;"></div>
-          </div>
-        </div>
 
         <div class="deck-modern-footer">
           <div class="deck-author-box">
@@ -131,11 +117,6 @@ function renderLandingDecks(category = 'all') {
               <i class="fa-solid fa-chalkboard-user"></i>
             </div>
             <span>${deck.author}</span>
-          </div>
-
-          <div class="deck-count-pill">
-            <i class="fa-solid fa-layer-group"></i>
-            <span>${deck.cards} Cards</span>
           </div>
         </div>
 

@@ -133,28 +133,50 @@ class StudyEngine {
   markCard(status) {
     if (this.currentIndex >= this.cardsQueue.length) return;
 
+    const currentCard = this.cardsQueue[this.currentIndex];
     if (status === 'know') {
       this.knowCount++;
       showToast('Marked as Mastered', 'success');
     } else if (status === 'review') {
       this.reviewCount++;
-      const currentCard = this.cardsQueue[this.currentIndex];
       this.cardsQueue.push(currentCard);
       showToast('Added back to review queue', 'info');
     }
 
-    // Save study activity dynamically in SQLite
-    fetch('/api/progress/study', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    }).then(res => {
-      if (res.ok) return res.json();
-    }).then(backendState => {
-      if (backendState) {
-        state.data = backendState;
-        if (typeof renderStudentDashboard === 'function') renderStudentDashboard();
+    const cardId = currentCard ? currentCard.id : '';
+    const resultType = (status === 'know') ? 'known' : 'review';
+
+    if (cardId) {
+      // Save study activity dynamically in SQLite
+      fetch('/api/study/result', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          card_id: cardId,
+          result: resultType
+        })
+      }).then(res => {
+        if (res.ok) return res.json();
+      }).then(backendState => {
+        if (backendState) {
+          state.data = backendState;
+          if (typeof renderStudentDashboard === 'function') renderStudentDashboard();
+        }
+      }).catch(err => console.error('Failed to log study action', err));
+    }
+
+    // Increment local cards studied count
+    try {
+      const todayStr = new Date().toDateString();
+      if (localStorage.getItem('studyDay') !== todayStr) {
+        localStorage.setItem('studyDay', todayStr);
+        localStorage.setItem('cardsStudiedToday', '0');
       }
-    }).catch(err => console.error('Failed to log study action', err));
+      const currentCount = parseInt(localStorage.getItem('cardsStudiedToday') || '0');
+      localStorage.setItem('cardsStudiedToday', (currentCount + 1).toString());
+    } catch (e) {
+      console.error('Failed to update local storage study counts', e);
+    }
 
     this.currentIndex++;
     this.renderCurrentCard();
@@ -185,6 +207,26 @@ class StudyEngine {
 
       const totalPracticed = this.knowCount + this.reviewCount;
       const accuracy = totalPracticed > 0 ? Math.round((this.knowCount / totalPracticed) * 100) : 100;
+
+      // Submit final deck completion report to the backend
+      if (this.activeDeck && this.activeDeck.id) {
+        fetch('/api/progress/study', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            deck_id: this.activeDeck.id,
+            accuracy: accuracy
+          })
+        }).then(res => {
+          if (res.ok) return res.json();
+        }).then(backendState => {
+          if (backendState) {
+            state.data = backendState;
+            if (typeof renderStudentDashboard === 'function') renderStudentDashboard();
+            if (typeof renderStudentDecks === 'function') renderStudentDecks();
+          }
+        }).catch(err => console.error('Failed to post session accuracy', err));
+      }
 
       summaryView.innerHTML = `
         <div style="text-align: center; padding: 2rem 1rem;">
