@@ -156,3 +156,43 @@ def db_update_theme(user_id, theme):
     cursor.execute("UPDATE users SET theme = ? WHERE id = ?", (theme, user_id))
     conn.commit()
     conn.close()
+
+def db_google_auth(email, name=None, picture=None, google_id=None):
+    if not email:
+        return None, 'Google authentication failed: Email address not provided by Google.'
+
+    email = email.strip().lower()
+    name = (name or '').strip()
+    if not name:
+        name = email.split('@')[0].capitalize()
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id, name, role FROM users WHERE email = ?", (email,))
+    existing = cursor.fetchone()
+
+    if existing:
+        # If user exists, update name if needed and return their id
+        if name and existing['name'] != name and len(name) >= 2:
+            cursor.execute("UPDATE users SET name = ? WHERE id = ?", (name, existing['id']))
+            conn.commit()
+        user_id = existing['id']
+        conn.close()
+        return user_id, None
+
+    # New user: auto-register with student role (or teacher if revathi@gmail.com)
+    is_teacher_admin = (email == 'revathi@gmail.com')
+    role = 'teacher' if is_teacher_admin else 'student'
+    user_id = f"usr-{int(uuid.uuid4().time_low)}"
+    random_pwd = uuid.uuid4().hex + "GAuth!1"
+    hashed_pwd = generate_password_hash(random_pwd)
+
+    cursor.execute(
+        "INSERT INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)",
+        (user_id, name, email, hashed_pwd, role)
+    )
+    conn.commit()
+    conn.close()
+    return user_id, None
+

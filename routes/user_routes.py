@@ -1,9 +1,105 @@
+import os
+import json
+from urllib import error as urllib_error
+from urllib import request as urllib_request
 from flask import Blueprint, request, jsonify, session
 from database.connection import get_db_connection
-from services.user_service import db_register_user, db_login_user, db_update_profile, db_update_theme
+from services.user_service import db_register_user, db_login_user, db_update_profile, db_update_theme, db_google_auth
 from services.state_service import get_state_json, calculate_student_subject_performance
 
 user_bp = Blueprint('user_bp', __name__)
+
+@user_bp.route('/api/auth/google/config', methods=['GET'])
+def google_config():
+    client_id = os.environ.get('GOOGLE_CLIENT_ID', '').strip()
+    if not client_id:
+        try:
+            from dotenv import load_dotenv
+            load_dotenv(override=True)
+            client_id = os.environ.get('GOOGLE_CLIENT_ID', '').strip()
+        except Exception:
+            pass
+    return jsonify({
+        'clientId': client_id,
+        'configured': bool(client_id)
+    })
+
+@user_bp.route('/api/auth/google', methods=['POST'])
+def google_auth():
+    data = request.json or {}
+    credential = data.get('credential')
+    access_token = data.get('access_token')
+
+    if not credential and not access_token:
+        return jsonify({'error': 'Google authentication token is missing.'}), 400
+
+    # Quick demo verification fallback (for testing before user enters their OAuth Client ID)
+    if credential == 'demo-google-token':
+        demo_email = data.get('demo_email', 'scholar.google@domain.edu').strip().lower()
+        demo_name = data.get('demo_name', 'Scholar Vance').strip()
+        user_id, error = db_google_auth(demo_email, demo_name)
+        if error:
+            return jsonify({'error': error}), 400
+        session['user_id'] = user_id
+        return jsonify(get_state_json(user_id))
+
+    email = None
+    name = None
+    picture = None
+    google_id = None
+
+    try:
+        if credential:
+            # Verify Google JWT ID Token via Google's official tokeninfo endpoint
+            verify_url = f"https://oauth2.googleapis.com/tokeninfo?id_token={credential}"
+            req = urllib_request.Request(verify_url, headers={'User-Agent': 'FlashLearn-App'})
+            with urllib_request.urlopen(req, timeout=10) as resp:
+                token_info = json.loads(resp.read().decode('utf-8'))
+
+            configured_client_id = os.environ.get('GOOGLE_CLIENT_ID', '').strip()
+            if configured_client_id and token_info.get('aud') != configured_client_id:
+                return jsonify({'error': 'Security check failed: Google Client ID mismatch.'}), 403
+
+            email = token_info.get('email')
+            name = token_info.get('name') or token_info.get('given_name')
+            picture = token_info.get('picture')
+            google_id = token_info.get('sub')
+            email_verified = token_info.get('email_verified')
+            if str(email_verified).lower() not in ('true', '1'):
+                return jsonify({'error': 'Google email address is not verified.'}), 400
+
+        elif access_token:
+            # Verify Access Token via UserInfo endpoint
+            userinfo_url = "https://www.googleapis.com/oauth2/v3/userinfo"
+            req = urllib_request.Request(userinfo_url, headers={
+                'Authorization': f'Bearer {access_token}',
+                'User-Agent': 'FlashLearn-App'
+            })
+            with urllib_request.urlopen(req, timeout=10) as resp:
+                token_info = json.loads(resp.read().decode('utf-8'))
+
+            email = token_info.get('email')
+            name = token_info.get('name')
+            picture = token_info.get('picture')
+            google_id = token_info.get('sub')
+            email_verified = token_info.get('email_verified')
+            if str(email_verified).lower() not in ('true', '1'):
+                return jsonify({'error': 'Google email address is not verified.'}), 400
+
+    except urllib_error.HTTPError as e:
+        return jsonify({'error': f'Google token validation error: {e.reason}'}), 401
+    except Exception as e:
+        return jsonify({'error': f'Failed to verify with Google servers: {str(e)}'}), 500
+
+    if not email:
+        return jsonify({'error': 'Unable to retrieve user email from Google.'}), 400
+
+    user_id, error = db_google_auth(email, name, picture=picture, google_id=google_id)
+    if error:
+        return jsonify({'error': error}), 400
+
+    session['user_id'] = user_id
+    return jsonify(get_state_json(user_id))
 
 @user_bp.route('/api/auth/register', methods=['POST'])
 def register():
@@ -42,6 +138,7 @@ def login():
 def logout():
     session.pop('user_id', None)
     return jsonify(get_state_json(None))
+
 
 @user_bp.route('/api/auth/profile', methods=['PUT'])
 def update_profile():

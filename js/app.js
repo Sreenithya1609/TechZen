@@ -250,6 +250,131 @@ async function handleRegister(event) {
   }
 }
 
+// Google Auth Configuration & Client State
+let googleAuthConfig = {
+  clientId: '',
+  configured: false
+};
+let googleTokenClient = null;
+
+// Initialize Google OAuth config from server
+async function initGoogleAuth() {
+  try {
+    const res = await fetch('/api/auth/google/config');
+    if (res.ok) {
+      googleAuthConfig = await res.json();
+      setupGoogleGISClient();
+    }
+  } catch (e) {
+    console.warn('Unable to load Google Auth configuration:', e);
+  }
+}
+
+// Setup Google Identity Services client
+function setupGoogleGISClient() {
+  if (!googleAuthConfig.clientId || typeof google === 'undefined' || !google.accounts) {
+    return;
+  }
+
+  try {
+    // Initialize ID Token flow
+    google.accounts.id.initialize({
+      client_id: googleAuthConfig.clientId,
+      callback: handleGoogleCredentialResponse,
+      auto_select: false,
+      cancel_on_tap_outside: true
+    });
+
+    // Initialize OAuth2 Token client for custom button popup
+    googleTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: googleAuthConfig.clientId,
+      scope: 'email profile openid',
+      callback: async (tokenResponse) => {
+        if (tokenResponse && tokenResponse.access_token) {
+          await verifyGoogleToken({ access_token: tokenResponse.access_token });
+        }
+      },
+      error_callback: (err) => {
+        console.warn('Google Token Client error:', err);
+        showToast('Google Sign-In was cancelled or failed.', 'info');
+      }
+    });
+  } catch (err) {
+    console.warn('Error setting up Google GIS:', err);
+  }
+}
+
+// Handler when user clicks "Continue with Google"
+function initiateGoogleSignIn() {
+  if (!googleAuthConfig.configured || !googleAuthConfig.clientId) {
+    // Display guidance modal explaining how to configure Google Client ID
+    openModal('modal-google-setup');
+    return;
+  }
+
+  if (typeof google === 'undefined' || !google.accounts) {
+    showToast('Google Identity Service is loading. Please try again in a moment.', 'info');
+    return;
+  }
+
+  // If tokenClient is ready, request popup
+  if (googleTokenClient) {
+    googleTokenClient.requestAccessToken({ prompt: 'select_account' });
+  } else {
+    // Fallback to prompt
+    google.accounts.id.prompt();
+  }
+}
+
+// Callback for ID token response
+async function handleGoogleCredentialResponse(response) {
+  if (response && response.credential) {
+    await verifyGoogleToken({ credential: response.credential });
+  }
+}
+
+// Verify Google Token with FlashLearn backend
+async function verifyGoogleToken(payload) {
+  try {
+    showToast('Connecting with Google...', 'info');
+    const res = await fetch('/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      showToast(err.error || 'Google authentication failed.', 'error');
+      return;
+    }
+
+    const backendState = await res.json();
+    state.data = backendState;
+
+    showToast(`Welcome, ${state.data.currentUser.name}! Signed in with Google.`, 'success');
+    closeModal('modal-google-setup');
+    updateAppAuthUI();
+  } catch (e) {
+    console.error('Google auth error:', e);
+    showToast('Unable to complete Google Sign-In.', 'error');
+  }
+}
+
+// Demo Google Account testing
+async function loginWithGoogleDemoAccount() {
+  await verifyGoogleToken({
+    credential: 'demo-google-token',
+    demo_email: 'scholar.google@domain.edu',
+    demo_name: 'Scholar Vance'
+  });
+}
+
+// Run Google Auth config fetch immediately
+initGoogleAuth();
+window.addEventListener('load', setupGoogleGISClient);
+
+
 // Handle User Logout
 async function handleLogout() {
   try {
