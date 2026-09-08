@@ -15,9 +15,30 @@ def init_db():
         password TEXT NOT NULL,
         role TEXT NOT NULL CHECK(role IN ('teacher', 'student')),
         theme TEXT DEFAULT 'light',
+        google_sub TEXT UNIQUE,
+        email_verified_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     ''')
+
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS auth_tokens (
+        token_hash TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        token_type TEXT NOT NULL CHECK(token_type IN ('email_verification', 'password_reset')),
+        expires_at TIMESTAMP NOT NULL,
+        used_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+    ''')
+
+    # Add account fields to databases created by older versions of FlashLearn.
+    existing_columns = {row['name'] for row in cursor.execute("PRAGMA table_info(users)").fetchall()}
+    if 'google_sub' not in existing_columns:
+        cursor.execute('ALTER TABLE users ADD COLUMN google_sub TEXT')
+    if 'email_verified_at' not in existing_columns:
+        cursor.execute('ALTER TABLE users ADD COLUMN email_verified_at TIMESTAMP')
 
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS classrooms (
@@ -114,7 +135,7 @@ def init_db():
     if cursor.fetchone()[0] == 0:
         print("Seeding database with secure enterprise default values...")
         
-        default_pwd_hash = generate_password_hash('Password123!')
+        default_pwd_hash = generate_password_hash('Techzen_123')
 
         # 1. Users (revathi@gmail.com is TEACHER / Faculty Admin. All others are STUDENT)
         users = [
@@ -222,6 +243,7 @@ def init_db():
     # Dynamic Roles Migration & Integrity Checks (enforce only revathi@gmail.com is TEACHER)
     cursor.execute("UPDATE users SET role = 'student' WHERE email != 'revathi@gmail.com' AND role = 'teacher'")
     cursor.execute("UPDATE users SET role = 'teacher' WHERE email = 'revathi@gmail.com' AND role = 'student'")
+    cursor.execute("UPDATE users SET email_verified_at = COALESCE(email_verified_at, created_at) WHERE email_verified_at IS NULL")
     conn.commit()
     conn.close()
 

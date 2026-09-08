@@ -202,9 +202,14 @@ async function handleRegister(event) {
   const name = document.getElementById('reg-name').value.trim();
   const email = document.getElementById('reg-email').value.trim();
   const password = document.getElementById('reg-password').value;
+  const confirmPassword = document.getElementById('reg-confirm-password').value;
 
   if (!name || !email || !password) {
     showToast('Please fill out all registration fields.', 'error');
+    return;
+  }
+  if (password !== confirmPassword) {
+    showToast('Password and confirmation password must match.', 'error');
     return;
   }
 
@@ -230,7 +235,7 @@ async function handleRegister(event) {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password })
+      body: JSON.stringify({ name, email, password, confirm_password: confirmPassword })
     });
 
     if (!res.ok) {
@@ -240,10 +245,12 @@ async function handleRegister(event) {
     }
 
     const backendState = await res.json();
-    state.data = backendState;
-
-    showToast(`Account created successfully! Welcome, ${state.data.currentUser.name}!`, 'success');
-    updateAppAuthUI();
+    if (backendState.dev_verification_link) {
+      showToast(`Account created. Development verification link: ${backendState.dev_verification_link}`, 'success');
+    } else {
+      showToast(backendState.message || 'Account created. Check your email to verify it.', 'success');
+    }
+    toggleAuthTab('login');
   } catch (e) {
     console.error(e);
     showToast('An error occurred during registration.', 'error');

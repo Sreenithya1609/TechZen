@@ -465,6 +465,13 @@
           <i class="fa-solid fa-right-to-bracket"></i>
           <span>Sign In to FlashLearn</span>
         </button>
+        <div class="auth-divider">
+          <span style="font-size: 1.0rem; color: var(--text-subtle);">or</span>
+        </div>
+        <button type="button" class="btn btn-secondary auth-google-btn" onclick="startGoogleAuth()">
+          <i class="fa-brands fa-google"></i><span>Continue with Google</span>
+        </button>
+        <button type="button" class="cyber-return-link" onclick="openModal('modal-forgot-password')">Forgot password?</button>
       </form>
 
       <!-- Registration Form -->
@@ -510,11 +517,25 @@
             <i class="fa-solid fa-eye input-eye-neon" id="reg-pwd-eye" onclick="togglePasswordVisibility('reg-password', 'reg-pwd-eye')" title="Toggle Password Visibility"></i>
           </div>
         </div>
+        <div class="form-group-cyber">
+          <label class="form-label-cyber">Confirm Master Password</label>
+          <div class="input-cyber-wrapper">
+            <i class="fa-solid fa-check-double input-icon-neon"></i>
+            <input type="password" id="reg-confirm-password" class="input-cyber" placeholder="Repeat your password" minlength="6" required />
+          </div>
+          <div></div>
+        </div>
 
         <button type="submit" class="btn-cyber-primary">
           <span class="btn-shimmer"></span>
           <i class="fa-solid fa-user-plus"></i>
           <span>Create Account</span>
+        </button>
+        <div class="auth-divider">
+          <span style="font-size: 1.0rem; color: var(--text-subtle);">or</span>
+        </div>
+        <button type="button" class="btn btn-secondary auth-google-btn" onclick="startGoogleAuth()">
+          <i class="fa-brands fa-google"></i><span>Continue with Google</span>
         </button>
       </form>
 
@@ -1172,6 +1193,26 @@
   </div>
 
   <!-- ================= MODALS ================= -->
+  <div class="modal-backdrop" id="modal-forgot-password">
+    <div class="modal-card">
+      <div class="modal-header"><h2><i class="fa-solid fa-key" style="color: var(--color-blue-bright);"></i><span>Reset Password</span></h2><button class="modal-close-btn" onclick="closeModal('modal-forgot-password')"><i class="fa-solid fa-xmark"></i></button></div>
+      <form onsubmit="handleForgotPassword(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+        <p style="color: var(--text-muted);">Enter your account email and we will send reset instructions.</p>
+        <input type="email" id="forgot-password-email" class="input-field" placeholder="name@domain.edu" required />
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i><span>Send Reset Link</span></button>
+      </form>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="modal-reset-password">
+    <div class="modal-card">
+      <div class="modal-header"><h2><i class="fa-solid fa-lock" style="color: var(--color-blue-bright);"></i><span>Choose New Password</span></h2><button class="modal-close-btn" onclick="closeModal('modal-reset-password')"><i class="fa-solid fa-xmark"></i></button></div>
+      <form onsubmit="handleResetPassword(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+        <input type="password" id="reset-password" class="input-field" placeholder="New password" minlength="6" required />
+        <input type="password" id="reset-confirm-password" class="input-field" placeholder="Confirm new password" minlength="6" required />
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i><span>Reset Password</span></button>
+      </form>
+    </div>
+  </div>
   <!-- Student Progress Report Modal -->
   <div class="modal-backdrop" id="modal-student-report">
     <div class="modal-card">
@@ -1472,6 +1513,31 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function startGoogleAuth() {
+      window.location.href = '/api/auth/google';
+    }
+
+    async function handleForgotPassword(event) {
+      event.preventDefault();
+      const email = document.getElementById('forgot-password-email').value.trim();
+      const res = await fetch('/api/auth/forgot-password', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email }) });
+      const data = await res.json();
+      closeModal('modal-forgot-password');
+      showToast(data.dev_reset_link ? `Development reset link: ${data.dev_reset_link}` : data.message, res.ok ? 'success' : 'error');
+    }
+
+    async function handleResetPassword(event) {
+      event.preventDefault();
+      const token = new URLSearchParams(window.location.search).get('reset_token');
+      const password = document.getElementById('reset-password').value;
+      const confirmPassword = document.getElementById('reset-confirm-password').value;
+      const res = await fetch('/api/auth/reset-password', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ token, password, confirm_password: confirmPassword }) });
+      const data = await res.json();
+      closeModal('modal-reset-password');
+      showToast(data.message || data.error, res.ok ? 'success' : 'error');
+      if (res.ok) window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     function switchTab(tabKey) {
       localStorage.setItem('currentView', 'tab:' + tabKey);
       document.getElementById('landing-view').style.display = 'none';
@@ -1542,6 +1608,10 @@
       }
 
       const currentView = localStorage.getItem('currentView');
+
+      if (new URLSearchParams(window.location.search).get('reset_token')) {
+        openModal('modal-reset-password');
+      }
 
       if (state.data.currentUser) {
         updateAppAuthUI(true); // skip default tab switching
