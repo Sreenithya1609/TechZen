@@ -1507,6 +1507,72 @@ body {
   100% { left: 100%; }
 }
 
+/* Google Continue Button */
+.btn-google-auth {
+  width: 100%;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 12px;
+  color: #f8fafc;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.94rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  margin-bottom: 0.25rem;
+}
+
+.btn-google-auth:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(66, 133, 244, 0.35);
+  color: #ffffff;
+}
+
+.btn-google-auth:active {
+  transform: translateY(0);
+}
+
+.google-icon-svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* Subtle Auth Divider */
+.auth-divider-cyber {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0.6rem 0 1rem;
+  width: 100%;
+}
+
+.auth-divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+}
+
+.auth-divider-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
 /* Return Footer */
 .auth-cyber-footer {
   text-align: center;
@@ -2907,3 +2973,26 @@ body:not(.dark-theme) .cyber-return-link {
 body:not(.dark-theme) .cyber-return-link:hover {
   color: var(--color-blue-medium);
 }
+
+body:not(.dark-theme) .btn-google-auth {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+body:not(.dark-theme) .btn-google-auth:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+  box-shadow: 0 4px 14px rgba(66, 133, 244, 0.2);
+}
+
+body:not(.dark-theme) .auth-divider-line {
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.12), transparent);
+}
+
+body:not(.dark-theme) .auth-divider-text {
+  color: #94a3b8;
+}
+

@@ -351,5 +351,60 @@ class FlashLearnBackendTestCase(unittest.TestCase):
                 self.assertIn('status', sub)
                 self.assertIn(sub['status'], ['GOOD', 'LAGGING', 'NO_ATTEMPTS'])
 
+    def test_google_auth_endpoints(self):
+        # 1. Config endpoint
+        config_resp = self.client.get('/api/auth/google/config')
+        self.assertEqual(config_resp.status_code, 200)
+        config_data = json.loads(config_resp.data)
+        self.assertIn('clientId', config_data)
+        self.assertIn('configured', config_data)
+
+        # 2. Missing token
+        err_resp = self.client.post('/api/auth/google', json={})
+        self.assertEqual(err_resp.status_code, 400)
+
+        # 3. Demo token auto-registers student
+        demo_resp = self.client.post('/api/auth/google', json={
+            'credential': 'demo-google-token',
+            'demo_email': 'alex.google@domain.edu',
+            'demo_name': 'Alex Google'
+        })
+        self.assertEqual(demo_resp.status_code, 200)
+        user_state = json.loads(demo_resp.data)
+        self.assertEqual(user_state['currentUser']['email'], 'alex.google@domain.edu')
+        self.assertEqual(user_state['currentUser']['name'], 'Alex Google')
+        self.assertEqual(user_state['currentUser']['role'], 'student')
+
+        # 4. Google login with existing seeded teacher email
+        teacher_google_resp = self.client.post('/api/auth/google', json={
+            'credential': 'demo-google-token',
+            'demo_email': 'revathi@gmail.com',
+            'demo_name': 'Revathi Faculty'
+        })
+        self.assertEqual(teacher_google_resp.status_code, 200)
+        t_state = json.loads(teacher_google_resp.data)
+        self.assertEqual(t_state['currentUser']['role'], 'teacher')
+
+        # 5. Mock Google Token verification via urllib
+        mock_response = unittest.mock.MagicMock()
+        mock_response.read.return_value = json.dumps({
+            'aud': os.environ.get('GOOGLE_CLIENT_ID', '').strip(),
+            'email': 'newstudent@gmail.com',
+            'name': 'New Google Student',
+            'sub': 'google-123456789',
+            'email_verified': 'true'
+        }).encode('utf-8')
+        mock_response.__enter__.return_value = mock_response
+
+        with unittest.mock.patch('urllib.request.urlopen', return_value=mock_response):
+            real_mock_resp = self.client.post('/api/auth/google', json={
+                'credential': 'valid-google-mock-jwt'
+            })
+            self.assertEqual(real_mock_resp.status_code, 200)
+            mock_data = json.loads(real_mock_resp.data)
+            self.assertEqual(mock_data['currentUser']['email'], 'newstudent@gmail.com')
+            self.assertEqual(mock_data['currentUser']['name'], 'New Google Student')
+
 if __name__ == '__main__':
     unittest.main()
+

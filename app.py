@@ -4,6 +4,22 @@ import json
 from dotenv import load_dotenv
 from urllib import error as urllib_error
 from urllib import request as urllib_request
+# Resilient .env loader with built-in fallback (works even without python-dotenv installed)
+def _load_env():
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(override=True)
+    except ImportError:
+        env_file = os.path.join(os.path.dirname(__file__), '.env')
+        if os.path.exists(env_file):
+            with open(env_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        k, v = line.split('=', 1)
+                        os.environ[k.strip()] = v.strip().strip('"').strip("'")
+_load_env()
+
 from flask import Flask, jsonify, request, session, send_from_directory
 from database.connection import get_db_connection
 from database.init_db import init_db
