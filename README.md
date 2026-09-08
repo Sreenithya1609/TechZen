@@ -22,14 +22,27 @@ cd Techzen
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-python -m pip install Flask
+python -m pip install -r requirements.txt
 ```
+
+Copy `.env.example` to `.env`, replace the Google OAuth placeholders with values from Google Cloud Console, and restart Flask after changing `.env`.
 
 Configure Gemini before starting the server. In PowerShell, set the replacement API key in the current terminal session:
 
 ```powershell
 $env:GEMINI_API_KEY = "your-gemini-api-key"
 $env:GEMINI_MODEL = "gemini-2.5-flash"
+
+# Optional production email delivery
+$env:SMTP_HOST = "smtp.example.com"
+$env:SMTP_PORT = "587"
+$env:SMTP_USERNAME = "your-smtp-user"
+$env:SMTP_PASSWORD = "your-smtp-password"
+$env:SMTP_FROM = "FlashLearn <no-reply@example.com>"
+
+# Optional Google OAuth
+$env:GOOGLE_CLIENT_ID = "your-google-client-id"
+$env:GOOGLE_CLIENT_SECRET = "your-google-client-secret"
 ```
 
 The key is used only by the Flask backend and is never sent to the browser. Do not commit it to the repository.
@@ -46,7 +59,7 @@ If PowerShell blocks virtual-environment activation, run the commands from Comma
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install Flask
+python -m pip install -r requirements.txt
 ```
 
 The project creates and seeds `flashlearn.db` automatically when the application starts. You do not need to create the database manually.
@@ -137,5 +150,8 @@ images/                   Static image assets
 ## Notes
 
 - The application uses Flask sessions for login state.
-- FlashLearn currently stores passwords as plain text for this prototype; production deployments should use password hashing and environment-based secrets.
+- Passwords are stored with Werkzeug password hashes. Email verification and password-reset tokens are stored only as SHA-256 hashes and expire after use or timeout.
+- For Google OAuth, register this callback URL in Google Cloud Console: `http://localhost:5000/api/auth/google/callback` (use your HTTPS production URL in deployment). Google passwords are never stored.
+- Configure `SMTP_*` variables to send verification and reset emails. Without SMTP, development responses include a one-time link for local testing; production responses never expose tokens.
+- Set `FLASK_SECRET_KEY` to a long random value and set `FLASK_SESSION_COOKIE_SECURE=1` when serving over HTTPS.
 - The teacher flashcard generator uses Google Gemini through the server-side `/api/ai/generate` endpoint. It requires `GEMINI_API_KEY` to be configured.

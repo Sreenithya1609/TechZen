@@ -1,6 +1,7 @@
 import os
 import re
 import json
+from dotenv import load_dotenv
 from urllib import error as urllib_error
 from urllib import request as urllib_request
 from flask import Flask, jsonify, request, session, send_from_directory
@@ -13,8 +14,18 @@ from routes.deck_routes import deck_bp
 from routes.streak_routes import streak_bp
 from routes.progress_routes import progress_bp
 
+load_dotenv()
+
 app = Flask(__name__, static_folder='.', static_url_path='')
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'flashlearn-super-secret-key-13579')
+app.config.update(
+    GOOGLE_CLIENT_ID=os.environ.get('GOOGLE_CLIENT_ID'),
+    GOOGLE_CLIENT_SECRET=os.environ.get('GOOGLE_CLIENT_SECRET'),
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    SESSION_COOKIE_SECURE=os.environ.get('FLASK_SESSION_COOKIE_SECURE', '0') == '1',
+    PERMANENT_SESSION_LIFETIME=86400 * 30
+)
 
 # Ensure DB is initialized and seeded on start
 init_db()
