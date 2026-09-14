@@ -1,23 +1,31 @@
 import os
+import re
+import uuid
+from datetime import datetime
+import json
 from urllib.parse import urlencode
+from urllib import error as urllib_error
+from urllib import request as urllib_request
 from flask import Blueprint, request, jsonify, session, redirect, url_for, current_app
+from werkzeug.security import generate_password_hash, check_password_hash
 from database.connection import get_db_connection
+from services.auth_middleware import require_role
 from services.user_service import (
     db_register_user, db_login_user, db_update_profile, db_update_theme,
     create_auth_token, consume_auth_token, db_set_password_from_reset,
-    db_find_or_create_google_user, db_change_password, send_auth_email
+    db_find_or_create_google_user, db_change_password, send_auth_email,
+    db_google_auth, db_request_teacher_access, EMAIL_REGEX, record_user_login
 )
-
-import json
-from urllib import error as urllib_error
-from urllib import request as urllib_request
-from flask import Blueprint, request, jsonify, session
-from database.connection import get_db_connection
-from services.user_service import db_register_user, db_login_user, db_update_profile, db_update_theme, db_google_auth
-
 from services.state_service import get_state_json, calculate_student_subject_performance
 
 user_bp = Blueprint('user_bp', __name__)
+
+def error_response(code, message, status_code=400):
+    return jsonify({
+        'error': message,
+        'code': code,
+        'message': message
+    }), status_code
 
 @user_bp.route('/api/auth/google/config', methods=['GET'])
 def google_config():
@@ -109,34 +117,123 @@ def google_auth():
         return jsonify({'error': error}), 400
 
     session['user_id'] = user_id
+    record_user_login(user_id, request.remote_addr, request.headers.get('User-Agent'))
     return jsonify(get_state_json(user_id))
 
 @user_bp.route('/api/auth/register', methods=['POST'])
 def register():
-    data = request.json or {}
-    name = data.get('name', '').strip()
-    email = data.get('email', '').strip().lower()
-    password = data.get('password', '').strip()
-    confirm_password = data.get('confirm_password', '').strip()
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return error_response("INVALID_INPUT", "Request body must be a valid JSON object")
 
-    if not name or not email or not password:
-        return jsonify({'error': 'Full name, email address, and password are required.'}), 400
-    if password != confirm_password:
-        return jsonify({'error': 'Password and confirmation password must match.'}), 400
+    # Step 2.2 — Validate registration data (check types before using .strip())
+    # 1. Validate Name
+    name = data.get("name")
+    if not isinstance(name, str):
+        return error_response("INVALID_NAME", "Name must be a string")
+    name = name.strip()
+    if not name:
+        return error_response("INVALID_NAME", "Full name is required.")
+    if len(name) < 2:
+        return error_response("INVALID_NAME", "Full name must be at least 2 characters long.")
+    if len(name) > 80:
+        return error_response("INVALID_NAME", "Full name cannot exceed 80 characters.")
 
-    user_id, error = db_register_user(name, email, password)
-    if error:
-        return jsonify({'error': error}), 400
+    # 2. Validate Email
+    email = data.get("email")
+    if not isinstance(email, str):
+        return error_response("INVALID_EMAIL", "Email must be a string")
+    email = email.strip()
+    if not email:
+        return error_response("INVALID_EMAIL", "Email address is required.")
+    if not EMAIL_REGEX.match(email):
+        return error_response("INVALID_EMAIL", "Please enter a valid email address.")
+    if len(email) > 120:
+        return error_response("INVALID_EMAIL", "Email address is too long.")
+    email = email.lower()
 
-    session['user_id'] = user_id
-    token = create_auth_token(user_id, 'email_verification')
-    verification_link = url_for('user_bp.verify_email', token=token, _external=True)
-    send_auth_email(email, 'Verify your FlashLearn email', verification_link, 'Verify your FlashLearn account:')
-    response = {'verification_required': True, 'message': 'Account created. Verify your email before signing in.'}
-    if current_app.config.get('ENV') != 'production':
-        response['dev_verification_link'] = verification_link
+    # 3. Validate Password
+    password = data.get("password")
+    if not isinstance(password, str):
+        return error_response("INVALID_PASSWORD", "Password must be a string")
+    if not password:
+        return error_response("INVALID_PASSWORD", "Password is required.")
+    if len(password) < 6:
+        return error_response("INVALID_PASSWORD", "Password must be at least 6 characters long.")
+    if not any(c.isalpha() for c in password):
+        return error_response("INVALID_PASSWORD", "Password must contain at least one letter.")
+    if not any(c.isdigit() for c in password):
+        return error_response("INVALID_PASSWORD", "Password must contain at least one number.")
+    if not any(not c.isalnum() and not c.isspace() for c in password):
+        return error_response("INVALID_PASSWORD", "Password must contain at least one symbol.")
+
+    confirm_password = data.get("confirm_password")
+    if confirm_password is not None:
+        if not isinstance(confirm_password, str):
+            return error_response("INVALID_CONFIRM_PASSWORD", "Confirm password must be a string")
+        if password != confirm_password.strip():
+            return error_response("PASSWORD_MISMATCH", "Password and confirmation password must match.")
+
+    # 4. Validate Role
+    role = data.get("role", "student")
+    if role is None:
+        role = "student"
+    if not isinstance(role, str):
+        return error_response("INVALID_ROLE", "Role must be a string")
+    role = role.strip().lower()
+    if role not in ["student", "teacher", "admin"]:
+        return error_response("INVALID_ROLE", "Role must be either 'student' or 'teacher'")
+
+    # Step 2.1 — Check Duplicate Email
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+    existing = cursor.fetchone()
+    if existing:
+        conn.close()
+        return error_response("EMAIL_EXISTS", "An account with this email already exists.")
+
+    # Step 2.3 — Hash Password
+    hashed_pwd = generate_password_hash(password)
+
+    # Step 2.1 — Create User & Assign Role
+    user_id = f"usr-{int(uuid.uuid4().time_low)}"
+    now_iso = datetime.utcnow().isoformat()
+
+    if role == "teacher":
+        assigned_role = "student"
+        teacher_status = "pending"
+    else:
+        # standard student or attempted admin escalation defaults to student
+        assigned_role = "student"
+        teacher_status = "none"
+
+    cursor.execute(
+        "INSERT INTO users (id, name, email, password, role, teacher_status, email_verified_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (user_id, name, email, hashed_pwd, assigned_role, teacher_status, now_iso, now_iso)
+    )
+
+    if teacher_status == "pending":
+        app_id = f"app-{int(uuid.uuid4().time_low)}"
+        cursor.execute(
+            "INSERT INTO teacher_applications (id, user_id, status, submitted_at) VALUES (?, ?, 'pending', ?)",
+            (app_id, user_id, now_iso)
+        )
+
+    conn.commit()
+    conn.close()
+
+    # Step 2.1 — Return Response (passwords never returned)
     session.clear()
-    return jsonify(response), 201
+    session['user_id'] = user_id
+    session.permanent = True
+    record_user_login(user_id, request.remote_addr, request.headers.get('User-Agent'))
+    state = get_state_json(user_id)
+    if teacher_status == 'pending':
+        state['message'] = 'Account created with Teacher application submitted for Admin review!'
+    else:
+        state['message'] = 'Account created successfully. Welcome!'
+    return jsonify(state), 200
 
 @user_bp.route('/api/auth/login', methods=['POST'])
 def login():
@@ -159,13 +256,139 @@ def login():
     session.clear()
     session['user_id'] = user_id
     session.permanent = True
-    return jsonify(get_state_json(user_id))
+    record_user_login(user_id, request.remote_addr, request.headers.get('User-Agent'))
+    return jsonify(get_state_json(user_id)), 200
 
 @user_bp.route('/api/auth/logout', methods=['POST'])
 def logout():
     session.clear()
     return jsonify(get_state_json(None))
 
+@user_bp.route('/api/teacher/request', methods=['POST'])
+def request_teacher_access():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required. Please sign in.'}), 401
+
+    status, error = db_request_teacher_access(user_id)
+    if error:
+        return jsonify({'error': error}), 400
+
+    return jsonify({
+        'message': 'Teacher request submitted successfully',
+        'teacher_status': status
+    }), 200
+
+@user_bp.route('/api/auth/verify-email', methods=['GET'])
+def verify_email():
+    user_id = consume_auth_token(request.args.get('token', ''), 'email_verification')
+    if not user_id:
+        return jsonify({'error': 'This verification link is invalid or expired.'}), 400
+    return jsonify({'success': True, 'message': 'Email verified. You can now sign in.'})
+
+@user_bp.route('/api/auth/resend-verification', methods=['POST'])
+def resend_verification():
+    data = request.json or {}
+    email = data.get('email', '').strip().lower()
+    conn = get_db_connection()
+    user = conn.execute("SELECT id, email_verified_at FROM users WHERE email = ?", (email,)).fetchone()
+    conn.close()
+    response = {'success': True, 'message': 'If that account exists and needs verification, a new link has been sent.'}
+    if user and not user['email_verified_at']:
+        token = create_auth_token(user['id'], 'email_verification')
+        verification_link = url_for('user_bp.verify_email', token=token, _external=True)
+        send_auth_email(email, 'Verify your FlashLearn email', verification_link, 'Verify your FlashLearn account:')
+        if current_app.config.get('ENV') != 'production':
+            response['dev_verification_link'] = verification_link
+    return jsonify(response)
+
+@user_bp.route('/api/auth/forgot-password', methods=['POST'])
+def forgot_password():
+    email = (request.json or {}).get('email', '').strip().lower()
+    conn = get_db_connection()
+    user = conn.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()
+    conn.close()
+    response = {'success': True, 'message': 'If that account exists, password reset instructions have been sent.'}
+    if user:
+        token = create_auth_token(user['id'], 'password_reset', 1)
+        reset_link = url_for('index', reset_token=token, _external=True)
+        send_auth_email(email, 'Reset your FlashLearn password', reset_link, 'Reset your FlashLearn password:')
+        if current_app.config.get('ENV') != 'production':
+            response['dev_reset_link'] = reset_link
+    return jsonify(response)
+
+@user_bp.route('/api/auth/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    if request.method == 'GET':
+        return redirect('/?reset_token=' + request.args.get('token', ''))
+    data = request.json or {}
+    token = data.get('token', '')
+    password = data.get('password', '').strip()
+    confirm_password = data.get('confirm_password', '').strip()
+    if password != confirm_password:
+        return jsonify({'error': 'Password and confirmation password must match.'}), 400
+    from services.user_service import validate_user_input
+    validation_error = validate_user_input('Valid User', 'user@example.com', password, is_registration=True)
+    if validation_error:
+        return jsonify({'error': validation_error}), 400
+    user_id = consume_auth_token(token, 'password_reset')
+    if not user_id:
+        return jsonify({'error': 'This reset link is invalid or expired.'}), 400
+    success, error = db_set_password_from_reset(user_id, password)
+    if not success:
+        return jsonify({'error': error}), 400
+    return jsonify({'success': True, 'message': 'Password reset successfully. You can now sign in.'})
+
+@user_bp.route('/api/auth/change-password', methods=['PUT'])
+def change_password():
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Authentication required.'}), 401
+    data = request.json or {}
+    current_password = data.get('current_password', '')
+    new_password = data.get('new_password', '')
+    confirm_password = data.get('confirm_password', '')
+    if new_password != confirm_password:
+        return jsonify({'error': 'Password and confirmation password must match.'}), 400
+    conn = get_db_connection()
+    user = conn.execute("SELECT email FROM users WHERE id = ?", (user_id,)).fetchone()
+    conn.close()
+    if not user or db_login_user(user['email'], current_password) != user_id:
+        return jsonify({'error': 'Current password is incorrect.'}), 400
+    success, error = db_change_password(user_id, new_password)
+    if not success:
+        return jsonify({'error': error}), 400
+    return jsonify({'success': True, 'message': 'Password changed successfully.'})
+
+@user_bp.route('/api/auth/google')
+def google_login():
+    client_id = current_app.config.get('GOOGLE_CLIENT_ID')
+    if not client_id or not current_app.config.get('GOOGLE_CLIENT_SECRET'):
+        return jsonify({'error': 'Google login is not configured on this server.'}), 503
+    session['oauth_next'] = request.args.get('next', '/')
+    redirect_uri = url_for('user_bp.google_callback', _external=True)
+    params = {'client_id': client_id, 'redirect_uri': redirect_uri, 'response_type': 'code', 'scope': 'openid email profile', 'access_type': 'offline', 'prompt': 'select_account'}
+    return redirect('https://accounts.google.com/o/oauth2/v2/auth?' + urlencode(params))
+
+@user_bp.route('/api/auth/google/callback')
+def google_callback():
+    # Token exchange and ID-token signature verification should use Authlib in deployment.
+    from authlib.integrations.requests_client import OAuth2Session
+    code = request.args.get('code')
+    if not code:
+        return jsonify({'error': 'Google authentication was cancelled or failed.'}), 400
+    client = OAuth2Session(current_app.config['GOOGLE_CLIENT_ID'], current_app.config['GOOGLE_CLIENT_SECRET'], scope='openid email profile')
+    token = client.fetch_token('https://oauth2.googleapis.com/token', code=code, redirect_uri=url_for('user_bp.google_callback', _external=True))
+    userinfo = client.get('https://openidconnect.googleapis.com/v1/userinfo').json()
+    if not userinfo.get('sub') or not userinfo.get('email'):
+        return jsonify({'error': 'Google did not return a usable account.'}), 400
+    user_id, error = db_find_or_create_google_user(userinfo['sub'], userinfo['email'], userinfo.get('name', 'Google User'))
+    if error:
+        return jsonify({'error': error}), 400
+    session.clear()
+    session['user_id'] = user_id
+    session.permanent = True
+    return redirect(session.pop('oauth_next', '/'))
 
 @user_bp.route('/api/auth/profile', methods=['PUT'])
 def update_profile():
@@ -200,16 +423,10 @@ def update_theme():
     return jsonify({'success': True, 'theme': theme})
 
 @user_bp.route('/api/students/<student_id>/progress', methods=['GET'])
+@require_role('teacher', 'admin')
 def get_student_progress(student_id):
     user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'error': 'Authentication required.'}), 401
-
     conn = get_db_connection()
-    current_user = conn.execute("SELECT role FROM users WHERE id = ?", (user_id,)).fetchone()
-    if not current_user or current_user['role'] != 'teacher':
-        conn.close()
-        return jsonify({'error': 'Forbidden: Only faculty administrators can view student reports.'}), 403
 
     cursor = conn.cursor()
     cursor.execute('''
@@ -282,16 +499,9 @@ def get_student_progress(student_id):
     })
 
 @user_bp.route('/api/teacher/student-performance', methods=['GET'])
+@require_role('teacher', 'admin')
 def get_all_student_performance():
-    user_id = session.get('user_id')
-    if not user_id:
-        return jsonify({'error': 'Authentication required.'}), 401
-
     conn = get_db_connection()
-    current_user = conn.execute("SELECT role FROM users WHERE id = ?", (user_id,)).fetchone()
-    if not current_user or current_user['role'] != 'teacher':
-        conn.close()
-        return jsonify({'error': 'Forbidden: Only faculty administrators can view student performance.'}), 403
 
     cursor = conn.cursor()
     cursor.execute("SELECT DISTINCT u.id, u.name, u.email FROM classroom_enrollments ce JOIN users u ON ce.student_id = u.id ORDER BY u.name ASC")

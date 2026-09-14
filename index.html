@@ -1,25 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>FlashLearn | Enterprise Academic Spaced-Repetition Platform</title>
-  <meta name="description" content="FlashLearn - Enterprise-grade active recall flashcards, real-time cohort analytics, and AI-powered curriculum management." />
+  <meta name="description"
+    content="FlashLearn - Enterprise-grade active recall flashcards, real-time cohort analytics, and AI-powered curriculum management." />
   <link rel="icon" type="image/png" href="images/memoflip_logo.png" />
-  
+
   <!-- Font Awesome 6 CDN (Free Icons) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+
   <!-- Google Fonts (Plus Jakarta Sans & Inter & JetBrains Mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap"
+    rel="stylesheet" />
+
   <link rel="stylesheet" href="css/styles.css?v=2" />
 
   <!-- Google Identity Services (GIS) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
+
 <body>
 
   <!-- ================= 1. BRAND NEW LANDING PAGE VIEW ================= -->
@@ -29,7 +36,7 @@
       <div class="brand-container" onclick="showLandingView()" style="cursor: pointer;">
         <img src="images/memoflip_logo.png" alt="FlashLearn Logo" class="brand-logo-img" />
         <div class="brand-title">FlashLearn</div>
-       
+
       </div>
 
       <div class="landing-nav-links" id="landing-nav-links">
@@ -58,14 +65,15 @@
       <div class="hero-split-container">
         <!-- Hero Left Text Column -->
         <div class="hero-text-col">
-        
+
 
           <h1 class="hero-main-heading">
             Master Any Subject with <span class="gradient-text">Active Recall</span>
           </h1>
 
           <p class="hero-main-subtext">
-            FlashLearn combines scientifically proven spaced repetition algorithms, AI-generated academic concept synthesizers, and real-time faculty cohort analytics for rapid mastery.
+            FlashLearn combines scientifically proven spaced repetition algorithms, AI-generated academic concept
+            synthesizers, and real-time faculty cohort analytics for rapid mastery.
           </p>
 
           <div class="hero-cta-group">
@@ -79,7 +87,7 @@
             </a>
           </div>
 
-        
+
         </div>
 
         <!-- Hero Right: Interactive 3D Card Widget (Try It Live) -->
@@ -117,7 +125,8 @@
                     <i class="fa-solid fa-lightbulb"></i> Key Concept & Answer
                   </div>
                   <div class="hero-demo-answer-text" id="hero-demo-answer">
-                    By systematically calculating expanding intervals between study sessions to interrupt the Ebbinghaus forgetting curve and solidify synaptic pathways.
+                    By systematically calculating expanding intervals between study sessions to interrupt the Ebbinghaus
+                    forgetting curve and solidify synaptic pathways.
                   </div>
                   <div class="hero-demo-flip-hint">
                     <i class="fa-solid fa-arrows-rotate"></i> Tap card to flip back
@@ -143,7 +152,7 @@
     </div>
 
     <!-- Platform Metrics Glass Strip -->
-  
+
 
     <!-- Section 2: Re-engineered Card View & Curriculum Showcase -->
     <section class="landing-section" id="showcase">
@@ -209,14 +218,15 @@
           </div>
           <h3 class="bento-title">3D Active Recall & Spaced Repetition</h3>
           <p class="bento-desc">
-            Scientifically calculated review cycles adapt to your individual mastery rate. Mastered flashcards are spaced further apart, while challenging concepts remain in your immediate review queue.
+            Scientifically calculated review cycles adapt to your individual mastery rate. Mastered flashcards are
+            spaced further apart, while challenging concepts remain in your immediate review queue.
           </p>
           <div class="bento-mockup-bar">
             <div class="bento-mock-step">
               <i class="fa-solid fa-circle-check" style="color: var(--color-emerald);"></i> Immediate Review
             </div>
             <div class="bento-mock-step">
-             
+
             </div>
             <div class="bento-mock-step">
               <i class="fa-solid fa-award" style="color: var(--color-purple);"></i> Long-term Memory
@@ -234,7 +244,8 @@
           </div>
           <h3 class="bento-title">Lecture Notes AI Synthesizer</h3>
           <p class="bento-desc">
-            Transform raw lecture transcripts, scientific abstracts, or textbook notes into structured, rigorous flashcard decks in seconds.
+            Transform raw lecture transcripts, scientific abstracts, or textbook notes into structured, rigorous
+            flashcard decks in seconds.
           </p>
         </div>
 
@@ -248,7 +259,8 @@
           </div>
           <h3 class="bento-title">Cohort Mastery Analytics</h3>
           <p class="bento-desc">
-            Faculty administrators track real-time retention trend lines, module accuracy distributions, and identify struggling concepts instantly.
+            Faculty administrators track real-time retention trend lines, module accuracy distributions, and identify
+            struggling concepts instantly.
           </p>
         </div>
 
@@ -262,7 +274,8 @@
           </div>
           <h3 class="bento-title">Daily Concept Challenge & Streak Tracking</h3>
           <p class="bento-desc">
-            Engage with progressive clue unlocking puzzles daily. Reinforce interdisciplinary recall while building consecutive-day study habits.
+            Engage with progressive clue unlocking puzzles daily. Reinforce interdisciplinary recall while building
+            consecutive-day study habits.
           </p>
           <div class="bento-streak-strip">
             <div class="bento-streak-pill active">
@@ -299,19 +312,22 @@
         <div class="step-card">
           <div class="step-number-circle">1</div>
           <h4 class="step-card-title">Enroll or Synthesize</h4>
-          <p class="step-card-desc">Join your instructor's classroom using a course code, or paste lecture notes to synthesize custom study decks.</p>
+          <p class="step-card-desc">Join your instructor's classroom using a course code, or paste lecture notes to
+            synthesize custom study decks.</p>
         </div>
 
         <div class="step-card">
           <div class="step-number-circle">2</div>
           <h4 class="step-card-title">Practice Active Recall</h4>
-          <p class="step-card-desc">Flip 3D flashcards with keyboard shortcuts, test retrieval cues, and separate mastered cards from review queues.</p>
+          <p class="step-card-desc">Flip 3D flashcards with keyboard shortcuts, test retrieval cues, and separate
+            mastered cards from review queues.</p>
         </div>
 
         <div class="step-card">
           <div class="step-number-circle">3</div>
           <h4 class="step-card-title">Track Retention & Streaks</h4>
-          <p class="step-card-desc">Monitor dynamic mastery indexes, build daily learning streaks, and receive detailed cohort progress reports.</p>
+          <p class="step-card-desc">Monitor dynamic mastery indexes, build daily learning streaks, and receive detailed
+            cohort progress reports.</p>
         </div>
       </div>
     </section>
@@ -375,8 +391,10 @@
       <div class="footer-bottom-bar">
         <div>&copy; 2026 FlashLearn Academic Systems, Inc. Licensed under MIT. All rights reserved.</div>
         <div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
-          <a href="mailto:aadhibarani98@gmail.com" class="footer-social-link" title="Gmail"><i class="fa-solid fa-envelope"></i></a>
-          <a href="https://github.com/Sreenithya1609" target="_blank" class="footer-social-link" title="GitHub"><i class="fa-brands fa-github"></i> </a>
+          <a href="mailto:aadhibarani98@gmail.com" class="footer-social-link" title="Gmail"><i
+              class="fa-solid fa-envelope"></i></a>
+          <a href="https://github.com/Sreenithya1609" target="_blank" class="footer-social-link" title="GitHub"><i
+              class="fa-brands fa-github"></i> </a>
         </div>
       </div>
     </footer>
@@ -394,14 +412,14 @@
       <!-- Top Laser Light Accent Bar -->
       <div class="laser-light-bar"></div>
 
-    
+
 
       <!-- Floating Holographic Brand Header -->
       <div class="auth-brand-header">
         <div class="auth-brand-logo-glow" onclick="showLandingView()" title="Return to Platform Overview">
           <img src="images/memoflip_logo.png" alt="FlashLearn Logo" />
         </div>
-   
+
         <p class="auth-brand-tagline">Active Recall Spaced Repetition & Academic Analytics</p>
       </div>
 
@@ -420,10 +438,14 @@
         <!-- Google Continue Button -->
         <button type="button" class="btn-google-auth" id="btn-google-signin" onclick="initiateGoogleSignIn()">
           <svg class="google-icon-svg" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
           </svg>
           <span>Continue with Google</span>
         </button>
@@ -435,7 +457,7 @@
         </div>
 
         <div class="form-group-cyber">
-          <label class="form-label-cyber">Work / Institutional Email</label>
+          <label class="form-label-cyber" id="login-email-label">Work / Institutional Email</label>
           <div class="input-cyber-wrapper">
             <i class="fa-solid fa-envelope input-icon-neon"></i>
             <input type="email" id="login-email" class="input-cyber" placeholder="scholar@domain.edu" required />
@@ -449,7 +471,9 @@
           <div class="input-cyber-wrapper">
             <i class="fa-solid fa-lock input-icon-neon"></i>
             <input type="password" id="login-password" class="input-cyber" placeholder="••••••••" required />
-            <i class="fa-solid fa-eye input-eye-neon" id="login-pwd-eye" onclick="togglePasswordVisibility('login-password', 'login-pwd-eye')" title="Toggle Password Visibility"></i>
+            <i class="fa-solid fa-eye input-eye-neon" id="login-pwd-eye"
+              onclick="togglePasswordVisibility('login-password', 'login-pwd-eye')"
+              title="Toggle Password Visibility"></i>
           </div>
         </div>
 
@@ -465,24 +489,39 @@
           <i class="fa-solid fa-right-to-bracket"></i>
           <span>Sign In to FlashLearn</span>
         </button>
-        <div class="auth-divider">
-          <span style="font-size: 1.0rem; color: var(--text-subtle);">or</span>
-        </div>
-        <button type="button" class="btn btn-secondary auth-google-btn" onclick="startGoogleAuth()">
-          <i class="fa-brands fa-google"></i><span>Continue with Google</span>
-        </button>
-        <button type="button" class="cyber-return-link" onclick="openModal('modal-forgot-password')">Forgot password?</button>
       </form>
 
       <!-- Registration Form -->
       <form id="auth-reg-form" onsubmit="handleRegister(event)" class="auth-cyber-form" style="display: none;">
+        <!-- Role Selection (Student vs Teacher) -->
+        <div class="form-group-cyber">
+          <label class="form-label-cyber">Register As</label>
+          <div class="auth-role-tabs">
+            <button type="button" class="auth-role-tab active" id="reg-role-student" onclick="selectRegRole('student')">
+              <i class="fa-solid fa-graduation-cap"></i>
+              <span>Student</span>
+            </button>
+            <button type="button" class="auth-role-tab" id="reg-role-teacher" onclick="selectRegRole('teacher')">
+              <i class="fa-solid fa-chalkboard-user"></i>
+              <span>Teacher</span>
+            </button>
+          </div>
+          <input type="hidden" id="reg-selected-role" value="student" />
+          <p id="reg-role-hint" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">Standard scholar
+            access to classrooms, study decks, and streaks.</p>
+        </div>
+
         <!-- Google Continue Button -->
         <button type="button" class="btn-google-auth" id="btn-google-reg" onclick="initiateGoogleSignIn()">
           <svg class="google-icon-svg" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
           </svg>
           <span>Continue with Google</span>
         </button>
@@ -502,7 +541,7 @@
         </div>
 
         <div class="form-group-cyber">
-          <label class="form-label-cyber">Institutional Email</label>
+          <label class="form-label-cyber" id="reg-email-label">Institutional Email</label>
           <div class="input-cyber-wrapper">
             <i class="fa-solid fa-envelope input-icon-neon"></i>
             <input type="email" id="reg-email" class="input-cyber" placeholder="name@domain.edu" required />
@@ -513,29 +552,27 @@
           <label class="form-label-cyber">Create Master Password</label>
           <div class="input-cyber-wrapper">
             <i class="fa-solid fa-key input-icon-neon"></i>
-            <input type="password" id="reg-password" class="input-cyber" placeholder="Min. 6 chars (letters, numbers & symbols)" minlength="6" required />
-            <i class="fa-solid fa-eye input-eye-neon" id="reg-pwd-eye" onclick="togglePasswordVisibility('reg-password', 'reg-pwd-eye')" title="Toggle Password Visibility"></i>
+            <input type="password" id="reg-password" class="input-cyber"
+              placeholder="Min. 6 chars (letters, numbers & symbols)" minlength="6" required />
+            <i class="fa-solid fa-eye input-eye-neon" id="reg-pwd-eye"
+              onclick="togglePasswordVisibility('reg-password', 'reg-pwd-eye')" title="Toggle Password Visibility"></i>
           </div>
         </div>
         <div class="form-group-cyber">
           <label class="form-label-cyber">Confirm Master Password</label>
           <div class="input-cyber-wrapper">
             <i class="fa-solid fa-check-double input-icon-neon"></i>
-            <input type="password" id="reg-confirm-password" class="input-cyber" placeholder="Repeat your password" minlength="6" required />
+            <input type="password" id="reg-confirm-password" class="input-cyber" placeholder="Repeat your password"
+              minlength="6" required />
           </div>
           <div></div>
         </div>
+
 
         <button type="submit" class="btn-cyber-primary">
           <span class="btn-shimmer"></span>
           <i class="fa-solid fa-user-plus"></i>
           <span>Create Account</span>
-        </button>
-        <div class="auth-divider">
-          <span style="font-size: 1.0rem; color: var(--text-subtle);">or</span>
-        </div>
-        <button type="button" class="btn btn-secondary auth-google-btn" onclick="startGoogleAuth()">
-          <i class="fa-brands fa-google"></i><span>Continue with Google</span>
         </button>
       </form>
 
@@ -555,7 +592,8 @@
     <!-- Top Header Navigation -->
     <header class="app-header">
       <div style="display: flex; align-items: center; gap: 1rem;">
-        <button class="mobile-sidebar-toggle-btn" id="sidebar-toggle-btn" onclick="toggleMobileSidebar()" title="Toggle Navigation Sidebar">
+        <button class="mobile-sidebar-toggle-btn" id="sidebar-toggle-btn" onclick="toggleMobileSidebar()"
+          title="Toggle Navigation Sidebar">
           <i class="fa-solid fa-bars"></i>
         </button>
         <div class="brand-container" onclick="switchTab('profile')" style="cursor: pointer;" title="Go to Profile">
@@ -566,7 +604,8 @@
 
       <div class="header-right">
         <!-- Header Dynamic Streak Badge -->
-        <div id="header-streak-badge" class="streak-pill-badge" style="display: none; cursor: pointer;" onclick="openDailyStreakModal()" title="Click to test your daily streak challenge!">
+        <div id="header-streak-badge" class="streak-pill-badge" style="display: none; cursor: pointer;"
+          onclick="openDailyStreakModal()" title="Click to test your daily streak challenge!">
           <i class="fa-solid fa-fire-flame-curved"></i>
           <span><strong id="header-streak-count">0</strong> Day Streak</span>
         </div>
@@ -577,7 +616,8 @@
             <div class="user-avatar-mini" id="header-avatar-mini">
               <i class="fa-solid fa-user"></i>
             </div>
-            <strong id="header-user-fullname" style="font-weight: 600; font-size: 0.92rem; color: var(--text-main);">User Name</strong>
+            <strong id="header-user-fullname"
+              style="font-weight: 600; font-size: 0.92rem; color: var(--text-main);">User Name</strong>
             <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; color: var(--text-subtle);"></i>
           </div>
 
@@ -595,7 +635,8 @@
               <span id="theme-dropdown-label">Theme Mode</span>
             </a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" onclick="handleLogout(); toggleUserHeaderMenu();" style="color: var(--color-rose);">
+            <a class="dropdown-item" onclick="handleLogout(); toggleUserHeaderMenu();"
+              style="color: var(--color-rose);">
               <i class="fa-solid fa-arrow-right-from-bracket" style="color: var(--color-rose);"></i>
               <span>Sign Out</span>
             </a>
@@ -619,7 +660,26 @@
             <span class="sidebar-user-badge" id="sidebar-user-badge">Faculty Admin</span>
           </div>
         </div>
-        
+
+        <!-- Admin Nav Group -->
+        <div id="admin-nav-group" style="display: none;">
+          <div class="nav-section-title">Administration</div>
+          <ul class="nav-list">
+            <li>
+              <a class="nav-item" id="nav-admin-requests" onclick="switchTab('admin-requests')">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Teacher Requests</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-admin-logins" onclick="switchTab('admin-logins')">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Teacher & Student Logins</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
         <!-- Teacher Nav Group -->
         <div id="teacher-nav-group">
           <div class="nav-section-title">Faculty Portal</div>
@@ -668,7 +728,8 @@
               </a>
             </li>
             <li>
-              <a class="nav-item" id="nav-student-decks" onclick="activeClassroomIdFilter = null; switchTab('student-decks')">
+              <a class="nav-item" id="nav-student-decks"
+                onclick="activeClassroomIdFilter = null; switchTab('student-decks')">
                 <i class="fa-solid fa-layer-group"></i>
                 <span>Decks & Practice</span>
               </a>
@@ -685,6 +746,87 @@
 
       <!-- Viewport Content Panels -->
       <main class="main-content">
+
+        <!-- PANEL 0: Admin Teacher Requests Panel -->
+        <section class="view-panel" id="panel-admin-requests">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-user-shield" style="color: var(--color-blue-bright);"></i>
+                <span>Teacher Access Requests</span>
+              </h2>
+              <p class="panel-subtitle">Review, approve, or reject student applications for instructor access.</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <select id="admin-request-filter" class="select-field" onchange="loadAdminTeacherRequests(this.value)"
+                style="width: auto; padding: 6px 12px; font-size: 0.85rem;">
+                <option value="pending" selected>Pending Review</option>
+                <option value="all">All Applications</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <button class="btn btn-secondary btn-sm"
+                onclick="loadAdminTeacherRequests(document.getElementById('admin-request-filter').value)">
+                <i class="fa-solid fa-rotate"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="admin-requests-container" style="margin-top: 1.5rem;"></div>
+        </section>
+
+        <!-- PANEL 0B: Admin Teacher & Student Login Times Panel -->
+        <section class="view-panel" id="panel-admin-logins">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-clock-rotate-left" style="color: var(--color-blue-bright);"></i>
+                <span>Teacher & Student Login History</span>
+              </h2>
+              <p class="panel-subtitle">Audit log of user sign-in sessions, login timestamps, and client connection details.</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <div class="search-field-wrapper" style="max-width: 240px;">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="admin-login-search" class="search-field" placeholder="Search by name or email..." oninput="handleAdminLoginSearch()" />
+              </div>
+              <select id="admin-login-role-filter" class="select-field" onchange="loadAdminLoginHistory(this.value, document.getElementById('admin-login-search').value)"
+                style="width: auto; padding: 6px 12px; font-size: 0.85rem;">
+                <option value="all" selected>All Roles</option>
+                <option value="teacher">Teachers / Faculty</option>
+                <option value="student">Students / Scholars</option>
+                <option value="admin">Administrators</option>
+              </select>
+              <button class="btn btn-secondary btn-sm"
+                onclick="loadAdminLoginHistory(document.getElementById('admin-login-role-filter').value, document.getElementById('admin-login-search').value)"
+                title="Refresh Login History">
+                <i class="fa-solid fa-rotate"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Metrics Bar -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="stat-card">
+              <div class="stat-label"><i class="fa-solid fa-right-to-bracket" style="color: var(--color-blue-bright); margin-right: 6px;"></i>Total Sign-ins</div>
+              <div class="stat-val" id="admin-login-stat-total">--</div>
+              <div class="stat-trend green" style="font-size: 0.78rem;">Platform activity log</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label"><i class="fa-solid fa-chalkboard-user" style="color: var(--color-purple); margin-right: 6px;"></i>Active Teachers</div>
+              <div class="stat-val" id="admin-login-stat-teachers">--</div>
+              <div class="stat-trend green" style="font-size: 0.78rem;">Faculty sessions</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label"><i class="fa-solid fa-graduation-cap" style="color: var(--color-cyan); margin-right: 6px;"></i>Active Students</div>
+              <div class="stat-val" id="admin-login-stat-students">--</div>
+              <div class="stat-trend green" style="font-size: 0.78rem;">Scholar sessions</div>
+            </div>
+          </div>
+
+          <!-- Logins Table Container -->
+          <div id="admin-logins-container"></div>
+        </section>
 
         <!-- PANEL 1: Teacher Dashboard (STATS + ANALYTICS GRAPHS + ACTIVITY STREAM) -->
         <section class="view-panel active" id="panel-teacher-dashboard">
@@ -761,12 +903,14 @@
               <h2 class="panel-title">
                 <i class="fa-solid fa-book-bookmark"></i> Course Curriculum & Rosters
               </h2>
-              <p class="panel-subtitle">Filter cohorts, inspect student progress reports, and organize course flashcards.</p>
+              <p class="panel-subtitle">Filter cohorts, inspect student progress reports, and organize course
+                flashcards.</p>
             </div>
             <div class="search-field-wrapper">
               <div class="input-group">
                 <i class="fa-solid fa-magnifying-glass input-icon-left"></i>
-                <input type="text" id="myclasses-search-input" class="input-field" placeholder="Search courses..." oninput="renderMyClassesPanel(this.value)" />
+                <input type="text" id="myclasses-search-input" class="input-field" placeholder="Search courses..."
+                  oninput="renderMyClassesPanel(this.value)" />
               </div>
             </div>
           </div>
@@ -812,46 +956,124 @@
           </div>
 
           <div class="ai-prompt-studio">
-            <form onsubmit="handleAIFlashcardGenerate(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
-              <div>
-                <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Academic Subject or Topic</label>
-                <div class="input-group">
-                  <i class="fa-solid fa-book input-icon-left"></i>
-                  <input type="text" id="ai-topic-input" class="input-field" placeholder="e.g. Distributed Consensus in Cloud Systems" required />
-                </div>
-                <!-- Preset Topic Chips -->
-                <div class="ai-preset-chips">
-                  <span class="ai-chip" onclick="setAIPresetTopic('Cloud Architecture & Microservices')"><i class="fa-solid fa-cloud"></i> Cloud Architecture</span>
-                  <span class="ai-chip" onclick="setAIPresetTopic('Cellular Respiration & ATP Cycle')"><i class="fa-solid fa-dna"></i> Cellular Respiration</span>
-                  <span class="ai-chip" onclick="setAIPresetTopic('Organic Chemistry Reaction Mechanisms')"><i class="fa-solid fa-flask"></i> Organic Chemistry</span>
-                  <span class="ai-chip" onclick="setAIPresetTopic('Quantum Mechanics Wave Functions')"><i class="fa-solid fa-atom"></i> Quantum Mechanics</span>
-                  <span class="ai-chip" onclick="setAIPresetTopic('Data Structures: Trees & Graphs')"><i class="fa-solid fa-code"></i> Data Structures</span>
-                </div>
-              </div>
+            <!-- Mode Switcher Tabs -->
+            <div class="ai-mode-tabs" style="display: flex; gap: 10px; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+              <button type="button" class="btn btn-secondary ai-mode-tab active" id="tab-btn-ai-topic" onclick="switchTeacherAIMode('topic')">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Topic Generator</span>
+              </button>
+              <button type="button" class="btn btn-secondary ai-mode-tab" id="tab-btn-ai-doc" onclick="switchTeacherAIMode('document')">
+                <i class="fa-solid fa-file-arrow-up"></i>
+                <span>Upload Document (PDF / TXT)</span>
+              </button>
+            </div>
 
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+            <!-- Tab 1: Topic Prompt Form -->
+            <div id="teacher-ai-topic-form-container">
+              <form onsubmit="handleAIFlashcardGenerate(event)"
+                style="display: flex; flex-direction: column; gap: 1.25rem;">
                 <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Number of Flashcards</label>
+                  <label
+                    style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Academic
+                    Subject or Topic</label>
                   <div class="input-group">
-                    <i class="fa-solid fa-list-ol input-icon-left"></i>
-                    <input type="number" id="ai-count-input" class="input-field" min="1" max="20" value="5" required />
+                    <i class="fa-solid fa-book input-icon-left"></i>
+                    <input type="text" id="ai-topic-input" class="input-field"
+                      placeholder="e.g. Distributed Consensus in Cloud Systems" required />
+                  </div>
+                  <!-- Preset Topic Chips -->
+                  <div class="ai-preset-chips">
+                    <span class="ai-chip" onclick="setAIPresetTopic('Cloud Architecture & Microservices')"><i
+                        class="fa-solid fa-cloud"></i> Cloud Architecture</span>
+                    <span class="ai-chip" onclick="setAIPresetTopic('Cellular Respiration & ATP Cycle')"><i
+                        class="fa-solid fa-dna"></i> Cellular Respiration</span>
+                    <span class="ai-chip" onclick="setAIPresetTopic('Organic Chemistry Reaction Mechanisms')"><i
+                        class="fa-solid fa-flask"></i> Organic Chemistry</span>
+                    <span class="ai-chip" onclick="setAIPresetTopic('Quantum Mechanics Wave Functions')"><i
+                        class="fa-solid fa-atom"></i> Quantum Mechanics</span>
+                    <span class="ai-chip" onclick="setAIPresetTopic('Data Structures: Trees & Graphs')"><i
+                        class="fa-solid fa-code"></i> Data Structures</span>
                   </div>
                 </div>
-                <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Rigor & Mastery Level</label>
-                  <select id="ai-level-select" class="select-field">
-                    <option value="Basic Fundamentals">Basic Fundamentals</option>
-                    <option value="Intermediate Mastery" selected>Intermediate Mastery</option>
-                    <option value="Advanced Honors / AP">Advanced Honors / AP</option>
-                  </select>
-                </div>
-              </div>
 
-              <button type="submit" id="ai-generate-btn" class="btn btn-primary" style="align-self: flex-start;">
-                <i class="fa-solid fa-bolt"></i>
-                <span>Generate Flashcards</span>
-              </button>
-            </form>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                  <div>
+                    <label
+                      style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Number
+                      of Flashcards</label>
+                    <div class="input-group">
+                      <i class="fa-solid fa-list-ol input-icon-left"></i>
+                      <input type="number" id="ai-count-input" class="input-field" min="1" max="20" value="5" required />
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Rigor
+                      & Mastery Level</label>
+                    <select id="ai-level-select" class="select-field">
+                      <option value="Basic Fundamentals">Basic Fundamentals</option>
+                      <option value="Intermediate Mastery" selected>Intermediate Mastery</option>
+                      <option value="Advanced Honors / AP">Advanced Honors / AP</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button type="submit" id="ai-generate-btn" class="btn btn-primary" style="align-self: flex-start;">
+                  <i class="fa-solid fa-bolt"></i>
+                  <span>Generate Flashcards</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Tab 2: Document Ingestion Form -->
+            <div id="teacher-ai-doc-form-container" style="display: none;">
+              <form onsubmit="handleTeacherDocumentUpload(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div class="doc-upload-dropzone" id="teacher-doc-dropzone" onclick="document.getElementById('teacher-doc-file-input').click()">
+                  <input type="file" id="teacher-doc-file-input" accept=".pdf,.txt" style="display: none;" onchange="handleTeacherDocFileChange(this)" />
+                  <div class="doc-upload-icon-wrapper" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.75rem; color: var(--color-blue-bright);"></i>
+                  </div>
+                  <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;" id="teacher-doc-upload-title">
+                    Click to browse or drop syllabus / lecture notes
+                  </h4>
+                  <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px;">
+                    Supported formats: <strong>PDF</strong> and <strong>TXT</strong> (Maximum file size: 10 MB)
+                  </p>
+                  <div id="teacher-doc-selected-badge" style="display: none;" class="doc-selected-badge"></div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                  <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Number of Flashcards</label>
+                    <div class="input-group">
+                      <i class="fa-solid fa-list-ol input-icon-left"></i>
+                      <input type="number" id="teacher-doc-count-input" class="input-field" min="1" max="20" value="6" required />
+                    </div>
+                  </div>
+                  <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Mastery Rigor Level</label>
+                    <select id="teacher-doc-level-select" class="select-field">
+                      <option value="Basic Fundamentals">Basic Fundamentals</option>
+                      <option value="Intermediate Mastery" selected>Intermediate Mastery</option>
+                      <option value="Advanced Honors / AP">Advanced Honors / AP</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
+                  <input type="checkbox" id="teacher-doc-rag-toggle" checked style="width: 17px; height: 17px; cursor: pointer; accent-color: #7c3aed;" />
+                  <label for="teacher-doc-rag-toggle" style="cursor: pointer; font-size: 0.88rem; font-weight: 600; color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;">
+                    <span>Enable RAG Semantic Indexing & Page Citations</span>
+                    <span class="badge-rag-pill"><i class="fa-solid fa-brain"></i> RAG Grounded</span>
+                  </label>
+                </div>
+
+                <button type="submit" id="teacher-doc-submit-btn" class="btn btn-primary" style="align-self: flex-start;">
+                  <i class="fa-solid fa-file-import"></i>
+                  <span>Extract & Generate Flashcards</span>
+                </button>
+              </form>
+            </div>
 
             <div id="ai-generated-result" style="display: none;"></div>
           </div>
@@ -957,23 +1179,27 @@
               <div class="search-field-wrapper">
                 <div class="input-group">
                   <i class="fa-solid fa-magnifying-glass input-icon-left"></i>
-                  <input type="text" class="input-field" placeholder="Search decks..." oninput="handleStudentDeckSearch(this.value)" />
+                  <input type="text" class="input-field" placeholder="Search decks..."
+                    oninput="handleStudentDeckSearch(this.value)" />
                 </div>
               </div>
-          
+
             </div>
           </div>
 
           <!-- Student Deck Filter Tabs -->
           <div class="landing-filter-bar-wrapper" style="margin-bottom: 1.5rem;">
             <div class="landing-filter-bar" style="justify-content: flex-start; margin-top: 0;">
-              <button class="landing-filter-btn active" id="filter-student-all" onclick="activeClassroomIdFilter = null; renderStudentDecks('all')">
+              <button class="landing-filter-btn active" id="filter-student-all"
+                onclick="activeClassroomIdFilter = null; renderStudentDecks('all')">
                 <i class="fa-solid fa-border-all"></i> All Decks
               </button>
-              <button class="landing-filter-btn" id="filter-student-classroom" onclick="activeClassroomIdFilter = null; renderStudentDecks('classroom')">
+              <button class="landing-filter-btn" id="filter-student-classroom"
+                onclick="activeClassroomIdFilter = null; renderStudentDecks('classroom')">
                 <i class="fa-solid fa-chalkboard"></i> Classroom Decks
               </button>
-              <button class="landing-filter-btn" id="filter-student-custom" onclick="activeClassroomIdFilter = null; renderStudentDecks('custom')">
+              <button class="landing-filter-btn" id="filter-student-custom"
+                onclick="activeClassroomIdFilter = null; renderStudentDecks('custom')">
                 <i class="fa-solid fa-file-lines"></i> My Notes & Custom
               </button>
             </div>
@@ -987,38 +1213,53 @@
           <div class="panel-header-row">
             <div>
               <h2 class="panel-title">
-                <i class="fa-solid fa-pen-to-square"></i> Create a Study Deck 
+                <i class="fa-solid fa-pen-to-square"></i> Create a Study Deck
               </h2>
               <p class="panel-subtitle">Generate flashcards from lecture notes or enter terms manually.</p>
             </div>
           </div>
 
-          <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2rem; max-width: 850px; margin: 0 auto; box-shadow: var(--shadow-main);">
-            <form onsubmit="handleGenerateFromStudyMaterial(event)" style="margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-subtle);">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;">
-                <h3 style="color: var(--color-blue-bright); font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <div
+            style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2rem; max-width: 850px; margin: 0 auto; box-shadow: var(--shadow-main);">
+            <form onsubmit="handleGenerateFromStudyMaterial(event)"
+              style="margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-subtle);">
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;">
+                <h3
+                  style="color: var(--color-blue-bright); font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
                   <i class="fa-solid fa-file-invoice"></i> Study Notes AI Synthesizer
                 </h3>
               </div>
 
               <!-- Preset Sample Notes Chips -->
               <div style="margin-bottom: 1.25rem;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.85rem; color: var(--text-subtle);">Load Sample Academic Notes:</label>
+                <label
+                  style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.85rem; color: var(--text-subtle);">Load
+                  Sample Academic Notes:</label>
                 <div class="sample-note-chips">
-                  <span class="sample-note-chip" onclick="loadSampleStudyNotes('cellular')"><i class="fa-solid fa-dna"></i> Cellular Respiration</span>
-                  <span class="sample-note-chip" onclick="loadSampleStudyNotes('distributed')"><i class="fa-solid fa-cloud"></i> Distributed Systems Consensus</span>
-                  <span class="sample-note-chip" onclick="loadSampleStudyNotes('memory')"><i class="fa-solid fa-brain"></i> Memory & Spaced Repetition</span>
+                  <span class="sample-note-chip" onclick="loadSampleStudyNotes('cellular')"><i
+                      class="fa-solid fa-dna"></i> Cellular Respiration</span>
+                  <span class="sample-note-chip" onclick="loadSampleStudyNotes('distributed')"><i
+                      class="fa-solid fa-cloud"></i> Distributed Systems Consensus</span>
+                  <span class="sample-note-chip" onclick="loadSampleStudyNotes('memory')"><i
+                      class="fa-solid fa-brain"></i> Memory & Spaced Repetition</span>
                 </div>
-              </div>
-              
-              <div style="margin-bottom: 1.25rem;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck Title / Concept Name</label>
-                <input type="text" id="study-material-title" class="input-field" placeholder="e.g. Cellular Respiration Lecture Notes" />
               </div>
 
               <div style="margin-bottom: 1.25rem;">
-                <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Paste Lecture Notes or Summary Text</label>
-                <textarea id="study-material-text" class="textarea-field" rows="5" placeholder="Paste study text, textbook sections, or summary concepts here..."></textarea>
+                <label
+                  style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck
+                  Title / Concept Name</label>
+                <input type="text" id="study-material-title" class="input-field"
+                  placeholder="e.g. Cellular Respiration Lecture Notes" />
+              </div>
+
+              <div style="margin-bottom: 1.25rem;">
+                <label
+                  style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Paste
+                  Lecture Notes or Summary Text</label>
+                <textarea id="study-material-text" class="textarea-field" rows="5"
+                  placeholder="Paste study text, textbook sections, or summary concepts here..."></textarea>
               </div>
 
               <button type="submit" class="btn btn-primary">
@@ -1030,23 +1271,31 @@
             </form>
 
             <div>
-              <h3 style="color: var(--text-main); font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+              <h3
+                style="color: var(--text-main); font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-pencil"></i> Create Flashcards Manually
               </h3>
               <form onsubmit="handleCreateManualDeck(event)">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div
+                  style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                   <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck Title</label>
-                    <input type="text" id="deck-title-input" class="input-field" placeholder="e.g. Organic Chemistry Reactions" required />
+                    <label
+                      style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck
+                      Title</label>
+                    <input type="text" id="deck-title-input" class="input-field"
+                      placeholder="e.g. Organic Chemistry Reactions" required />
                   </div>
                   <div>
-                    <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject Tag</label>
+                    <label
+                      style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject
+                      Tag</label>
                     <input type="text" id="deck-subject-input" class="input-field" placeholder="Chemistry" required />
                   </div>
                 </div>
 
                 <div id="manual-cards-container">
-                  <div class="manual-card-row" style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+                  <div class="manual-card-row"
+                    style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                       <span style="font-weight: 700; color: var(--color-blue-bright); font-size: 0.9rem;">Card #1</span>
                     </div>
@@ -1057,7 +1306,8 @@
                   </div>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <div
+                  style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                   <button type="button" class="btn btn-secondary" onclick="addManualCardRow()">
                     <i class="fa-solid fa-plus"></i> Add Card
                   </button>
@@ -1086,9 +1336,11 @@
               <i class="fa-solid fa-fire-flame-curved"></i>
               <span><strong id="streak-count-val">5</strong> Day Active Streak</span>
             </div>
-            
-            <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Daily Concept Challenge</h2>
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">Guess the single academic term or concept connecting all revealed clues.</p>
+
+            <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Daily
+              Concept Challenge</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">Guess the single academic
+              term or concept connecting all revealed clues.</p>
 
             <div class="clues-grid" id="clues-grid-container"></div>
 
@@ -1099,9 +1351,13 @@
               </button>
             </div>
 
-            <form onsubmit="handleStreakGuess(event)" style="display: flex; gap: 12px; max-width: 500px; margin: 0 auto; flex-wrap: wrap;">
-              <input type="text" id="streak-guess-input" class="input-field" placeholder="Enter word guess..." style="text-transform: uppercase; font-weight: bold; text-align: center; letter-spacing: 1px; flex: 1; min-width: 180px;" required />
-              <button type="submit" id="streak-submit-btn" class="btn btn-primary" style="flex-shrink: 0; min-width: 140px;">
+            <form onsubmit="handleStreakGuess(event)"
+              style="display: flex; gap: 12px; max-width: 500px; margin: 0 auto; flex-wrap: wrap;">
+              <input type="text" id="streak-guess-input" class="input-field" placeholder="Enter word guess..."
+                style="text-transform: uppercase; font-weight: bold; text-align: center; letter-spacing: 1px; flex: 1; min-width: 180px;"
+                required />
+              <button type="submit" id="streak-submit-btn" class="btn btn-primary"
+                style="flex-shrink: 0; min-width: 140px;">
                 <i class="fa-solid fa-paper-plane"></i>
                 <span>Submit Guess</span>
               </button>
@@ -1128,21 +1384,31 @@
               </div>
               <div style="flex: 1;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                  <h2 style="font-size: 1.6rem; font-weight: 800; color: #ffffff;" id="profile-identity-name">User Name</h2>
-                  <span class="card-badge" style="background: rgba(255,255,255,0.2); color: #ffffff;">Verified Scholar</span>
+                  <h2 style="font-size: 1.6rem; font-weight: 800; color: #ffffff;" id="profile-identity-name">User Name
+                  </h2>
+                  <span class="card-badge" style="background: rgba(255,255,255,0.2); color: #ffffff;">Verified
+                    Scholar</span>
                 </div>
-                <p style="font-size: 0.9rem; color: var(--sidebar-text-muted);" id="profile-identity-email">user@domain.com</p>
+                <p style="font-size: 0.9rem; color: var(--sidebar-text-muted);" id="profile-identity-email">
+                  user@domain.com</p>
                 <div class="profile-meta-grid">
                   <div>
-                    <div style="font-size: 0.72rem; font-weight: 700; color: var(--sidebar-text-muted); text-transform: uppercase;">Status</div>
+                    <div
+                      style="font-size: 0.72rem; font-weight: 700; color: var(--sidebar-text-muted); text-transform: uppercase;">
+                      Status</div>
                     <strong style="color: #60a5fa;">Active Member</strong>
                   </div>
                   <div>
-                    <div style="font-size: 0.72rem; font-weight: 700; color: var(--sidebar-text-muted); text-transform: uppercase;">Security</div>
-                    <strong style="color: var(--color-emerald);"><i class="fa-solid fa-shield-check"></i> Encrypted</strong>
+                    <div
+                      style="font-size: 0.72rem; font-weight: 700; color: var(--sidebar-text-muted); text-transform: uppercase;">
+                      Security</div>
+                    <strong style="color: var(--color-emerald);"><i class="fa-solid fa-shield-check"></i>
+                      Encrypted</strong>
                   </div>
                   <div>
-                    <div style="font-size: 0.72rem; font-weight: 700; color: var(--sidebar-text-muted); text-transform: uppercase;">Joined</div>
+                    <div
+                      style="font-size: 0.72rem; font-weight: 700; color: var(--sidebar-text-muted); text-transform: uppercase;">
+                      Joined</div>
                     <strong style="color: #ffffff;">2026 Academic Term</strong>
                   </div>
                 </div>
@@ -1150,27 +1416,35 @@
             </div>
 
             <!-- Profile Settings Form Card -->
-            <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-main);">
+            <div
+              style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-main);">
               <form onsubmit="handleUpdateProfile(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
                 <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Full Name</label>
+                  <label
+                    style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Full
+                    Name</label>
                   <div class="input-group">
                     <i class="fa-solid fa-user input-icon-left"></i>
                     <input type="text" id="profile-name-input" class="input-field" required />
                   </div>
                 </div>
                 <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Email Address</label>
+                  <label
+                    style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Email
+                    Address</label>
                   <div class="input-group">
                     <i class="fa-solid fa-envelope input-icon-left"></i>
                     <input type="email" id="profile-email-input" class="input-field" required />
                   </div>
                 </div>
                 <div>
-                  <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">New Password (optional)</label>
+                  <label
+                    style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">New
+                    Password (optional)</label>
                   <div class="input-group">
                     <i class="fa-solid fa-key input-icon-left"></i>
-                    <input type="password" id="profile-password-input" class="input-field" placeholder="Leave blank to keep existing password" />
+                    <input type="password" id="profile-password-input" class="input-field"
+                      placeholder="Leave blank to keep existing password" />
                   </div>
                 </div>
                 <div style="display: flex; gap: 10px; margin-top: 0.5rem; flex-wrap: wrap;">
@@ -1195,21 +1469,33 @@
   <!-- ================= MODALS ================= -->
   <div class="modal-backdrop" id="modal-forgot-password">
     <div class="modal-card">
-      <div class="modal-header"><h2><i class="fa-solid fa-key" style="color: var(--color-blue-bright);"></i><span>Reset Password</span></h2><button class="modal-close-btn" onclick="closeModal('modal-forgot-password')"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-key" style="color: var(--color-blue-bright);"></i><span>Reset Password</span></h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-forgot-password')"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
       <form onsubmit="handleForgotPassword(event)" style="display: flex; flex-direction: column; gap: 1rem;">
         <p style="color: var(--text-muted);">Enter your account email and we will send reset instructions.</p>
         <input type="email" id="forgot-password-email" class="input-field" placeholder="name@domain.edu" required />
-        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i><span>Send Reset Link</span></button>
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i><span>Send Reset
+            Link</span></button>
       </form>
     </div>
   </div>
   <div class="modal-backdrop" id="modal-reset-password">
     <div class="modal-card">
-      <div class="modal-header"><h2><i class="fa-solid fa-lock" style="color: var(--color-blue-bright);"></i><span>Choose New Password</span></h2><button class="modal-close-btn" onclick="closeModal('modal-reset-password')"><i class="fa-solid fa-xmark"></i></button></div>
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-lock" style="color: var(--color-blue-bright);"></i><span>Choose New Password</span>
+        </h2><button class="modal-close-btn" onclick="closeModal('modal-reset-password')"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
       <form onsubmit="handleResetPassword(event)" style="display: flex; flex-direction: column; gap: 1rem;">
-        <input type="password" id="reset-password" class="input-field" placeholder="New password" minlength="6" required />
-        <input type="password" id="reset-confirm-password" class="input-field" placeholder="Confirm new password" minlength="6" required />
-        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i><span>Reset Password</span></button>
+        <input type="password" id="reset-password" class="input-field" placeholder="New password" minlength="6"
+          required />
+        <input type="password" id="reset-confirm-password" class="input-field" placeholder="Confirm new password"
+          minlength="6" required />
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i><span>Reset
+            Password</span></button>
       </form>
     </div>
   </div>
@@ -1243,16 +1529,23 @@
       </div>
       <form onsubmit="handleSaveEditedDeck(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
         <div>
-          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck Title</label>
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck
+            Title</label>
           <input type="text" id="edit-deck-title" class="input-field" required />
         </div>
         <div>
-          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject Tag</label>
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject
+            Tag</label>
           <input type="text" id="edit-deck-subject" class="input-field" required />
         </div>
         <div>
-          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck Flashcards</label>
-          <div id="edit-deck-cards-container" style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; background: var(--bg-card-subtle);">
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck
+            Flashcards</label>
+          <div id="edit-deck-cards-container"
+            style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; background: var(--bg-card-subtle);">
             <!-- Dynamic cards rendered here -->
           </div>
         </div>
@@ -1281,11 +1574,16 @@
       </div>
       <form onsubmit="handleCreateClassroom(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
         <div>
-          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Course Title</label>
-          <input type="text" id="new-class-name" class="input-field" placeholder="e.g. Distributed Systems 201" required />
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Course
+            Title</label>
+          <input type="text" id="new-class-name" class="input-field" placeholder="e.g. Distributed Systems 201"
+            required />
         </div>
         <div>
-          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject Tag</label>
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject
+            Tag</label>
           <input type="text" id="new-class-subject" class="input-field" placeholder="e.g. Computer Science" required />
         </div>
         <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
@@ -1312,25 +1610,34 @@
         </button>
       </div>
       <div style="display: flex; flex-direction: column; gap: 1.25rem;">
-        <p style="font-size: 0.9rem; color: var(--text-muted);">Answer this random daily question correctly to keep your study streak active!</p>
-        
-        <div id="streak-question-box" style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); min-height: 80px; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 700; font-size: 1rem; color: var(--text-main);">
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Answer this random daily question correctly to keep your
+          study streak active!</p>
+
+        <div id="streak-question-box"
+          style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); min-height: 80px; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 700; font-size: 1rem; color: var(--text-main);">
           Loading challenge question...
         </div>
 
         <div id="streak-answer-input-container">
-          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Your Answer</label>
-          <input type="text" id="streak-challenge-answer" class="input-field" placeholder="Type your answer here..." required />
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Your
+            Answer</label>
+          <input type="text" id="streak-challenge-answer" class="input-field" placeholder="Type your answer here..."
+            required />
         </div>
 
-        <div id="streak-feedback-box" style="display: none; padding: 10px 14px; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 600;"></div>
+        <div id="streak-feedback-box"
+          style="display: none; padding: 10px 14px; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 600;">
+        </div>
 
         <div style="display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 1rem;">
-          <button type="button" class="btn btn-secondary" id="btn-streak-view-solution" onclick="handleViewStreakSolution()" style="display: none;">
+          <button type="button" class="btn btn-secondary" id="btn-streak-view-solution"
+            onclick="handleViewStreakSolution()" style="display: none;">
             <i class="fa-solid fa-eye"></i> View Solution
           </button>
           <div style="display: flex; gap: 10px; margin-left: auto;">
-            <button type="button" class="btn btn-secondary" onclick="closeModal('modal-streak-challenge')">Close</button>
+            <button type="button" class="btn btn-secondary"
+              onclick="closeModal('modal-streak-challenge')">Close</button>
             <button type="button" class="btn btn-primary" id="btn-streak-submit" onclick="handleSubmitStreakAnswer()">
               <i class="fa-solid fa-paper-plane"></i> Submit Answer
             </button>
@@ -1354,8 +1661,11 @@
       </div>
       <form onsubmit="handleJoinClassroom(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
         <div>
-          <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Classroom Access Code</label>
-          <input type="text" id="join-class-code" class="input-field" placeholder="e.g. BIO101X" style="font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px;" required />
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Classroom
+            Access Code</label>
+          <input type="text" id="join-class-code" class="input-field" placeholder="e.g. BIO101X"
+            style="font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px;" required />
         </div>
         <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
           <button type="button" class="btn btn-secondary" onclick="closeModal('modal-join-classroom')">Cancel</button>
@@ -1395,20 +1705,54 @@
         <div class="card-flip-container" id="study-flip-card" onclick="studyEngine.flipCard()">
           <div class="card-flip-inner">
             <div class="card-flip-front">
-              <div style="font-size: 0.78rem; font-weight: 700; color: var(--color-blue-bright); text-transform: uppercase; letter-spacing: 0.5px;">Question / Concept</div>
+              <div
+                style="font-size: 0.78rem; font-weight: 700; color: var(--color-blue-bright); text-transform: uppercase; letter-spacing: 0.5px;">
+                Question / Concept</div>
               <div class="card-question-text" id="card-question-display">Loading question...</div>
               <div class="card-flip-hint">
                 <i class="fa-solid fa-arrows-rotate"></i> Tap card or press Space to flip
               </div>
             </div>
             <div class="card-flip-back">
-              <div style="font-size: 0.78rem; font-weight: 700; color: var(--color-cyan); text-transform: uppercase; letter-spacing: 0.5px;">Explanation / Answer</div>
+              <div
+                style="font-size: 0.78rem; font-weight: 700; color: var(--color-cyan); text-transform: uppercase; letter-spacing: 0.5px;">
+                Explanation / Answer</div>
               <div class="card-answer-text" id="card-answer-display">Loading answer...</div>
               <div class="card-flip-hint">
                 <i class="fa-solid fa-arrows-rotate"></i> Tap card or press Space to flip back
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- AI ACTIVE RECALL ASSISTANT (HINT & CHECK ANSWER) -->
+        <div class="ai-study-panel" id="study-ai-panel">
+          <div class="ai-study-input-row">
+            <textarea id="study-answer-input" class="input-field study-answer-textarea" 
+              placeholder="Type your recall answer here to verify before flipping..." 
+              rows="2"></textarea>
+          </div>
+          
+          <div class="ai-study-actions">
+            <button type="button" class="btn btn-secondary ai-hint-btn" id="study-ai-hint-btn" onclick="studyEngine.requestAIHint()">
+              <i class="fa-solid fa-robot" style="color: var(--color-blue-bright);"></i>
+              <span>AI Hint</span>
+            </button>
+            <button type="button" class="btn btn-primary ai-check-btn" id="study-check-answer-btn" onclick="studyEngine.checkStudentAnswer()">
+              <i class="fa-solid fa-pen-fancy"></i>
+              <span>Check My Answer</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="study-manual-flip-btn" onclick="studyEngine.flipCard()" title="Flip Flashcard">
+              <i class="fa-solid fa-arrows-rotate"></i>
+              <span>Flip Card</span>
+            </button>
+          </div>
+
+          <!-- Dynamic Socratic Hint Container -->
+          <div id="study-ai-hint-container" class="ai-hint-box" style="display: none;"></div>
+
+          <!-- Dynamic Evaluation Result Container -->
+          <div id="study-ai-eval-container" class="ai-eval-box" style="display: none;"></div>
         </div>
 
         <div class="study-controls" id="study-active-controls">
@@ -1431,16 +1775,147 @@
     </div>
   </div>
 
+  <!-- AI CLASSROOM DIAGNOSIS MODAL -->
+  <div class="modal-backdrop" id="modal-classroom-diagnosis">
+    <div class="modal-card" style="max-width: 720px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-stethoscope" style="color: #7c3aed;"></i>
+          <span id="diagnosis-modal-title">Classroom Performance Diagnosis</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-classroom-diagnosis')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="diagnosis-loading" style="text-align: center; padding: 2.5rem;">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: #7c3aed; margin-bottom: 0.75rem;"></i>
+        <p style="font-size: 0.95rem; color: var(--text-muted);">Analyzing cohort mastery & synthesizing pedagogical diagnosis...</p>
+      </div>
+
+      <div id="diagnosis-content" style="display: none; flex-direction: column; gap: 1.25rem;">
+        <!-- Top Metrics Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+          <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: var(--radius-lg); text-align: center;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Class Mastery</div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: var(--color-emerald); margin-top: 4px;" id="diag-stat-accuracy">--%</div>
+          </div>
+          <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: var(--radius-lg); text-align: center;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Scholars</div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin-top: 4px;" id="diag-stat-students">0</div>
+          </div>
+          <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: var(--radius-lg); text-align: center;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Attention Needed</div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: #ef4444; margin-top: 4px;" id="diag-stat-weak-students">0</div>
+          </div>
+        </div>
+
+        <!-- Strong vs Weak Topics -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="diagnosis-topics-grid">
+          <!-- Strong Topics -->
+          <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: var(--radius-lg); padding: 1rem;">
+            <h4 style="font-size: 0.9rem; font-weight: 800; color: #059669; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+              <i class="fa-solid fa-circle-check"></i> Strong Topics (&ge; 75%)
+            </h4>
+            <div id="diag-strong-topics-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+          </div>
+
+          <!-- Needs Improvement -->
+          <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-lg); padding: 1rem;">
+            <h4 style="font-size: 0.9rem; font-weight: 800; color: #dc2626; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+              <i class="fa-solid fa-triangle-exclamation"></i> Needs Improvement (&lt; 60%)
+            </h4>
+            <div id="diag-weak-topics-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+          </div>
+        </div>
+
+        <!-- AI Pedagogical Diagnosis Banner -->
+        <div style="background: var(--bg-card-subtle); border: 1px solid rgba(124, 58, 237, 0.3); border-left: 4px solid #7c3aed; border-radius: var(--radius-lg); padding: 1.25rem;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <i class="fa-solid fa-robot" style="color: #7c3aed; font-size: 1.1rem;"></i>
+            <h4 style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">AI Classroom Diagnosis</h4>
+          </div>
+          <p id="diag-ai-text" style="font-size: 0.92rem; color: var(--text-main); line-height: 1.5; margin-bottom: 12px;"></p>
+
+          <div style="border-top: 1px dashed rgba(124, 58, 237, 0.25); padding-top: 10px;">
+            <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">
+              <i class="fa-solid fa-lightbulb" style="color: #f59e0b;"></i> Actionable Teaching Recommendations:
+            </div>
+            <p id="diag-rec-text" style="font-size: 0.9rem; color: var(--text-main); line-height: 1.5; margin-bottom: 8px;"></p>
+            <ul id="diag-action-steps" style="font-size: 0.88rem; color: var(--text-muted); padding-left: 1.25rem; line-height: 1.5;"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MCQ PRACTICE QUIZ MODAL -->
+  <div class="modal-backdrop" id="modal-practice-quiz">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-list-check" style="color: var(--color-blue-bright);"></i>
+          <span id="quiz-modal-title">Practice Quiz</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-practice-quiz')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="quiz-viewport" id="quiz-viewport-container" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <!-- Header status and progress -->
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">
+            <span id="quiz-counter-text">Question 1 of 5</span>
+            <span id="quiz-score-tracker" style="color: var(--color-blue-bright);">Score: 0 / 0</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="quiz-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Active Question Box -->
+        <div id="quiz-active-question-wrapper" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-lg);">
+            <span style="font-size: 0.78rem; font-weight: 700; color: var(--color-blue-bright); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Multiple Choice Question</span>
+            <div id="quiz-question-display" style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); line-height: 1.45;">Loading question...</div>
+          </div>
+
+          <!-- 4 Options Grid -->
+          <div class="quiz-options-list" id="quiz-options-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+
+          <!-- Dynamic Explanation / Feedback -->
+          <div id="quiz-feedback-box" class="quiz-feedback-banner" style="display: none;"></div>
+
+          <!-- Next Button -->
+          <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
+            <button type="button" class="btn btn-primary" id="quiz-next-btn" style="display: none;" onclick="quizRunner.nextQuestion()">
+              <span>Next Question</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quiz Completion View -->
+        <div id="quiz-summary-container" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Google Setup & Testing Modal -->
   <div class="modal-backdrop" id="modal-google-setup">
     <div class="modal-card" style="max-width: 540px;">
       <div class="modal-header">
         <h2>
           <svg viewBox="0 0 24 24" width="22" height="22" style="vertical-align: middle; margin-right: 8px;">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
           </svg>
           Google Authentication Setup
         </h2>
@@ -1449,32 +1924,44 @@
         </button>
       </div>
 
-      <div class="modal-body" style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.92rem; color: var(--text-muted); line-height: 1.5;">
-        <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 10px; padding: 0.85rem 1rem;">
+      <div class="modal-body"
+        style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.92rem; color: var(--text-muted); line-height: 1.5;">
+        <div
+          style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 10px; padding: 0.85rem 1rem;">
           <p style="color: var(--text-main); font-weight: 600; margin-bottom: 4px;">
-            <i class="fa-solid fa-circle-info" style="color: #38bdf8; margin-right: 6px;"></i> Google Client ID Not Configured
+            <i class="fa-solid fa-circle-info" style="color: #38bdf8; margin-right: 6px;"></i> Google Client ID Not
+            Configured
           </p>
           <p style="font-size: 0.86rem;">
-            Code integration is 100% active! To connect your official Google account, add your Google OAuth Client ID into the project's <code>.env</code> file.
+            Code integration is 100% active! To connect your official Google account, add your Google OAuth Client ID
+            into the project's <code>.env</code> file.
           </p>
         </div>
 
         <div>
-          <h4 style="color: var(--text-main); font-size: 0.95rem; margin-bottom: 0.5rem;">How to get your Client ID (3 minutes):</h4>
+          <h4 style="color: var(--text-main); font-size: 0.95rem; margin-bottom: 0.5rem;">How to get your Client ID (3
+            minutes):</h4>
           <ol style="margin-left: 1.25rem; font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px;">
-            <li>Visit <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener" style="color: var(--color-blue-bright); text-decoration: underline;">Google Cloud Console Credentials</a>.</li>
+            <li>Visit <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener"
+                style="color: var(--color-blue-bright); text-decoration: underline;">Google Cloud Console
+                Credentials</a>.</li>
             <li>Create an <strong>OAuth 2.0 Client ID</strong> (Application Type: <em>Web application</em>).</li>
-            <li>Add Authorized JavaScript origin: <code>http://localhost:5000</code> and <code>http://127.0.0.1:5000</code>.</li>
-            <li>Copy your <strong>Client ID</strong> and paste into <code>.env</code>: <code>GOOGLE_CLIENT_ID=...</code></li>
+            <li>Add Authorized JavaScript origin: <code>http://localhost:5000</code> and
+              <code>http://127.0.0.1:5000</code>.
+            </li>
+            <li>Copy your <strong>Client ID</strong> and paste into <code>.env</code>: <code>GOOGLE_CLIENT_ID=...</code>
+            </li>
           </ol>
         </div>
 
         <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
-          <button type="button" class="btn btn-primary" onclick="loginWithGoogleDemoAccount()" style="width: 100%; justify-content: center; height: 44px;">
+          <button type="button" class="btn btn-primary" onclick="loginWithGoogleDemoAccount()"
+            style="width: 100%; justify-content: center; height: 44px;">
             <i class="fa-brands fa-google"></i>
             <span>Test with Demo Google Profile (Instant Preview)</span>
           </button>
-          <button type="button" class="btn btn-outline" onclick="closeModal('modal-google-setup')" style="width: 100%; justify-content: center;">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-google-setup')"
+            style="width: 100%; justify-content: center;">
             Dismiss
           </button>
         </div>
@@ -1520,7 +2007,7 @@
     async function handleForgotPassword(event) {
       event.preventDefault();
       const email = document.getElementById('forgot-password-email').value.trim();
-      const res = await fetch('/api/auth/forgot-password', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ email }) });
+      const res = await fetch('/api/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
       const data = await res.json();
       closeModal('modal-forgot-password');
       showToast(data.dev_reset_link ? `Development reset link: ${data.dev_reset_link}` : data.message, res.ok ? 'success' : 'error');
@@ -1531,7 +2018,7 @@
       const token = new URLSearchParams(window.location.search).get('reset_token');
       const password = document.getElementById('reset-password').value;
       const confirmPassword = document.getElementById('reset-confirm-password').value;
-      const res = await fetch('/api/auth/reset-password', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ token, password, confirm_password: confirmPassword }) });
+      const res = await fetch('/api/auth/reset-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, password, confirm_password: confirmPassword }) });
       const data = await res.json();
       closeModal('modal-reset-password');
       showToast(data.message || data.error, res.ok ? 'success' : 'error');
@@ -1553,6 +2040,8 @@
       if (targetPanel) targetPanel.classList.add('active');
       if (targetNav) targetNav.classList.add('active');
 
+      if (tabKey === 'admin-requests') loadAdminTeacherRequests();
+      if (tabKey === 'admin-logins') loadAdminLoginHistory();
       if (tabKey === 'teacher-dashboard') renderTeacherDashboard();
       if (tabKey === 'teacher-myclasses') renderMyClassesPanel();
       if (tabKey === 'teacher-classrooms') renderTeacherClassrooms();
@@ -1598,7 +2087,7 @@
       syncThemeUI(isDark);
 
       await state.loadState();
-      
+
       // Sync theme classes if state theme differs (and user is logged in)
       if (state.data.currentUser && state.data.theme) {
         const serverDark = state.data.theme === 'dark';
@@ -1615,22 +2104,25 @@
 
       if (state.data.currentUser) {
         updateAppAuthUI(true); // skip default tab switching
-        
+
+        const role = state.data.currentUser.role;
+        const isAdmin = role === 'admin';
+        const isTeacher = role === 'teacher';
+
         // Restore view if it was a dashboard tab
         if (currentView && currentView.startsWith('tab:')) {
           const tabKey = currentView.split(':')[1];
-          const isTeacher = state.data.currentUser.role === 'teacher';
+          const isAdminTab = tabKey.startsWith('admin-');
           const isTeacherTab = tabKey.startsWith('teacher-');
           const isStudentTab = tabKey.startsWith('student-');
-          
-          if ((isTeacher && isTeacherTab) || (!isTeacher && isStudentTab) || tabKey === 'profile') {
+
+          if ((isAdmin && (isAdminTab || isTeacherTab)) || (isTeacher && isTeacherTab) || (!isTeacher && !isAdmin && isStudentTab) || tabKey === 'profile') {
             switchTab(tabKey);
           } else {
-            switchTab(isTeacher ? 'teacher-dashboard' : 'student-dashboard');
+            switchTab(isAdmin ? 'admin-requests' : (isTeacher ? 'teacher-dashboard' : 'student-dashboard'));
           }
         } else {
-          const isTeacher = state.data.currentUser.role === 'teacher';
-          switchTab(isTeacher ? 'teacher-dashboard' : 'student-dashboard');
+          switchTab(isAdmin ? 'admin-requests' : (isTeacher ? 'teacher-dashboard' : 'student-dashboard'));
         }
       } else {
         if (currentView && currentView.startsWith('auth:')) {
@@ -1643,4 +2135,5 @@
     });
   </script>
 </body>
+
 </html>

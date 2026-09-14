@@ -71,14 +71,15 @@ def get_state_json(user_id=None):
     current_user = None
     theme = 'light'
     if user_id:
-        cursor.execute("SELECT id, name, email, role, theme FROM users WHERE id = ?", (user_id,))
+        cursor.execute("SELECT id, name, email, role, teacher_status, theme FROM users WHERE id = ?", (user_id,))
         row = cursor.fetchone()
         if row:
             current_user = {
                 'id': row['id'],
                 'name': row['name'],
                 'email': row['email'],
-                'role': row['role']
+                'role': row['role'],
+                'teacherStatus': row['teacher_status'] or 'none'
             }
             theme = row['theme'] if row['theme'] in ('light', 'dark') else 'light'
 
@@ -165,21 +166,21 @@ def get_state_json(user_id=None):
         user_name = user_row['name'] if user_row else ""
         user_role = user_row['role'] if user_row else "student"
         
-        if user_role == 'teacher':
+        if user_role in ('teacher', 'admin'):
             cursor.execute('''
                 SELECT id, title, subject, creator_name, classroom_id 
                 FROM decks 
-                WHERE classroom_id IS NOT NULL OR creator_name = ?
+                WHERE classroom_id IS NOT NULL OR creator_id = ? OR creator_name = ?
                 ORDER BY id ASC
-            ''', (user_name,))
+            ''', (user_id, user_name))
         else:
             cursor.execute('''
                 SELECT id, title, subject, creator_name, classroom_id 
                 FROM decks 
                 WHERE classroom_id IN (SELECT classroom_id FROM classroom_enrollments WHERE student_id = ?)
-                   OR (classroom_id IS NULL AND creator_name = ?)
+                   OR (classroom_id IS NULL AND (creator_id = ? OR creator_name = ?))
                 ORDER BY id ASC
-            ''', (user_id, user_name))
+            ''', (user_id, user_id, user_name))
     else:
         cursor.execute('SELECT id, title, subject, creator_name, classroom_id FROM decks WHERE classroom_id IS NOT NULL ORDER BY id ASC')
     

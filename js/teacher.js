@@ -316,10 +316,14 @@ function renderMyClassesPanel(searchFilter = '') {
             </div>
           </div>
 
-          <div style="display: flex; gap: 8px; margin-top: auto;">
-            <button class="btn ${isSelected ? 'btn-primary' : 'btn-secondary'}" style="flex: 1; font-size: 0.85rem; padding: 8px 12px;" onclick="selectCourseForDetail('${cls.id}')">
+          <div style="display: flex; gap: 8px; margin-top: auto; flex-wrap: wrap;">
+            <button class="btn ${isSelected ? 'btn-primary' : 'btn-secondary'}" style="flex: 1; min-width: 110px; font-size: 0.85rem; padding: 8px 12px;" onclick="selectCourseForDetail('${cls.id}')">
               <i class="fa-solid fa-users-viewfinder"></i>
-              <span>${isSelected ? 'Viewing Course' : 'Manage Course'}</span>
+              <span>${isSelected ? 'Viewing' : 'Manage'}</span>
+            </button>
+            <button class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.85rem; background: rgba(124, 58, 237, 0.08); color: #7c3aed; border-color: rgba(124, 58, 237, 0.3);" onclick="openClassroomDiagnosis('${cls.id}', event)" title="AI Classroom Performance Diagnosis">
+              <i class="fa-solid fa-stethoscope"></i>
+              <span>Diagnosis</span>
             </button>
             <button class="btn btn-danger" style="padding: 8px 12px; font-size: 0.85rem;" onclick="deleteClassroomDirect('${cls.id}')" title="Delete Course">
               <i class="fa-solid fa-trash"></i>
@@ -347,6 +351,102 @@ function setCourseSubTab(tabName) {
   activeCourseSubTab = tabName;
   if (activeCourseId) {
     renderSelectedCourseDetails(activeCourseId);
+  }
+}
+
+async function openClassroomDiagnosis(classId, event) {
+  if (event) event.stopPropagation();
+
+  const cls = (state.data.classrooms || []).find(c => c.id === classId);
+  const titleEl = document.getElementById('diagnosis-modal-title');
+  if (titleEl) {
+    titleEl.textContent = cls ? `Diagnosis: ${cls.name}` : 'Classroom Diagnosis';
+  }
+
+  const loadingEl = document.getElementById('diagnosis-loading');
+  const contentEl = document.getElementById('diagnosis-content');
+
+  if (loadingEl) loadingEl.style.display = 'block';
+  if (contentEl) contentEl.style.display = 'none';
+
+  openModal('modal-classroom-diagnosis');
+
+  try {
+    const res = await fetch(`/api/classrooms/${classId}/diagnosis`);
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      showToast(data.error || 'Failed to retrieve classroom diagnosis.', 'error');
+      closeModal('modal-classroom-diagnosis');
+      return;
+    }
+
+    const payload = data.data;
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (contentEl) contentEl.style.display = 'flex';
+
+    // Metrics
+    const accEl = document.getElementById('diag-stat-accuracy');
+    const stuEl = document.getElementById('diag-stat-students');
+    const weakEl = document.getElementById('diag-stat-weak-students');
+    if (accEl) accEl.textContent = `${payload.average_performance}%`;
+    if (stuEl) stuEl.textContent = payload.total_students;
+    if (weakEl) weakEl.textContent = payload.weak_students_count;
+
+    // Strong Topics
+    const strongListEl = document.getElementById('diag-strong-topics-list');
+    if (strongListEl) {
+      if (!payload.strong_topics || payload.strong_topics.length === 0) {
+        strongListEl.innerHTML = '<div style="font-size: 0.8rem; color: var(--text-muted);">No topics exceeding 75% yet.</div>';
+      } else {
+        strongListEl.innerHTML = payload.strong_topics.map(t => `
+          <div style="font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; background: rgba(16, 185, 129, 0.08); padding: 4px 8px; border-radius: 4px;">
+            <span>✓ ${escapeHtml(t.topic)}</span>
+            <strong style="color: #059669;">${t.accuracy}%</strong>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Needs Improvement Topics
+    const weakListEl = document.getElementById('diag-weak-topics-list');
+    if (weakListEl) {
+      if (!payload.needs_improvement || payload.needs_improvement.length === 0) {
+        weakListEl.innerHTML = '<div style="font-size: 0.8rem; color: #059669; padding: 4px 0;"><i class="fa-solid fa-check"></i> All active topics meet mastery standards!</div>';
+      } else {
+        weakListEl.innerHTML = payload.needs_improvement.map(t => `
+          <div style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 2px; background: rgba(239, 68, 68, 0.08); padding: 6px 8px; border-radius: 4px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span>⚠ ${escapeHtml(t.topic)}</span>
+              <strong style="color: #dc2626;">${t.accuracy}%</strong>
+            </div>
+            ${t.challenging_concepts && t.challenging_concepts.length > 0 ? `
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-style: italic;">
+                Stumbling points: ${escapeHtml(t.challenging_concepts.join(', '))}
+              </span>
+            ` : ''}
+          </div>
+        `).join('');
+      }
+    }
+
+    // AI Diagnosis and Recommendations
+    const aiDiag = payload.ai_diagnosis || {};
+    const diagTextEl = document.getElementById('diag-ai-text');
+    const recTextEl = document.getElementById('diag-rec-text');
+    const stepsEl = document.getElementById('diag-action-steps');
+
+    if (diagTextEl) diagTextEl.textContent = aiDiag.diagnosis || 'Classroom performance analysis in progress.';
+    if (recTextEl) recTextEl.textContent = aiDiag.recommendation || 'Continue regular study sessions.';
+    if (stepsEl) {
+      const steps = aiDiag.action_steps || [];
+      stepsEl.innerHTML = steps.map(s => `<li>${escapeHtml(s)}</li>`).join('');
+    }
+
+  } catch (err) {
+    console.error('Failed to load diagnosis', err);
+    showToast('Failed to load classroom diagnosis.', 'error');
+    closeModal('modal-classroom-diagnosis');
   }
 }
 
@@ -381,7 +481,11 @@ function renderSelectedCourseDetails(classId) {
           <p style="font-size: 0.88rem; color: var(--text-muted);">Instructor: <strong>${cls.teacher}</strong> | Cohort Enrollment: <strong>${enrolled.length} Scholars</strong></p>
         </div>
 
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" style="background: rgba(124, 58, 237, 0.08); color: #7c3aed; border-color: rgba(124, 58, 237, 0.3);" onclick="openClassroomDiagnosis('${cls.id}')">
+            <i class="fa-solid fa-stethoscope"></i>
+            <span>AI Diagnosis</span>
+          </button>
           <button class="btn btn-primary" onclick="openCreateDeckForClassModal('${cls.id}')">
             <i class="fa-solid fa-plus"></i> Add Course Deck
           </button>
@@ -492,11 +596,14 @@ function renderSelectedCourseDetails(classId) {
                     <p style="font-size: 0.85rem; color: var(--text-muted);">Creator: ${deck.creator || 'Faculty'}</p>
                   </div>
 
-                  <div style="display: flex; gap: 8px; margin-top: 1.25rem;">
-                    <button class="btn btn-secondary" style="flex: 1; font-size: 0.85rem; padding: 7px;" onclick="openEditDeckModal('${deck.id}')">
+                  <div style="display: flex; gap: 8px; margin-top: 1.25rem; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" style="flex: 1; font-size: 0.82rem; padding: 7px;" onclick="openEditDeckModal('${deck.id}')">
                       <i class="fa-solid fa-pen"></i> Edit
                     </button>
-                    <button class="btn btn-danger" style="padding: 7px 10px; font-size: 0.85rem;" onclick="deleteDeckDirect('${deck.id}')">
+                    <button class="btn btn-primary" style="flex: 1.2; font-size: 0.82rem; padding: 7px;" onclick="generatePracticeQuiz('${deck.id}')" title="Generate AI multiple-choice practice quiz">
+                      <i class="fa-solid fa-list-check"></i> Practice Quiz
+                    </button>
+                    <button class="btn btn-danger" style="padding: 7px 10px; font-size: 0.82rem;" onclick="deleteDeckDirect('${deck.id}')" title="Delete deck">
                       <i class="fa-solid fa-trash"></i>
                     </button>
                   </div>
@@ -581,6 +688,9 @@ function renderTeacherClassrooms() {
           <div style="margin-top: 1.25rem; display: flex; gap: 8px;">
             <button class="btn btn-primary" style="flex: 1; justify-content: center;" onclick="selectCourseForDetail('${cls.id}'); switchTab('teacher-myclasses');">
               <i class="fa-solid fa-book-open"></i> Manage Course
+            </button>
+            <button class="btn btn-secondary" style="padding: 8px 12px; background: rgba(124, 58, 237, 0.08); color: #7c3aed; border-color: rgba(124, 58, 237, 0.3);" onclick="openClassroomDiagnosis('${cls.id}', event)" title="Classroom AI Performance Diagnosis">
+              <i class="fa-solid fa-stethoscope"></i>
             </button>
             <button class="btn btn-danger" style="padding: 8px 12px;" onclick="deleteClassroomDirect('${cls.id}')">
               <i class="fa-solid fa-trash"></i>
@@ -1058,5 +1168,491 @@ async function deleteDeckDirect(deckId) {
   } catch (e) {
     console.error(e);
     showToast('An error occurred deleting deck.', 'error');
+  }
+}
+
+/* =========================================================================
+   PHASE 2: FACULTY DOCUMENT UPLOAD & PRACTICE QUIZ
+   ========================================================================= */
+
+function switchTeacherAIMode(mode) {
+  const topicTab = document.getElementById('tab-btn-ai-topic');
+  const docTab = document.getElementById('tab-btn-ai-doc');
+  const topicForm = document.getElementById('teacher-ai-topic-form-container');
+  const docForm = document.getElementById('teacher-ai-doc-form-container');
+
+  if (mode === 'document') {
+    if (topicTab) topicTab.classList.remove('active');
+    if (docTab) docTab.classList.add('active');
+    if (topicForm) topicForm.style.display = 'none';
+    if (docForm) docForm.style.display = 'block';
+  } else {
+    if (docTab) docTab.classList.remove('active');
+    if (topicTab) topicTab.classList.add('active');
+    if (docForm) docForm.style.display = 'none';
+    if (topicForm) topicForm.style.display = 'block';
+  }
+}
+
+function handleTeacherDocFileChange(input) {
+  const badge = document.getElementById('teacher-doc-selected-badge');
+  const title = document.getElementById('teacher-doc-upload-title');
+  if (!input.files || input.files.length === 0) {
+    if (badge) badge.style.display = 'none';
+    if (title) title.textContent = 'Click to browse or drop syllabus / lecture notes';
+    return;
+  }
+  const file = input.files[0];
+  const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+  if (title) title.textContent = 'Selected Document:';
+  if (badge) {
+    badge.style.display = 'inline-flex';
+    badge.innerHTML = `<i class="fa-solid fa-file-lines"></i> <span>${escapeHtml(file.name)} (${sizeMB} MB)</span>`;
+  }
+}
+
+let currentActiveRagDocId = null;
+
+async function handleTeacherDocumentUpload(event) {
+  event.preventDefault();
+  const fileInput = document.getElementById('teacher-doc-file-input');
+  const countInput = document.getElementById('teacher-doc-count-input');
+  const levelSelect = document.getElementById('teacher-doc-level-select');
+  const ragToggle = document.getElementById('teacher-doc-rag-toggle');
+  const submitBtn = document.getElementById('teacher-doc-submit-btn');
+  const resultContainer = document.getElementById('ai-generated-result');
+
+  if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+    showToast('Please select a PDF or TXT file to upload.', 'error');
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const isPdf = file.name.toLowerCase().endsWith('.pdf');
+  const useRag = isPdf && (!ragToggle || ragToggle.checked);
+  const count = countInput ? countInput.value : 6;
+  const level = levelSelect ? levelSelect.value : 'Intermediate Mastery';
+
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('File exceeds maximum size of 10 MB.', 'error');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('count', count);
+  formData.append('level', level);
+
+  const targetClassroomId = state.aiTargetClassroomId || '';
+  if (targetClassroomId) {
+    formData.append('classroom_id', targetClassroomId);
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = useRag
+      ? '<i class="fa-solid fa-spinner fa-spin"></i> <span>Indexing PDF & Extracting Grounded Cards...</span>'
+      : '<i class="fa-solid fa-spinner fa-spin"></i> <span>Extracting & Generating Flashcards...</span>';
+  }
+
+  try {
+    const uploadUrl = useRag ? '/api/documents/upload-rag' : '/api/decks/upload';
+    const res = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      showToast(data.error || 'Failed to extract and generate flashcards.', 'error');
+      return;
+    }
+
+    const payload = data.data;
+    const generatedCards = payload.cards || [];
+    const docMeta = payload.document || null;
+    const docTitle = payload.title || (docMeta ? docMeta.title : file.name.replace(/\.[^/.]+$/, ""));
+    currentActiveRagDocId = docMeta ? docMeta.document_id : null;
+
+    // Set topic input to extracted title
+    const topicInput = document.getElementById('ai-topic-input');
+    if (topicInput) topicInput.value = docTitle;
+
+    state.aiTargetClassroomId = null;
+
+    resultContainer.style.display = 'block';
+    resultContainer.innerHTML = `
+      <div style="background: var(--bg-card); border: 1px solid var(--border-blue); padding: 1.75rem; border-radius: var(--radius-xl); margin-top: 1.75rem; box-shadow: var(--shadow-main);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+              <h3 style="color: var(--color-blue-bright); font-size: 1.25rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-sparkles"></i>
+                <span>Generated ${generatedCards.length} Flashcards from Document</span>
+              </h3>
+              ${docMeta ? `<span class="badge-rag-pill"><i class="fa-solid fa-brain"></i> RAG Grounded</span>` : ''}
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">
+              Source: <strong>${escapeHtml(file.name)}</strong> 
+              ${docMeta ? `(${docMeta.total_pages} Pages, ${docMeta.total_chunks} Semantic Chunks indexed)` : `(${payload.extracted_chars} characters)`}
+            </p>
+          </div>
+        </div>
+
+        ${docMeta ? `
+          <!-- Interactive Ask Document (RAG Q&A) Drawer -->
+          <div class="rag-qa-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <h4 style="font-size: 0.95rem; font-weight: 800; color: #7c3aed; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-comments"></i>
+                <span>Ask Document (Grounded RAG Search)</span>
+              </h4>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Queries vector index across all ${docMeta.total_pages} pages</span>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+              <input type="text" id="rag-doc-query-input" class="input-field" placeholder="e.g. What are the key stages or definitions in this document?" style="flex: 1; font-size: 0.88rem;" onkeydown="if(event.key==='Enter'){event.preventDefault();submitRagDocQuery('${docMeta.document_id}');}" />
+              <button type="button" class="btn btn-secondary" onclick="submitRagDocQuery('${docMeta.document_id}')" id="rag-doc-query-btn" style="white-space: nowrap; background: #7c3aed; color: #fff; border-color: #7c3aed;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Query Document</span>
+              </button>
+            </div>
+            <div id="rag-query-response-box" style="display: none;"></div>
+          </div>
+        ` : ''}
+
+        <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; max-height: 420px; overflow-y: auto;">
+          ${generatedCards.map((c, idx) => `
+            <div class="ai-generated-card-row" style="background: var(--bg-card-subtle); padding: 1.15rem; border-radius: var(--radius-md); border-left: 3.5px solid var(--color-blue-bright); display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-blue-bright);">Card #${idx + 1}</span>
+                  ${c.page_number ? `<span class="badge-citation"><i class="fa-solid fa-bookmark"></i> Page ${c.page_number}</span>` : ''}
+                </div>
+                <span class="card-badge badge-diff-${c.difficulty || 'medium'}" style="text-transform: capitalize; font-size: 0.72rem;">${c.difficulty || 'medium'}</span>
+              </div>
+              <input type="text" class="input-field ai-card-q" value="${escapeHtml(c.question)}" placeholder="Question Front..." style="width: 100%; font-weight: 700;" />
+              <textarea class="input-field ai-card-a" placeholder="Answer Back..." style="width: 100%; font-family: inherit; font-size: 0.9rem; resize: vertical; min-height: 60px;">${escapeHtml(c.answer)}</textarea>
+              ${c.source_citation ? `
+                <div class="rag-citation-snippet">
+                  <i class="fa-solid fa-quote-left" style="color: #7c3aed; margin-right: 4px;"></i>
+                  <span>${escapeHtml(c.source_citation)}</span>
+                </div>
+              ` : ''}
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <select id="ai-target-classroom-select" class="select-field" style="width: auto; flex: 1; min-width: 200px;" onchange="updateAISubjectTagFromClassroom(this)">
+            <option value="">-- Save to Standalone Decks --</option>
+            ${(state.data.classrooms || []).map(cls => `
+              <option value="${cls.id}" ${cls.id === targetClassroomId ? 'selected' : ''}>Publish to: ${cls.name}</option>
+            `).join('')}
+            <option value="other">Other (Create New Course)</option>
+          </select>
+          <input type="text" id="ai-custom-classroom-input" class="input-field" placeholder="Enter Custom Course Name..." style="display: none; width: auto; flex: 1; min-width: 200px;" />
+          <button class="btn btn-primary" onclick="saveAIGeneratedDeck()">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Save & Publish Deck</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    showToast(
+      useRag
+        ? `RAG Ingested ${docMeta.total_pages} pages and extracted ${generatedCards.length} grounded flashcards!`
+        : `Synthesized ${generatedCards.length} flashcards from document!`,
+      'success'
+    );
+  } catch (err) {
+    console.error('Document upload failed', err);
+    showToast('An error occurred during document upload and processing.', 'error');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-file-import"></i> <span>Extract & Generate Flashcards</span>';
+    }
+  }
+}
+
+async function submitRagDocQuery(docId) {
+  const input = document.getElementById('rag-doc-query-input');
+  const btn = document.getElementById('rag-doc-query-btn');
+  const box = document.getElementById('rag-query-response-box');
+
+  if (!input || !input.value.trim()) {
+    showToast('Please enter a question to ask the document.', 'warning');
+    return;
+  }
+
+  const query = input.value.trim();
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Searching...</span>';
+  }
+
+  try {
+    const res = await fetch(`/api/documents/${docId}/query`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: jsonStringifySafe({ query })
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      showToast(data.error || 'Failed to query document.', 'error');
+      return;
+    }
+
+    const payload = data.data;
+    if (box) {
+      box.style.display = 'block';
+      box.innerHTML = `
+        <div style="background: var(--bg-card-subtle); border-radius: var(--radius-md); padding: 1rem; border-left: 4px solid #7c3aed; margin-top: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+            <strong style="font-size: 0.88rem; color: #7c3aed;"><i class="fa-solid fa-robot"></i> Grounded Answer:</strong>
+          </div>
+          <p style="font-size: 0.9rem; color: var(--text-main); line-height: 1.5; margin-bottom: 10px;">
+            ${escapeHtml(payload.answer)}
+          </p>
+          ${payload.citations && payload.citations.length > 0 ? `
+            <div style="margin-top: 8px; border-top: 1px dashed rgba(124, 58, 237, 0.2); padding-top: 8px;">
+              <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Retrieved Sources & Citations:</span>
+              <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px;">
+                ${payload.citations.map(c => `
+                  <div style="font-size: 0.78rem; background: rgba(124, 58, 237, 0.05); padding: 6px 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                    <div>
+                      <span class="badge-citation"><i class="fa-solid fa-bookmark"></i> Page ${c.page_number}</span>
+                      <span style="color: var(--text-muted); margin-left: 6px;">${escapeHtml(c.snippet)}</span>
+                    </div>
+                    <span class="rag-score-badge">${Math.round((c.score || 0) * 100)}% match</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+  } catch (err) {
+    console.error('Document query error', err);
+    showToast('Failed to perform document query.', 'error');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> <span>Query Document</span>';
+    }
+  }
+}
+
+/* Practice Quiz Runner */
+class PracticeQuizRunner {
+  constructor() {
+    this.quizData = null;
+    this.currentIndex = 0;
+    this.score = 0;
+    this.answered = false;
+  }
+
+  start(quizData) {
+    this.quizData = quizData;
+    this.currentIndex = 0;
+    this.score = 0;
+    this.answered = false;
+
+    const modalTitle = document.getElementById('quiz-modal-title');
+    if (modalTitle) {
+      modalTitle.textContent = `Practice Quiz: ${quizData.deck_title || 'Flashcards'}`;
+    }
+
+    const summaryContainer = document.getElementById('quiz-summary-container');
+    if (summaryContainer) summaryContainer.style.display = 'none';
+
+    const questionWrapper = document.getElementById('quiz-active-question-wrapper');
+    if (questionWrapper) questionWrapper.style.display = 'flex';
+
+    this.renderQuestion();
+    openModal('modal-practice-quiz');
+  }
+
+  renderQuestion() {
+    if (!this.quizData || !this.quizData.quiz || this.currentIndex >= this.quizData.quiz.length) {
+      this.renderSummary();
+      return;
+    }
+
+    this.answered = false;
+    const q = this.quizData.quiz[this.currentIndex];
+    const total = this.quizData.quiz.length;
+    const currentNum = this.currentIndex + 1;
+    const progressPct = Math.round(((currentNum - 1) / total) * 100);
+
+    const counterText = document.getElementById('quiz-counter-text');
+    if (counterText) counterText.textContent = `Question ${currentNum} of ${total}`;
+
+    const scoreTracker = document.getElementById('quiz-score-tracker');
+    if (scoreTracker) scoreTracker.textContent = `Score: ${this.score} / ${this.currentIndex}`;
+
+    const progressFill = document.getElementById('quiz-progress-fill');
+    if (progressFill) progressFill.style.width = `${progressPct}%`;
+
+    const qDisplay = document.getElementById('quiz-question-display');
+    if (qDisplay) qDisplay.textContent = q.question;
+
+    const feedbackBox = document.getElementById('quiz-feedback-box');
+    if (feedbackBox) {
+      feedbackBox.style.display = 'none';
+      feedbackBox.className = 'quiz-feedback-banner';
+      feedbackBox.innerHTML = '';
+    }
+
+    const nextBtn = document.getElementById('quiz-next-btn');
+    if (nextBtn) nextBtn.style.display = 'none';
+
+    // Render 4 options
+    const optionsContainer = document.getElementById('quiz-options-container');
+    if (optionsContainer) {
+      const letters = ['A', 'B', 'C', 'D'];
+      optionsContainer.innerHTML = q.options.map((opt, optIdx) => `
+        <button type="button" class="quiz-option-btn" id="quiz-opt-btn-${optIdx}" onclick="quizRunner.selectOption(${optIdx})">
+          <span class="quiz-option-letter">${letters[optIdx]}</span>
+          <span style="flex: 1;">${escapeHtml(opt)}</span>
+        </button>
+      `).join('');
+    }
+  }
+
+  selectOption(selectedIndex) {
+    if (this.answered) return;
+    this.answered = true;
+
+    const q = this.quizData.quiz[this.currentIndex];
+    const isCorrect = selectedIndex === q.correct_index;
+    if (isCorrect) {
+      this.score++;
+    }
+
+    // Disable all option buttons
+    q.options.forEach((_, idx) => {
+      const btn = document.getElementById(`quiz-opt-btn-${idx}`);
+      if (btn) {
+        btn.disabled = true;
+        if (idx === q.correct_index) {
+          btn.classList.add('selected-correct');
+        } else if (idx === selectedIndex && !isCorrect) {
+          btn.classList.add('selected-incorrect');
+        }
+      }
+    });
+
+    // Show feedback banner
+    const feedbackBox = document.getElementById('quiz-feedback-box');
+    if (feedbackBox) {
+      feedbackBox.style.display = 'block';
+      if (isCorrect) {
+        feedbackBox.className = 'quiz-feedback-banner correct';
+        feedbackBox.innerHTML = `
+          <div style="font-weight: 700; color: #059669; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-circle-check"></i> Correct Answer!
+          </div>
+          <div>${escapeHtml(q.explanation || '')}</div>
+        `;
+      } else {
+        feedbackBox.className = 'quiz-feedback-banner incorrect';
+        feedbackBox.innerHTML = `
+          <div style="font-weight: 700; color: #dc2626; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-circle-xmark"></i> Incorrect
+          </div>
+          <div><strong>Correct choice:</strong> ${escapeHtml(q.correct_answer)}. ${escapeHtml(q.explanation || '')}</div>
+        `;
+      }
+    }
+
+    // Show next button
+    const nextBtn = document.getElementById('quiz-next-btn');
+    if (nextBtn) {
+      nextBtn.style.display = 'inline-flex';
+      const isLast = this.currentIndex + 1 >= this.quizData.quiz.length;
+      nextBtn.innerHTML = isLast
+        ? '<span>View Final Score</span> <i class="fa-solid fa-trophy"></i>'
+        : '<span>Next Question</span> <i class="fa-solid fa-arrow-right"></i>';
+    }
+
+    // Update live score
+    const scoreTracker = document.getElementById('quiz-score-tracker');
+    if (scoreTracker) scoreTracker.textContent = `Score: ${this.score} / ${this.currentIndex + 1}`;
+  }
+
+  nextQuestion() {
+    this.currentIndex++;
+    this.renderQuestion();
+  }
+
+  renderSummary() {
+    const questionWrapper = document.getElementById('quiz-active-question-wrapper');
+    if (questionWrapper) questionWrapper.style.display = 'none';
+
+    const progressFill = document.getElementById('quiz-progress-fill');
+    if (progressFill) progressFill.style.width = '100%';
+
+    const total = this.quizData.quiz.length;
+    const pct = total > 0 ? Math.round((this.score / total) * 100) : 100;
+
+    const summaryContainer = document.getElementById('quiz-summary-container');
+    if (summaryContainer) {
+      summaryContainer.style.display = 'block';
+      summaryContainer.innerHTML = `
+        <div style="text-align: center; padding: 2rem 1rem;">
+          <div style="width: 68px; height: 68px; border-radius: 50%; background: rgba(37, 99, 235, 0.1); color: var(--color-blue-bright); font-size: 2.2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <h2 style="color: var(--text-main); font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem;">Practice Quiz Finished!</h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.75rem;">You completed all multiple choice questions for "${escapeHtml(this.quizData.deck_title || 'Deck')}"</p>
+
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+            <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-md);">
+              <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-subtle); text-transform: uppercase;">Correct Answers</div>
+              <div style="font-size: 1.75rem; font-weight: 800; color: var(--color-emerald); margin-top: 4px;">${this.score} / ${total}</div>
+            </div>
+            <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-md);">
+              <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-subtle); text-transform: uppercase;">Quiz Accuracy</div>
+              <div style="font-size: 1.75rem; font-weight: 800; color: var(--color-blue-bright); margin-top: 4px;">${pct}%</div>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: center; gap: 12px;">
+            <button type="button" class="btn btn-secondary" onclick="quizRunner.start(quizRunner.quizData)">
+              <i class="fa-solid fa-rotate-left"></i>
+              <span>Retake Quiz</span>
+            </button>
+            <button type="button" class="btn btn-primary" onclick="closeModal('modal-practice-quiz')">
+              <i class="fa-solid fa-check"></i>
+              <span>Done</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+  }
+}
+
+const quizRunner = new PracticeQuizRunner();
+
+async function generatePracticeQuiz(deckId) {
+  showToast('Synthesizing AI practice quiz with plausible distractors...', 'info');
+  try {
+    const res = await fetch(`/api/decks/${deckId}/generate-quiz`, {
+      method: 'POST'
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      showToast(data.error || 'Failed to generate practice quiz.', 'error');
+      return;
+    }
+    quizRunner.start(data.data);
+  } catch (err) {
+    console.error('Quiz generation failed', err);
+    showToast('Network error while generating practice quiz.', 'error');
   }
 }

@@ -93,6 +93,30 @@ function renderStudentDashboard() {
     }).join('');
   }
 
+  // Scholar Teacher Request Status Card
+  const teacherStatus = (state.data.currentUser && state.data.currentUser.teacherStatus) || 'none';
+  const isStudent = !state.data.currentUser || state.data.currentUser.role === 'student';
+  let teacherStatusHTML = '';
+
+  if (isStudent) {
+    if (teacherStatus === 'pending') {
+      teacherStatusHTML = `
+        <div class="card" style="margin-bottom: 1.5rem; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; border-radius: var(--radius-lg); flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+              <i class="fa-solid fa-hourglass-half fa-spin"></i>
+            </div>
+            <div>
+              <div style="font-weight: 700; color: var(--text-main); font-size: 1.02rem;">Teacher Request: Pending Approval</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Your application for instructor privileges is submitted and awaiting administrator review.</div>
+            </div>
+          </div>
+          <span class="card-badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); font-weight: 700; padding: 4px 10px;">Awaiting Review</span>
+        </div>
+      `;
+    }
+  }
+
   // Render Scholar Welcome Hero Banner
   const heroBannerContainer = document.getElementById('student-dashboard-hero-banner');
   if (heroBannerContainer) {
@@ -116,6 +140,8 @@ function renderStudentDashboard() {
           </button>
         </div>
       </div>
+
+      ${teacherStatusHTML}
 
       <!-- Daily Goal Progress & Spaced Repetition Queue -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;" class="teacher-analytics-grid">
@@ -1016,4 +1042,33 @@ function handleViewStreakSolution() {
   if (submitBtn) submitBtn.style.display = 'none';
   if (solutionBtn) solutionBtn.style.display = 'none';
   if (nextClueBtn) nextClueBtn.style.display = 'none';
+}
+
+// Student Teacher Access Request Action
+async function handleTeacherAccessRequest() {
+  if (!confirm('Would you like to request teacher/instructor access? An administrator will review your application.')) {
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/teacher/request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      showToast(data.error || 'Failed to submit teacher request.', 'error');
+      return;
+    }
+
+    showToast(data.message || 'Teacher request submitted successfully!', 'success');
+    if (state.data.currentUser) {
+      state.data.currentUser.teacherStatus = 'pending';
+    }
+    renderStudentDashboard();
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to submit teacher request.', 'error');
+  }
 }

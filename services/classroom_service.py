@@ -16,10 +16,10 @@ def db_create_classroom(user_id, name, subject):
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Verify user is teacher
+    # Verify user is teacher or admin
     cursor.execute("SELECT name, role FROM users WHERE id = ?", (user_id,))
     user = cursor.fetchone()
-    if not user or user['role'] != 'teacher':
+    if not user or user['role'] not in ('teacher', 'admin'):
         conn.close()
         return None, 'Only faculty administrators can create classrooms.'
 
@@ -42,8 +42,8 @@ def db_create_classroom(user_id, name, subject):
     classroom_id = f"cls-{int(uuid.uuid4().time_low)}"
 
     cursor.execute(
-        "INSERT INTO classrooms (id, name, subject, code, teacher_name, avg_performance, enrolled_count) VALUES (?, ?, ?, ?, ?, 80, 0)",
-        (classroom_id, name, subject, code, user['name'])
+        "INSERT INTO classrooms (id, name, subject, code, teacher_name, teacher_id, avg_performance, enrolled_count) VALUES (?, ?, ?, ?, ?, ?, 80, 0)",
+        (classroom_id, name, subject, code, user['name'], user_id)
     )
     conn.commit()
     conn.close()
@@ -97,14 +97,19 @@ def db_delete_classroom(user_id, classroom_id):
     
     cursor.execute("SELECT role FROM users WHERE id = ?", (user_id,))
     user = cursor.fetchone()
-    if not user or user['role'] != 'teacher':
+    if not user or user['role'] not in ('teacher', 'admin'):
         conn.close()
         return False, 'Forbidden: Only faculty administrators can delete classrooms.'
         
-    cursor.execute("SELECT id FROM classrooms WHERE id = ?", (classroom_id,))
-    if not cursor.fetchone():
+    cursor.execute("SELECT id, teacher_id FROM classrooms WHERE id = ?", (classroom_id,))
+    classroom = cursor.fetchone()
+    if not classroom:
         conn.close()
         return False, 'Classroom not found.'
+
+    if user['role'] != 'admin' and classroom['teacher_id'] and classroom['teacher_id'] != user_id:
+        conn.close()
+        return False, 'Forbidden: You can only delete classrooms you created.'
         
     cursor.execute("DELETE FROM classrooms WHERE id = ?", (classroom_id,))
     conn.commit()

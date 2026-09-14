@@ -39,9 +39,9 @@ def db_create_deck(user_id, title, subject, cards, classroom_id=None):
     user_name = user_row['name']
     user_role = user_row['role']
 
-    # If assigning to classroom, verify classroom exists and user is teacher
+    # If assigning to classroom, verify classroom exists and user is teacher or admin
     if classroom_id:
-        if user_role != 'teacher':
+        if user_role not in ('teacher', 'admin'):
             conn.close()
             return None, 'Forbidden: Only faculty administrators can publish decks to classrooms.'
         cursor.execute("SELECT id FROM classrooms WHERE id = ?", (classroom_id,))
@@ -51,8 +51,8 @@ def db_create_deck(user_id, title, subject, cards, classroom_id=None):
 
     deck_id = f"deck-{int(uuid.uuid4().time_low)}"
     cursor.execute(
-        "INSERT INTO decks (id, title, subject, creator_name, classroom_id) VALUES (?, ?, ?, ?, ?)",
-        (deck_id, title, subject, user_name, classroom_id if classroom_id else None)
+        "INSERT INTO decks (id, title, subject, creator_name, creator_id, classroom_id) VALUES (?, ?, ?, ?, ?, ?)",
+        (deck_id, title, subject, user_name, user_id, classroom_id if classroom_id else None)
     )
 
     card_tuples = []

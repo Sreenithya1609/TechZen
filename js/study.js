@@ -77,6 +77,16 @@ class StudyEngine {
         this.shuffleCards();
       }
     });
+
+    const answerInput = document.getElementById('study-answer-input');
+    if (answerInput) {
+      answerInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          this.checkStudentAnswer();
+        }
+      });
+    }
   }
 
   renderCurrentCard() {
@@ -113,6 +123,35 @@ class StudyEngine {
       container.classList.remove('flipped');
       container.style.display = 'block';
     }
+
+    // Reset AI Assistant Input & Dynamic Feedback Boxes
+    const inputEl = document.getElementById('study-answer-input');
+    if (inputEl) {
+      inputEl.value = '';
+    }
+    const hintContainer = document.getElementById('study-ai-hint-container');
+    if (hintContainer) {
+      hintContainer.style.display = 'none';
+      hintContainer.innerHTML = '';
+    }
+    const evalContainer = document.getElementById('study-ai-eval-container');
+    if (evalContainer) {
+      evalContainer.style.display = 'none';
+      evalContainer.innerHTML = '';
+      evalContainer.className = 'ai-eval-box';
+    }
+    const hintBtn = document.getElementById('study-ai-hint-btn');
+    if (hintBtn) {
+      hintBtn.disabled = false;
+      hintBtn.innerHTML = '<i class="fa-solid fa-robot" style="color: var(--color-blue-bright);"></i> <span>AI Hint</span>';
+    }
+    const checkBtn = document.getElementById('study-check-answer-btn');
+    if (checkBtn) {
+      checkBtn.disabled = false;
+      checkBtn.innerHTML = '<i class="fa-solid fa-pen-fancy"></i> <span>Check My Answer</span>';
+    }
+    const aiPanel = document.getElementById('study-ai-panel');
+    if (aiPanel) aiPanel.style.display = 'flex';
 
     // Show Study Controls, Hide Summary
     const activeControls = document.getElementById('study-active-controls');
@@ -198,9 +237,11 @@ class StudyEngine {
     const activeControls = document.getElementById('study-active-controls');
     const cardContainer = document.getElementById('study-flip-card');
     const summaryView = document.getElementById('study-summary-view');
+    const aiPanel = document.getElementById('study-ai-panel');
 
     if (activeControls) activeControls.style.display = 'none';
     if (cardContainer) cardContainer.style.display = 'none';
+    if (aiPanel) aiPanel.style.display = 'none';
 
     if (summaryView) {
       summaryView.style.display = 'block';
@@ -265,6 +306,148 @@ class StudyEngine {
       `;
     }
   }
+
+  async requestAIHint() {
+    if (this.currentIndex >= this.cardsQueue.length) return;
+    const card = this.cardsQueue[this.currentIndex];
+    const hintBtn = document.getElementById('study-ai-hint-btn');
+    const hintContainer = document.getElementById('study-ai-hint-container');
+    if (!hintContainer) return;
+
+    if (hintBtn) {
+      hintBtn.disabled = true;
+      hintBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Thinking...</span>';
+    }
+
+    try {
+      const res = await fetch('/api/ai/hint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          flashcard_id: card.id,
+          question: card.question
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.data && data.data.hint) {
+        hintContainer.style.display = 'block';
+        hintContainer.innerHTML = `
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <i class="fa-solid fa-lightbulb" style="color: #f59e0b; font-size: 1.15rem; margin-top: 2px;"></i>
+            <div>
+              <strong style="color: var(--text-main); display: block; font-size: 0.85rem; margin-bottom: 3px; letter-spacing: 0.3px;">💡 Socratic Hint:</strong>
+              <div style="color: var(--text-main);">${escapeHtml(data.data.hint)}</div>
+            </div>
+          </div>
+        `;
+      } else {
+        const errorMsg = data.error || 'Unable to generate hint at this time.';
+        showToast(errorMsg, 'error');
+      }
+    } catch (err) {
+      console.error('AI Hint request failed', err);
+      showToast('Network error while requesting AI Hint.', 'error');
+    } finally {
+      if (hintBtn) {
+        hintBtn.disabled = false;
+        hintBtn.innerHTML = '<i class="fa-solid fa-robot" style="color: var(--color-blue-bright);"></i> <span>AI Hint</span>';
+      }
+    }
+  }
+
+  async checkStudentAnswer() {
+    if (this.currentIndex >= this.cardsQueue.length) return;
+    const card = this.cardsQueue[this.currentIndex];
+    const inputEl = document.getElementById('study-answer-input');
+    const checkBtn = document.getElementById('study-check-answer-btn');
+    const evalContainer = document.getElementById('study-ai-eval-container');
+    if (!inputEl || !evalContainer) return;
+
+    const studentAnswer = inputEl.value.trim();
+    if (!studentAnswer) {
+      showToast('Please type your recall answer before checking.', 'info');
+      inputEl.focus();
+      return;
+    }
+
+    if (checkBtn) {
+      checkBtn.disabled = true;
+      checkBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Evaluating...</span>';
+    }
+
+    try {
+      const res = await fetch('/api/ai/check-answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          flashcard_id: card.id,
+          student_answer: studentAnswer,
+          question: card.question,
+          correct_answer: card.answer
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.data) {
+        const evalData = data.data;
+        const result = (evalData.result || 'INCORRECT').toUpperCase();
+
+        let badgeIcon = 'fa-circle-xmark';
+        let badgeText = '❌ Not Quite';
+        let boxClass = 'ai-eval-box incorrect';
+        let badgeClass = 'ai-eval-badge incorrect';
+
+        if (result === 'CORRECT') {
+          badgeIcon = 'fa-circle-check';
+          badgeText = '✅ Correct!';
+          boxClass = 'ai-eval-box correct';
+          badgeClass = 'ai-eval-badge correct';
+        } else if (result === 'PARTIALLY_CORRECT') {
+          badgeIcon = 'fa-triangle-exclamation';
+          badgeText = '🟡 Partially Correct';
+          boxClass = 'ai-eval-box partially-correct';
+          badgeClass = 'ai-eval-badge partially-correct';
+        }
+
+        evalContainer.className = boxClass;
+        evalContainer.style.display = 'flex';
+        evalContainer.innerHTML = `
+          <div class="${badgeClass}">
+            <i class="fa-solid ${badgeIcon}"></i>
+            <span>${badgeText}</span>
+          </div>
+          <div style="font-weight: 600; color: var(--text-main); font-size: 0.9rem;">
+            ${escapeHtml(evalData.feedback || '')}
+          </div>
+          ${evalData.explanation ? `
+            <div style="font-size: 0.83rem; color: var(--text-muted); border-top: 1px dashed var(--border-subtle); padding-top: 6px; margin-top: 2px;">
+              <strong>Concept Explanation:</strong> ${escapeHtml(evalData.explanation)}
+            </div>
+          ` : ''}
+        `;
+      } else {
+        const errorMsg = data.error || 'Failed to evaluate answer.';
+        showToast(errorMsg, 'error');
+      }
+    } catch (err) {
+      console.error('Check answer request failed', err);
+      showToast('Network error while evaluating answer.', 'error');
+    } finally {
+      if (checkBtn) {
+        checkBtn.disabled = false;
+        checkBtn.innerHTML = '<i class="fa-solid fa-pen-fancy"></i> <span>Check My Answer</span>';
+      }
+    }
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 const studyEngine = new StudyEngine();

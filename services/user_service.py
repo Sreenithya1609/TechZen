@@ -45,9 +45,19 @@ def validate_user_input(name, email, password=None, is_registration=True):
 
     return None
 
-def db_register_user(name, email, password):
+def db_register_user(name, email, password, role='student'):
+    if not isinstance(name, str):
+        return None, 'Name must be a string'
+    if not isinstance(email, str):
+        return None, 'Email must be a string'
+    if not isinstance(password, str):
+        return None, 'Password must be a string'
+    if role is not None and not isinstance(role, str):
+        return None, 'Role must be a string'
+
     name = name.strip()
     email = email.strip().lower()
+    role = (role or 'student').strip().lower()
     
     validation_error = validate_user_input(name, email, password, is_registration=True)
     if validation_error:
@@ -56,40 +66,37 @@ def db_register_user(name, email, password):
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("SELECT id, password FROM users WHERE email = ?", (email,))
+    cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
     existing = cursor.fetchone()
     
     if existing:
-        # Check if matching password
-        stored_hash = existing['password']
-        is_correct = False
-        if stored_hash.startswith(('scrypt:', 'pbkdf2:')):
-            is_correct = check_password_hash(stored_hash, password)
-        else:
-            is_correct = (stored_hash == password)
-            
-        if is_correct:
-            # Upgrade password hash and update name
-            new_hash = generate_password_hash(password)
-            cursor.execute("UPDATE users SET name = ?, password = ? WHERE id = ?", (name, new_hash, existing['id']))
-            conn.commit()
-            user_id = existing['id']
-            conn.close()
-            return user_id, None
-        else:
-            conn.close()
-            return None, 'An account with this email already exists with a different password.'
+        conn.close()
+        return None, 'An account with this email already exists.'
 
-    # Determine role (Only revathi@gmail.com is teacher / Faculty Admin)
-    is_teacher_admin = (email == 'revathi@gmail.com')
-    role = 'teacher' if is_teacher_admin else 'student'
+    # If teacher is requested, user active role is student with pending approval for admin
+    if role == 'teacher':
+        assigned_role = 'student'
+        teacher_status = 'pending'
+    else:
+        assigned_role = 'student'
+        teacher_status = 'none'
+
     user_id = f"usr-{int(uuid.uuid4().time_low)}"
     hashed_pwd = generate_password_hash(password)
+    now_iso = datetime.utcnow().isoformat()
 
     cursor.execute(
-        "INSERT INTO users (id, name, email, password, role, email_verified_at) VALUES (?, ?, ?, ?, ?, NULL)",
-        (user_id, name, email, hashed_pwd, role)
+        "INSERT INTO users (id, name, email, password, role, teacher_status, email_verified_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (user_id, name, email, hashed_pwd, assigned_role, teacher_status, now_iso, now_iso)
     )
+
+    if teacher_status == 'pending':
+        app_id = f"app-{int(uuid.uuid4().time_low)}"
+        cursor.execute(
+            "INSERT INTO teacher_applications (id, user_id, status, submitted_at) VALUES (?, ?, 'pending', ?)",
+            (app_id, user_id, now_iso)
+        )
+
     conn.commit()
     conn.close()
     return user_id, None
@@ -277,18 +284,234 @@ def db_google_auth(email, name=None, picture=None, google_id=None):
         conn.close()
         return user_id, None
 
-    # New user: auto-register with student role (or teacher if revathi@gmail.com)
-    is_teacher_admin = (email == 'revathi@gmail.com')
-    role = 'teacher' if is_teacher_admin else 'student'
+    # New user: auto-register with student role and none teacher_status
+    role = 'student'
+    teacher_status = 'none'
     user_id = f"usr-{int(uuid.uuid4().time_low)}"
     random_pwd = uuid.uuid4().hex + "GAuth!1"
     hashed_pwd = generate_password_hash(random_pwd)
+    now_iso = datetime.utcnow().isoformat()
 
     cursor.execute(
-        "INSERT INTO users (id, name, email, password, role) VALUES (?, ?, ?, ?, ?)",
-        (user_id, name, email, hashed_pwd, role)
+        "INSERT INTO users (id, name, email, password, role, teacher_status, email_verified_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (user_id, name, email, hashed_pwd, role, teacher_status, now_iso)
     )
     conn.commit()
     conn.close()
     return user_id, None
+
+def db_request_teacher_access(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, role, teacher_status FROM users WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    if not user:
+        conn.close()
+        return None, 'User not found.'
+
+    if user['role'] == 'teacher':
+        conn.close()
+        return None, 'You are already a registered teacher.'
+    if user['role'] == 'admin':
+        conn.close()
+        return None, 'Administrators cannot request teacher access.'
+    if user['teacher_status'] == 'pending':
+        conn.close()
+        return None, 'A teacher access request is already pending approval.'
+
+    cursor.execute("UPDATE users SET teacher_status = 'pending' WHERE id = ?", (user_id,))
+    now_iso = datetime.utcnow().isoformat()
+    app_id = f"app-{int(uuid.uuid4().time_low)}"
+    cursor.execute(
+        "INSERT INTO teacher_applications (id, user_id, status, submitted_at) VALUES (?, ?, 'pending', ?)",
+        (app_id, user_id, now_iso)
+    )
+    conn.commit()
+    conn.close()
+    return 'pending', None
+
+def db_get_teacher_requests(status_filter=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    query = """
+        SELECT u.id as user_id, u.name, u.email, u.role, u.teacher_status, u.created_at,
+               ta.id as application_id, ta.submitted_at, ta.reviewed_at, ta.reviewed_by
+        FROM users u
+        LEFT JOIN teacher_applications ta ON u.id = ta.user_id
+        WHERE u.teacher_status != 'none'
+    """
+    params = []
+    if status_filter and status_filter in ('pending', 'approved', 'rejected'):
+        query += " AND u.teacher_status = ?"
+        params.append(status_filter)
+
+    query += " ORDER BY COALESCE(ta.submitted_at, u.created_at) DESC"
+    cursor.execute(query, tuple(params))
+    rows = cursor.fetchall()
+    conn.close()
+
+    result = []
+    for r in rows:
+        result.append({
+            'id': r['user_id'],
+            'userId': r['user_id'],
+            'applicationId': r['application_id'] or f"app-{r['user_id']}",
+            'name': r['name'],
+            'email': r['email'],
+            'role': r['role'],
+            'teacher_status': r['teacher_status'],
+            'submitted_at': r['submitted_at'] or r['created_at'],
+            'reviewed_at': r['reviewed_at'],
+            'reviewed_by': r['reviewed_by'],
+            'created_at': r['created_at']
+        })
+    return result
+
+def db_approve_teacher_request(user_id, admin_id=None):
+    if admin_id and admin_id == user_id:
+        return False, 'Teachers cannot approve their own application.'
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, role, teacher_status FROM users WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    if not user:
+        conn.close()
+        return False, 'Target user not found.'
+    if user['teacher_status'] != 'pending':
+        conn.close()
+        return False, 'User does not have a pending teacher request.'
+
+    cursor.execute("UPDATE users SET role = 'teacher', teacher_status = 'approved' WHERE id = ?", (user_id,))
+    
+    # Update teacher_applications table
+    now_iso = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute("""
+        UPDATE teacher_applications 
+        SET status = 'approved', reviewed_at = ?, reviewed_by = ?
+        WHERE user_id = ? AND status = 'pending'
+    """, (now_iso, admin_id, user_id))
+    if cursor.rowcount == 0:
+        app_id = f"app-{int(uuid.uuid4().time_low)}"
+        cursor.execute("""
+            INSERT INTO teacher_applications (id, user_id, status, submitted_at, reviewed_at, reviewed_by)
+            VALUES (?, ?, 'approved', ?, ?, ?)
+        """, (app_id, user_id, now_iso, now_iso, admin_id))
+
+    conn.commit()
+    conn.close()
+    return True, None
+
+def db_reject_teacher_request(user_id, admin_id=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, role, teacher_status FROM users WHERE id = ?", (user_id,))
+    user = cursor.fetchone()
+    if not user:
+        conn.close()
+        return False, 'Target user not found.'
+    if user['teacher_status'] != 'pending':
+        conn.close()
+        return False, 'User does not have a pending teacher request.'
+
+    cursor.execute("UPDATE users SET role = 'student', teacher_status = 'rejected' WHERE id = ?", (user_id,))
+
+    # Update teacher_applications table
+    now_iso = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute("""
+        UPDATE teacher_applications 
+        SET status = 'rejected', reviewed_at = ?, reviewed_by = ?
+        WHERE user_id = ? AND status = 'pending'
+    """, (now_iso, admin_id, user_id))
+    if cursor.rowcount == 0:
+        app_id = f"app-{int(uuid.uuid4().time_low)}"
+        cursor.execute("""
+            INSERT INTO teacher_applications (id, user_id, status, submitted_at, reviewed_at, reviewed_by)
+            VALUES (?, ?, 'rejected', ?, ?, ?)
+        """, (app_id, user_id, now_iso, now_iso, admin_id))
+
+    conn.commit()
+    conn.close()
+    return True, None
+
+def record_user_login(user_id, ip_address=None, user_agent=None):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, name, email, role FROM users WHERE id = ?", (user_id,))
+        user = cursor.fetchone()
+        if not user:
+            conn.close()
+            return
+        
+        now_iso = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        cursor.execute(
+            "INSERT INTO login_history (user_id, user_name, user_email, role, ip_address, user_agent, login_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (user['id'], user['name'], user['email'], user['role'], ip_address or '127.0.0.1', (user_agent or '')[:150], now_iso)
+        )
+        try:
+            cursor.execute("UPDATE users SET last_login_at = ? WHERE id = ?", (now_iso, user_id))
+        except Exception:
+            pass
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error recording login: {e}")
+
+def db_get_login_history(role_filter=None, search=None, limit=100):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    query = "SELECT id, user_id, user_name, user_email, role, ip_address, user_agent, login_time FROM login_history WHERE 1=1"
+    params = []
+    
+    if role_filter and role_filter in ('teacher', 'student', 'admin'):
+        query += " AND role = ?"
+        params.append(role_filter)
+        
+    if search:
+        query += " AND (user_name LIKE ? OR user_email LIKE ?)"
+        term = f"%{search}%"
+        params.extend([term, term])
+        
+    query += " ORDER BY login_time DESC, id DESC LIMIT ?"
+    params.append(limit)
+    
+    cursor.execute(query, tuple(params))
+    rows = cursor.fetchall()
+    
+    cursor.execute("SELECT COUNT(*) FROM login_history")
+    total_logins = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT COUNT(DISTINCT user_id) FROM login_history WHERE role = 'teacher'")
+    active_teachers = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT COUNT(DISTINCT user_id) FROM login_history WHERE role = 'student'")
+    active_students = cursor.fetchone()[0]
+    
+    conn.close()
+    
+    logins = [
+        {
+            'id': r['id'],
+            'userId': r['user_id'],
+            'userName': r['user_name'],
+            'userEmail': r['user_email'],
+            'role': r['role'],
+            'ipAddress': r['ip_address'] or '127.0.0.1',
+            'userAgent': r['user_agent'] or 'Browser Session',
+            'loginTime': r['login_time']
+        }
+        for r in rows
+    ]
+    
+    return {
+        'logins': logins,
+        'stats': {
+            'totalLogins': total_logins,
+            'activeTeachers': active_teachers,
+            'activeStudents': active_students
+        }
+    }
+
+
 

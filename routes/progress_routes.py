@@ -121,6 +121,21 @@ def record_study_result():
         INSERT INTO card_attempts (user_id, card_id, classroom_id, result)
         VALUES (?, ?, ?, ?)
     ''', (user_id, card_id, classroom_id, result))
+
+    # 2b. Upsert into student_progress table for granular analytics
+    prog_id = f"prog-{user_id}-{card_id}"
+    is_known = 1 if result == 'known' else 0
+    is_review = 1 if result == 'review' else 0
+    cursor.execute('''
+        INSERT INTO student_progress (id, student_id, flashcard_id, classroom_id, correct_count, incorrect_count, attempts, last_reviewed)
+        VALUES (?, ?, ?, ?, ?, ?, 1, CURRENT_TIMESTAMP)
+        ON CONFLICT(student_id, flashcard_id) DO UPDATE SET
+            correct_count = correct_count + excluded.correct_count,
+            incorrect_count = incorrect_count + excluded.incorrect_count,
+            attempts = attempts + 1,
+            classroom_id = COALESCE(excluded.classroom_id, student_progress.classroom_id),
+            last_reviewed = CURRENT_TIMESTAMP
+    ''', (prog_id, user_id, card_id, classroom_id, is_known, is_review))
     
     # 3. Log daily study date for streaks (if not already logged today)
     from services.streak_service import record_study_activity

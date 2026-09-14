@@ -39,15 +39,28 @@ def update_deck(deck_id):
         conn.close()
         return jsonify({'error': 'User account not found.'}), 404
 
-    deck_row = conn.execute("SELECT creator_name, classroom_id FROM decks WHERE id = ?", (deck_id,)).fetchone()
+    deck_row = conn.execute("SELECT creator_name, creator_id, classroom_id FROM decks WHERE id = ?", (deck_id,)).fetchone()
     if not deck_row:
         conn.close()
         return jsonify({'error': 'Flashcard deck not found.'}), 404
 
+    # Ownership checks using IDs instead of names
     if user_row['role'] == 'student':
-        if deck_row['classroom_id'] is not None or deck_row['creator_name'] != user_row['name']:
+        deck_owner_id = deck_row['creator_id']
+        if deck_row['classroom_id'] is not None or (deck_owner_id and deck_owner_id != user_id):
             conn.close()
             return jsonify({'error': 'Forbidden: Students can only modify their own custom decks.'}), 403
+    elif user_row['role'] == 'teacher':
+        deck_owner_id = deck_row['creator_id']
+        if deck_owner_id and deck_owner_id != user_id:
+            if deck_row['classroom_id']:
+                cls = conn.execute("SELECT teacher_id FROM classrooms WHERE id = ?", (deck_row['classroom_id'],)).fetchone()
+                if not cls or cls['teacher_id'] != user_id:
+                    conn.close()
+                    return jsonify({'error': 'Forbidden: Teachers can only modify their own decks.'}), 403
+            else:
+                conn.close()
+                return jsonify({'error': 'Forbidden: Teachers can only modify their own decks.'}), 403
 
     data = request.json or {}
     title = data.get('title', '').strip()
@@ -77,15 +90,28 @@ def delete_deck(deck_id):
         conn.close()
         return jsonify({'error': 'User account not found.'}), 404
 
-    deck_row = conn.execute("SELECT creator_name, classroom_id FROM decks WHERE id = ?", (deck_id,)).fetchone()
+    deck_row = conn.execute("SELECT creator_name, creator_id, classroom_id FROM decks WHERE id = ?", (deck_id,)).fetchone()
     if not deck_row:
         conn.close()
         return jsonify({'error': 'Flashcard deck not found.'}), 404
 
+    # Ownership checks using IDs instead of names
     if user_row['role'] == 'student':
-        if deck_row['classroom_id'] is not None or deck_row['creator_name'] != user_row['name']:
+        deck_owner_id = deck_row['creator_id']
+        if deck_row['classroom_id'] is not None or (deck_owner_id and deck_owner_id != user_id):
             conn.close()
             return jsonify({'error': 'Forbidden: Students can only delete their own custom decks.'}), 403
+    elif user_row['role'] == 'teacher':
+        deck_owner_id = deck_row['creator_id']
+        if deck_owner_id and deck_owner_id != user_id:
+            if deck_row['classroom_id']:
+                cls = conn.execute("SELECT teacher_id FROM classrooms WHERE id = ?", (deck_row['classroom_id'],)).fetchone()
+                if not cls or cls['teacher_id'] != user_id:
+                    conn.close()
+                    return jsonify({'error': 'Forbidden: Teachers can only delete their own decks.'}), 403
+            else:
+                conn.close()
+                return jsonify({'error': 'Forbidden: Teachers can only delete their own decks.'}), 403
 
     conn.close()
     success = db_delete_deck(deck_id)

@@ -129,20 +129,52 @@ function toggleAuthTab(tab) {
   }
 }
 
-// Quick Fill Demo Credentials (Faculty vs Student)
+// Quick Fill Demo Credentials (Admin vs Faculty vs Student)
 function quickFillDemoUser(role) {
   toggleAuthTab('login');
   const emailInput = document.getElementById('login-email');
   const pwdInput = document.getElementById('login-password');
 
-  if (role === 'teacher') {
+  if (role === 'admin' || role === 'teacher') {
     if (emailInput) emailInput.value = 'revathi@gmail.com';
-    if (pwdInput) pwdInput.value = 'Password123!';
+    if (pwdInput) pwdInput.value = 'Techzen_123';
     showToast('Loaded Faculty Admin credentials (revathi@gmail.com)', 'info');
   } else if (role === 'student') {
     if (emailInput) emailInput.value = 'student@gmail.com';
     if (pwdInput) pwdInput.value = 'Password123!';
     showToast('Loaded Scholar credentials (student@gmail.com)', 'info');
+  }
+}
+
+// Switch Role in Login / Sign In Form (Legacy stub for backward compatibility)
+function selectLoginRole(role) {
+  // Login role is resolved server-side from authenticated user credentials
+}
+
+// Switch Role in Registration / Sign Up Form
+function selectRegRole(role) {
+  const studentBtn = document.getElementById('reg-role-student');
+  const teacherBtn = document.getElementById('reg-role-teacher');
+  const roleInput = document.getElementById('reg-selected-role');
+  const emailLabel = document.getElementById('reg-email-label');
+  const roleHint = document.getElementById('reg-role-hint');
+
+  if (role === 'teacher') {
+    if (studentBtn) studentBtn.classList.remove('active');
+    if (teacherBtn) teacherBtn.classList.add('active');
+    if (roleInput) roleInput.value = 'teacher';
+    if (emailLabel) emailLabel.textContent = 'Teacher / Faculty Email';
+    if (roleHint) {
+      roleHint.textContent = 'Note: Teacher account applications are submitted for administrator approval.';
+    }
+  } else {
+    if (studentBtn) studentBtn.classList.add('active');
+    if (teacherBtn) teacherBtn.classList.remove('active');
+    if (roleInput) roleInput.value = 'student';
+    if (emailLabel) emailLabel.textContent = 'Student Email';
+    if (roleHint) {
+      roleHint.textContent = 'Standard scholar access to classrooms, study decks, and streaks.';
+    }
   }
 }
 
@@ -187,7 +219,6 @@ async function handleLogin(event) {
 
     const backendState = await res.json();
     state.data = backendState;
-
     showToast(`Hello, ${state.data.currentUser.name}!`, 'success');
     updateAppAuthUI();
   } catch (e) {
@@ -231,11 +262,19 @@ async function handleRegister(event) {
     return;
   }
 
+  const selectedRole = document.getElementById('reg-selected-role') ? document.getElementById('reg-selected-role').value : 'student';
+
   try {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, confirm_password: confirmPassword })
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+        confirm_password: confirmPassword,
+        role: selectedRole
+      })
     });
 
     if (!res.ok) {
@@ -245,10 +284,11 @@ async function handleRegister(event) {
     }
 
     const backendState = await res.json();
-    if (backendState.dev_verification_link) {
-      showToast(`Account created. Development verification link: ${backendState.dev_verification_link}`, 'success');
+
+    if (selectedRole === 'teacher' || (backendState.currentUser && backendState.currentUser.teacherStatus === 'pending')) {
+      showToast('Account created with Teacher application submitted for Admin review!', 'success');
     } else {
-      showToast(backendState.message || 'Account created. Check your email to verify it.', 'success');
+      showToast(backendState.message || 'Account created successfully as Student. Welcome!', 'success');
     }
     toggleAuthTab('login');
   } catch (e) {
@@ -418,19 +458,36 @@ function updateAppAuthUI(skipSwitchTab = false) {
 
   const initials = user.name ? user.name.slice(0, 2).toUpperCase() : 'US';
 
+  let roleLabel = 'Scholar';
+  if (user.role === 'admin') {
+    roleLabel = 'System Admin';
+  } else if (user.role === 'teacher') {
+    roleLabel = 'Faculty Admin';
+  }
+
   if (headerName) headerName.textContent = user.name;
   if (dropdownName) dropdownName.textContent = user.name;
-  if (dropdownRole) dropdownRole.textContent = user.role === 'teacher' ? 'Faculty Admin' : 'Scholar';
+  if (dropdownRole) dropdownRole.textContent = roleLabel;
   if (sidebarName) sidebarName.textContent = user.name;
-  if (sidebarRole) sidebarRole.textContent = user.role === 'teacher' ? 'Faculty Admin' : 'Scholar';
+  if (sidebarRole) sidebarRole.textContent = roleLabel;
   if (sidebarAvatar) sidebarAvatar.textContent = initials;
 
   // Toggle Role Navigation
+  const adminNav = document.getElementById('admin-nav-group');
   const teacherNav = document.getElementById('teacher-nav-group');
   const studentNav = document.getElementById('student-nav-group');
   const streakBadge = document.getElementById('header-streak-badge');
 
-  if (user.role === 'teacher') {
+  if (user.role === 'admin') {
+    if (adminNav) adminNav.style.display = 'block';
+    if (teacherNav) teacherNav.style.display = 'block';
+    if (studentNav) studentNav.style.display = 'none';
+    if (streakBadge) streakBadge.style.display = 'none';
+    if (!skipSwitchTab) {
+      switchTab('admin-requests');
+    }
+  } else if (user.role === 'teacher') {
+    if (adminNav) adminNav.style.display = 'none';
     if (teacherNav) teacherNav.style.display = 'block';
     if (studentNav) studentNav.style.display = 'none';
     if (streakBadge) streakBadge.style.display = 'none';
@@ -438,6 +495,7 @@ function updateAppAuthUI(skipSwitchTab = false) {
       switchTab('teacher-dashboard');
     }
   } else {
+    if (adminNav) adminNav.style.display = 'none';
     if (teacherNav) teacherNav.style.display = 'none';
     if (studentNav) studentNav.style.display = 'block';
     if (streakBadge) streakBadge.style.display = 'inline-flex';
@@ -552,7 +610,9 @@ setInterval(async () => {
     await state.loadState();
     
     // Only refresh active UI if on a dashboard panel
-    if (currentView === 'tab:teacher-dashboard' && typeof renderTeacherDashboard === 'function') {
+    if (currentView === 'tab:admin-requests' && typeof loadAdminTeacherRequests === 'function') {
+      loadAdminTeacherRequests();
+    } else if (currentView === 'tab:teacher-dashboard' && typeof renderTeacherDashboard === 'function') {
       renderTeacherDashboard();
     } else if (currentView === 'tab:teacher-myclasses' && typeof renderMyClassesPanel === 'function') {
       renderMyClassesPanel();
@@ -561,3 +621,319 @@ setInterval(async () => {
     }
   }
 }, 20000);
+
+// Admin Teacher Access Requests Management
+async function loadAdminTeacherRequests(filter) {
+  if (!filter) {
+    const select = document.getElementById('admin-request-filter');
+    filter = select ? select.value : 'pending';
+  }
+  const container = document.getElementById('admin-requests-container');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+      <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--color-blue-bright);"></i>
+      <p>Loading teacher access applications...</p>
+    </div>
+  `;
+
+  try {
+    const url = filter === 'all' ? '/api/admin/teacher-requests?status=all' : `/api/admin/teacher-requests?status=${encodeURIComponent(filter)}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      const err = await res.json();
+      container.innerHTML = `<div class="card" style="color: var(--color-rose); padding: 1.5rem;"><i class="fa-solid fa-triangle-exclamation"></i> ${err.error || 'Failed to load requests.'}</div>`;
+      return;
+    }
+
+    const data = await res.json();
+    const requests = data.requests || [];
+
+    if (requests.length === 0) {
+      container.innerHTML = `
+        <div class="card" style="text-align: center; padding: 3rem; color: var(--text-muted); border: 1px dashed var(--border-blue);">
+          <i class="fa-solid fa-user-check" style="font-size: 2.5rem; color: var(--color-emerald); margin-bottom: 1rem; display: block;"></i>
+          <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">No ${filter === 'pending' ? 'Pending ' : ''}Applications</h3>
+          <p style="font-size: 0.9rem;">There are currently no instructor access requests matching this filter.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        ${requests.map(req => {
+          const initials = req.name ? req.name.slice(0, 2).toUpperCase() : 'ST';
+          const requestedDate = req.teacher_requested_at ? new Date(req.teacher_requested_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recently';
+          
+          let statusLabel = 'Pending Review';
+          let badgeStyle = 'background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);';
+
+          if (req.teacher_status === 'approved') {
+            statusLabel = 'Approved Faculty';
+            badgeStyle = 'background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);';
+          } else if (req.teacher_status === 'rejected') {
+            statusLabel = 'Application Rejected';
+            badgeStyle = 'background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3);';
+          }
+
+          const isPending = req.teacher_status === 'pending';
+
+          return `
+            <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-radius: var(--radius-lg); flex-wrap: wrap; gap: 1rem;">
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, var(--color-blue-bright), var(--color-purple)); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; flex-shrink: 0;">
+                  ${initials}
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                    <strong style="font-size: 1.05rem; color: var(--text-main);">${req.name}</strong>
+                    <span style="font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; ${badgeStyle}">${statusLabel}</span>
+                  </div>
+                  <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 3px;">
+                    <i class="fa-solid fa-envelope" style="font-size: 0.75rem; margin-right: 4px;"></i>${req.email} &bull; <span style="font-size: 0.8rem;">Applied: ${requestedDate}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                ${isPending ? `
+                  <button class="btn btn-primary btn-sm" onclick="adminApproveTeacher('${req.id}', '${req.name.replace(/'/g, "\\'")}')" style="background: var(--color-emerald); border-color: var(--color-emerald); padding: 7px 14px;">
+                    <i class="fa-solid fa-check"></i> Approve
+                  </button>
+                  <button class="btn btn-secondary btn-sm" onclick="adminRejectTeacher('${req.id}', '${req.name.replace(/'/g, "\\'")}')" style="color: var(--color-rose); border-color: rgba(244, 63, 94, 0.3); padding: 7px 14px;">
+                    <i class="fa-solid fa-xmark"></i> Reject
+                  </button>
+                ` : `
+                  <button class="btn btn-secondary btn-sm" onclick="adminApproveTeacher('${req.id}', '${req.name.replace(/'/g, "\\'")}')" title="Grant Teacher Role" style="padding: 6px 12px; font-size: 0.8rem;">
+                    <i class="fa-solid fa-user-check"></i> Grant Role
+                  </button>
+                  <button class="btn btn-secondary btn-sm" onclick="adminRejectTeacher('${req.id}', '${req.name.replace(/'/g, "\\'")}')" title="Revoke Teacher Role" style="padding: 6px 12px; font-size: 0.8rem; color: var(--color-rose); border-color: rgba(244, 63, 94, 0.3);">
+                    <i class="fa-solid fa-user-xmark"></i> Revoke
+                  </button>
+                `}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  } catch (err) {
+    console.error('Error fetching teacher requests:', err);
+    container.innerHTML = `<div class="card" style="color: var(--color-rose); padding: 1.5rem;"><i class="fa-solid fa-triangle-exclamation"></i> Network error loading teacher requests.</div>`;
+  }
+}
+
+async function adminApproveTeacher(userId, userName) {
+  if (!confirm(`Approve teacher access for ${userName || 'this user'}? This will grant full instructor privileges.`)) return;
+
+  try {
+    const res = await fetch(`/api/admin/teacher-requests/${userId}/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      showToast(data.error || 'Failed to approve teacher.', 'error');
+      return;
+    }
+
+    showToast(data.message || 'Teacher approved successfully.', 'success');
+    const filterSelect = document.getElementById('admin-request-filter');
+    loadAdminTeacherRequests(filterSelect ? filterSelect.value : 'pending');
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to approve teacher request.', 'error');
+  }
+}
+
+async function adminRejectTeacher(userId, userName) {
+  if (!confirm(`Reject teacher access for ${userName || 'this user'}?`)) return;
+
+  try {
+    const res = await fetch(`/api/admin/teacher-requests/${userId}/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      showToast(data.error || 'Failed to reject teacher request.', 'error');
+      return;
+    }
+
+    showToast(data.message || 'Teacher request rejected.', 'info');
+    const filterSelect = document.getElementById('admin-request-filter');
+    loadAdminTeacherRequests(filterSelect ? filterSelect.value : 'pending');
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to reject teacher request.', 'error');
+  }
+}
+
+// ================= ADMIN LOGIN HISTORY MONITORING =================
+let adminLoginSearchTimeout = null;
+
+function handleAdminLoginSearch() {
+  clearTimeout(adminLoginSearchTimeout);
+  adminLoginSearchTimeout = setTimeout(() => {
+    const roleFilter = document.getElementById('admin-login-role-filter') ? document.getElementById('admin-login-role-filter').value : 'all';
+    const searchQuery = document.getElementById('admin-login-search') ? document.getElementById('admin-login-search').value : '';
+    loadAdminLoginHistory(roleFilter, searchQuery);
+  }, 250);
+}
+
+function formatLoginRelativeTime(dateStr) {
+  if (!dateStr) return 'Recently';
+  try {
+    const cleanStr = dateStr.includes('T') ? dateStr : dateStr.replace(' ', 'T') + 'Z';
+    const date = new Date(cleanStr);
+    const now = new Date();
+    const diffSecs = Math.floor((now - date) / 1000);
+
+    if (isNaN(diffSecs) || diffSecs < 60) return 'Just now';
+    if (diffSecs < 3600) return `${Math.floor(diffSecs / 60)}m ago`;
+    if (diffSecs < 86400) return `${Math.floor(diffSecs / 3600)}h ago`;
+    if (diffSecs < 604800) return `${Math.floor(diffSecs / 86400)}d ago`;
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch (e) {
+    return 'Recently';
+  }
+}
+
+function formatLoginFullDateTime(dateStr) {
+  if (!dateStr) return 'Unknown';
+  try {
+    const cleanStr = dateStr.includes('T') ? dateStr : dateStr.replace(' ', 'T') + 'Z';
+    const date = new Date(cleanStr);
+    return date.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (e) {
+    return dateStr;
+  }
+}
+
+async function loadAdminLoginHistory(roleFilter = 'all', searchQuery = '') {
+  const container = document.getElementById('admin-logins-container');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+      <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--color-blue-bright);"></i>
+      <p>Loading teacher and student login timestamps...</p>
+    </div>
+  `;
+
+  try {
+    let url = `/api/admin/login-history?role=${encodeURIComponent(roleFilter)}`;
+    if (searchQuery && searchQuery.trim()) {
+      url += `&search=${encodeURIComponent(searchQuery.trim())}`;
+    }
+    const res = await fetch(url);
+    if (!res.ok) {
+      const err = await res.json();
+      container.innerHTML = `<div class="card" style="color: var(--color-rose); padding: 1.5rem;"><i class="fa-solid fa-triangle-exclamation"></i> ${err.error || 'Failed to load login history.'}</div>`;
+      return;
+    }
+
+    const data = await res.json();
+    const logins = data.logins || [];
+    const stats = data.stats || {};
+
+    // Update Quick Metric Cards
+    const totalEl = document.getElementById('admin-login-stat-total');
+    const teachersEl = document.getElementById('admin-login-stat-teachers');
+    const studentsEl = document.getElementById('admin-login-stat-students');
+    if (totalEl) totalEl.textContent = stats.totalLogins !== undefined ? stats.totalLogins : logins.length;
+    if (teachersEl) teachersEl.textContent = stats.activeTeachers !== undefined ? stats.activeTeachers : 0;
+    if (studentsEl) studentsEl.textContent = stats.activeStudents !== undefined ? stats.activeStudents : 0;
+
+    if (logins.length === 0) {
+      container.innerHTML = `
+        <div class="card" style="text-align: center; padding: 3rem; color: var(--text-muted); border: 1px dashed var(--border-blue);">
+          <i class="fa-solid fa-user-clock" style="font-size: 2.5rem; color: var(--color-blue-bright); margin-bottom: 1rem; display: block;"></i>
+          <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">No Login Records Found</h3>
+          <p style="font-size: 0.9rem;">No teacher or student sign-in activity matches the selected criteria.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+        ${logins.map(item => {
+          const initials = item.userName ? item.userName.slice(0, 2).toUpperCase() : 'US';
+          const relativeTime = formatLoginRelativeTime(item.loginTime);
+          const fullTime = formatLoginFullDateTime(item.loginTime);
+
+          let roleBadge = '';
+          let avatarGradient = 'linear-gradient(135deg, var(--color-cyan), var(--color-blue-bright))';
+
+          if (item.role === 'teacher') {
+            roleBadge = `<span style="background: rgba(124, 58, 237, 0.15); color: #8b5cf6; border: 1px solid rgba(124, 58, 237, 0.3); font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 4px;"><i class="fa-solid fa-chalkboard-user"></i> Teacher</span>`;
+            avatarGradient = 'linear-gradient(135deg, #7c3aed, #4f46e5)';
+          } else if (item.role === 'admin') {
+            roleBadge = `<span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 4px;"><i class="fa-solid fa-shield-halved"></i> Admin</span>`;
+            avatarGradient = 'linear-gradient(135deg, #f59e0b, #ea580c)';
+          } else {
+            roleBadge = `<span style="background: rgba(2, 132, 199, 0.15); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.3); font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 4px;"><i class="fa-solid fa-graduation-cap"></i> Student</span>`;
+          }
+
+          let deviceName = 'Browser Session';
+          const ua = item.userAgent || '';
+          if (ua.includes('Windows')) deviceName = 'Windows PC';
+          else if (ua.includes('Macintosh') || ua.includes('Mac OS')) deviceName = 'macOS Device';
+          else if (ua.includes('iPhone') || ua.includes('iPad')) deviceName = 'Apple iOS';
+          else if (ua.includes('Android')) deviceName = 'Android Device';
+          else if (ua.includes('Linux')) deviceName = 'Linux PC';
+
+          return `
+            <div class="card" style="display: flex; justify-content: space-between; align-items: center; padding: 1.15rem 1.4rem; border-radius: var(--radius-lg); flex-wrap: wrap; gap: 1rem;">
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: ${avatarGradient}; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.05rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                  ${initials}
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                    <strong style="font-size: 1.02rem; color: var(--text-main);">${item.userName}</strong>
+                    ${roleBadge}
+                    <span style="display: inline-flex; align-items: center; gap: 5px; color: var(--color-emerald); font-size: 0.76rem; font-weight: 700; background: rgba(16, 185, 129, 0.1); padding: 2px 8px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.25);">
+                      <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--color-emerald); box-shadow: 0 0 6px var(--color-emerald);"></span>
+                      Logged In
+                    </span>
+                  </div>
+                  <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 3px;">
+                    <i class="fa-solid fa-envelope" style="font-size: 0.75rem; margin-right: 4px;"></i>${item.userEmail}
+                    &bull; <span style="font-size: 0.8rem;"><i class="fa-solid fa-network-wired" style="font-size: 0.75rem; margin-right: 3px;"></i>${item.ipAddress} (${deviceName})</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid fa-clock" style="color: var(--color-blue-bright); font-size: 0.85rem;"></i>
+                  <span style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">${fullTime}</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">
+                  <span style="background: rgba(37, 99, 235, 0.08); padding: 2px 7px; border-radius: 4px; font-weight: 600; color: var(--color-blue-bright);">${relativeTime}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  } catch (err) {
+    console.error('Error loading login history:', err);
+    container.innerHTML = `<div class="card" style="color: var(--color-rose); padding: 1.5rem;"><i class="fa-solid fa-triangle-exclamation"></i> Network error loading login history.</div>`;
+  }
+}
+
+

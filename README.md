@@ -92,57 +92,90 @@ The tests use a temporary SQLite database and remove it when they finish.
 
 ## Seeded Accounts
 
-The initial database includes these example accounts:
+The initial database includes these default accounts:
 
-| Role | Email | Password |
-|---|---|---|
-| Teacher | `revathi@gmail.com` | `123` |
-| Student | `student@gmail.com` | `123` |
+| Role | Email | Password | Teacher Status |
+|---|---|---|---|
+| System Admin | `revathi@gmail.com` | `Techzen_123` | `approved` |
+| Student | `student@gmail.com` | `Password123!` | `none` |
 
-New accounts are assigned the student role. The special email `revathi@gmail.com` is assigned the teacher role.
+### Role Architecture & Teacher Approval Workflow
+
+TechZen implements a 3-tier Role-Based Access Control (RBAC) model:
+1. **Admin (`admin`)**: Full system access. Reviews and approves/rejects teacher access requests, manages platform classrooms, and inspects academic progress reports.
+2. **Teacher (`teacher`)**: Verified faculty. Can create classrooms, author curriculum decks, delete own classrooms and decks, view enrolled student analytics, and generate AI flashcards from topics.
+3. **Student (`student`)**: Default role for all public registrations. Can enroll in classrooms via access codes, study flashcards, author personal custom decks, track study streaks, and apply to become a teacher.
+
+#### Public Registration Rule
+Public registrations via `/api/auth/register` validate input types, name, email format, password complexity, and role. If a user registers with `role = 'teacher'`, the account is created with `role = 'student'` and `teacher_status = 'pending'`, automatically routing the applicant to the Admin review portal. Public registrations cannot directly escalate to `admin` or unapproved `teacher`.
+
+#### Teacher Approval Flow
+1. An applicant selects **Teacher** during registration (or submits via `POST /api/teacher/request`). Their status becomes `pending`.
+2. The administrator navigates to the **Administration > Teacher Requests** portal (`GET /api/admin/teacher-requests`).
+3. The administrator reviews applicant details and either:
+   - **Approves** (`POST /api/admin/teacher-requests/<user_id>/approve`): Sets `role = 'teacher'` and `teacher_status = 'approved'`. The user instantly gains instructor privileges upon login/refresh.
+   - **Rejects** (`POST /api/admin/teacher-requests/<user_id>/reject`): Sets `role = 'student'` and `teacher_status = 'rejected'`. The user is notified on their dashboard with the option to re-apply.
 
 ## Main Features
+
+### Administrator
+
+- View and filter instructor access applications (`pending`, `approved`, `rejected`, `all`)
+- Approve student applications to grant `teacher` role
+- Reject applications or revoke instructor access
+- Access teacher dashboards and classroom oversight
 
 ### Teacher
 
 - View classroom and student performance analytics
 - Create classrooms and share access codes
-- Create, edit, and delete classroom decks
+- Create, edit, and delete curriculum decks (verified by `creator_id`)
 - View individual student progress reports
-- Generate flashcards from a topic using Google Gemini
+- Generate flashcards from subject topics using Google Gemini
 
 ### Student
 
 - Join classrooms with an access code
 - View classroom decks
-- Create personal decks manually or from study notes
+- Create and edit personal decks (verified by database `creator_id`)
 - Practice cards with flip, shuffle, known, and review actions
 - Track daily study streaks
+- Apply for instructor privileges via the **"Become a Teacher"** portal
 - Update profile and theme settings
 
 ## Project Structure
 
 ```text
-app.py                    Flask application entry point
-index.html                Single-page frontend shell
-css/styles.css            Application styling
-js/app.js                 Global state, authentication, and navigation
+app.py                    Flask application entry point & AI endpoints
+index.html                Single-page frontend shell & Admin portal
+css/styles.css            Application styling & themes
+js/app.js                 Global state, authentication, admin request handlers
 js/landing.js             Landing page carousel
-js/student.js             Student features
+js/student.js             Student dashboard, study actions, teacher application widget
 js/study.js               Flashcard study engine
-js/teacher.js             Teacher features
-routes/                   Flask API blueprints
-services/                 Database-backed business logic
-database/                 SQLite connection and schema initialization
-verify_backend.py         Backend tests
+js/teacher.js             Teacher classroom and deck authoring
+routes/admin_routes.py    Admin teacher request review & approval endpoints
+routes/user_routes.py     Auth, profile, teacher requests, student performance
+routes/classroom_routes.py Classroom authoring & enrollment (ID-based ownership)
+routes/deck_routes.py     Deck management (ID-based creator ownership)
+services/auth_middleware.py Reusable RBAC @require_role decorator
+services/user_service.py  User registration, teacher request & approval logic
+services/classroom_service.py Classroom CRUD & ID ownership
+services/deck_service.py  Deck CRUD & ID ownership
+database/init_db.py       SQLite schema, migrations, and idempotent admin seeding
+verify_backend.py         Backend unit tests and RBAC verification suite
 images/                   Static image assets
 ```
 
 ## API Areas
 
 - `/api/auth/*` - registration, login, logout, profile, and theme
-- `/api/classrooms` - classroom creation and enrollment
-- `/api/decks` - deck creation and management
+- `/api/teacher/request` - student application for teacher privileges
+- `/api/admin/teacher-requests` - admin listing of teacher applications (`?status=pending|approved|rejected|all`)
+- `/api/admin/teacher-requests/<id>/approve` - admin approval endpoint
+- `/api/admin/teacher-requests/<id>/reject` - admin rejection endpoint
+- `/api/classrooms` - classroom creation and enrollment (protected by role and `teacher_id`)
+- `/api/decks` - deck creation and management (protected by `creator_id`)
 - `/api/progress` - study activity and progress
 - `/api/streak` - daily clue and mystery-word actions
 - `/api/state` - current role-filtered application state
@@ -155,3 +188,4 @@ images/                   Static image assets
 - Configure `SMTP_*` variables to send verification and reset emails. Without SMTP, development responses include a one-time link for local testing; production responses never expose tokens.
 - Set `FLASK_SECRET_KEY` to a long random value and set `FLASK_SESSION_COOKIE_SECURE=1` when serving over HTTPS.
 - The teacher flashcard generator uses Google Gemini through the server-side `/api/ai/generate` endpoint. It requires `GEMINI_API_KEY` to be configured.
+
