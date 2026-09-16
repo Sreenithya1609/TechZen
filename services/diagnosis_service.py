@@ -203,7 +203,8 @@ Respond ONLY with a JSON object in this exact schema:
 }}"""
 
     try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={os.environ.get('GEMINI_API_KEY')}"
+        model = os.environ.get('GEMINI_MODEL', 'gemini-3.6-flash')
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={os.environ.get('GEMINI_API_KEY')}"
         payload = json.dumps({
             'contents': [{'parts': [{'text': prompt}]}],
             'generationConfig': {'responseMimeType': 'application/json'}

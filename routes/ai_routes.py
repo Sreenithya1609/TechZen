@@ -133,7 +133,7 @@ def generate_ai_flashcards():
         return jsonify({'error': 'Question count must be an integer between 1 and 20.'}), 400
 
     api_key = os.environ.get('GEMINI_API_KEY')
-    model = os.environ.get('GEMINI_MODEL', 'gemini-2.5-flash')
+    model = os.environ.get('GEMINI_MODEL', 'gemini-3.6-flash')
 
     if not api_key or api_key == 'test-gemini-key':
         if api_key != 'test-gemini-key':

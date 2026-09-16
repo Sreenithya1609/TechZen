@@ -104,7 +104,7 @@ def call_gemini_api(prompt, response_mime_type="application/json", timeout=30):
         (parsed_json_or_text, error_str)
     """
     api_key = os.environ.get('GEMINI_API_KEY')
-    model = os.environ.get('GEMINI_MODEL', 'gemini-2.5-flash')
+    model = os.environ.get('GEMINI_MODEL', 'gemini-3.6-flash')
 
     if not api_key or api_key == 'test-gemini-key':
         return None, "GEMINI_API_KEY_UNAVAILABLE"
