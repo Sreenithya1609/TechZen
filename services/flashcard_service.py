@@ -51,8 +51,13 @@ def generate_flashcards_from_text(text, count=6, level="Intermediate Mastery"):
     if not err and clean_text:
         try:
             parsed = json.loads(clean_text)
-            if isinstance(parsed, dict) and 'cards' in parsed:
-                parsed = parsed['cards']
+            if isinstance(parsed, dict):
+                parsed = (
+                    parsed.get('cards') or
+                    parsed.get('flashcards') or
+                    parsed.get('questions') or
+                    next((v for v in parsed.values() if isinstance(v, list)), [])
+                )
 
             if isinstance(parsed, list):
                 cards = []

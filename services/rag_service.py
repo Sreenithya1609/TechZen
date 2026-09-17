@@ -66,33 +66,34 @@ def generate_local_embedding(text, dim=DEFAULT_VECTOR_DIM):
 def generate_embedding(text):
     """
     Two-tier embedding generator:
-    Attempts Google Gemini text-embedding-004 if API key is active.
+    Attempts Google Gemini embedding (gemini-embedding-2 / gemini-embedding-001) if API key is active.
     Falls back gracefully to local deterministic unit vector embedding.
     """
     api_key = os.environ.get('GEMINI_API_KEY')
     if api_key and api_key != 'test-gemini-key' and not api_key.startswith('test-'):
-        try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key={api_key}"
-            payload = json.dumps({
-                "model": "models/text-embedding-004",
-                "content": {"parts": [{"text": text[:2000]}]}
-            }).encode('utf-8')
-            req = urllib_request.Request(
-                url,
-                data=payload,
-                headers={'Content-Type': 'application/json'},
-                method='POST'
-            )
-            with urllib_request.urlopen(req, timeout=10) as resp:
-                data = json.loads(resp.read().decode('utf-8'))
-                values = data.get('embedding', {}).get('values')
-                if values and isinstance(values, list):
-                    # L2 Normalize Gemini embedding
-                    norm = math.sqrt(sum(x * x for x in values))
-                    if norm > 1e-9:
-                        return [round(x / norm, 6) for x in values]
-        except Exception:
-            pass  # Fall back to local embedding
+        for embed_model in ['gemini-embedding-2', 'gemini-embedding-001']:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{embed_model}:embedContent?key={api_key}"
+                payload = json.dumps({
+                    "model": f"models/{embed_model}",
+                    "content": {"parts": [{"text": text[:2000]}]}
+                }).encode('utf-8')
+                req = urllib_request.Request(
+                    url,
+                    data=payload,
+                    headers={'Content-Type': 'application/json'},
+                    method='POST'
+                )
+                with urllib_request.urlopen(req, timeout=10) as resp:
+                    data = json.loads(resp.read().decode('utf-8'))
+                    values = data.get('embedding', {}).get('values')
+                    if values and isinstance(values, list):
+                        # L2 Normalize Gemini embedding
+                        norm = math.sqrt(sum(x * x for x in values))
+                        if norm > 1e-9:
+                            return [round(x / norm, 6) for x in values]
+            except Exception:
+                continue
 
     return generate_local_embedding(text)
 
@@ -361,13 +362,24 @@ Respond ONLY with a JSON array in this exact schema:
         from services.ai_service import call_gemini_api
         text, err = call_gemini_api(prompt, response_mime_type="application/json", timeout=30)
         if not err and text:
-            cards = json.loads(text)
-            if isinstance(cards, list) and len(cards) > 0:
-                for c in cards:
-                    if 'source_citation' not in c or not c['source_citation']:
-                        p = c.get('page_number', 1)
-                        c['source_citation'] = f"Page {p}: \"{c.get('citation_quote', '')[:100]}\""
-                return cards
+            parsed = json.loads(text)
+            if isinstance(parsed, dict):
+                parsed = (
+                    parsed.get('cards') or
+                    parsed.get('flashcards') or
+                    parsed.get('questions') or
+                    next((v for v in parsed.values() if isinstance(v, list)), [])
+                )
+            if isinstance(parsed, list) and len(parsed) > 0:
+                cards = []
+                for c in parsed:
+                    if isinstance(c, dict) and c.get('question') and c.get('answer'):
+                        if 'source_citation' not in c or not c['source_citation']:
+                            p = c.get('page_number', 1)
+                            c['source_citation'] = f"Page {p}: \"{c.get('citation_quote', '')[:100]}\""
+                        cards.append(c)
+                if cards:
+                    return cards
     except Exception:
         pass
     return None

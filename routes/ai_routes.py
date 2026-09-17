@@ -156,23 +156,36 @@ def generate_ai_flashcards():
         )
 
     clean_text, err = call_gemini_api(prompt, response_mime_type="application/json")
+    if err:
+        print(f"[AI Route] Flashcard synthesis Gemini API error: {err}")
+
     if not err and clean_text:
         try:
             generated_data = json.loads(clean_text)
             if isinstance(generated_data, list):
                 raw_cards = generated_data
+            elif isinstance(generated_data, dict):
+                raw_cards = (
+                    generated_data.get('cards') or
+                    generated_data.get('flashcards') or
+                    generated_data.get('questions') or
+                    next((v for v in generated_data.values() if isinstance(v, list)), [])
+                )
             else:
-                raw_cards = generated_data.get('cards', [])
-            cards = [
-                {'question': str(card.get('question', '')).strip(), 'answer': str(card.get('answer', '')).strip()}
-                for card in raw_cards
-                if card.get('question') and card.get('answer')
-            ][:count]
+                raw_cards = []
+
+            cards = []
+            for card in raw_cards:
+                if isinstance(card, dict):
+                    q = str(card.get('question') or card.get('front') or card.get('q') or '').strip()
+                    a = str(card.get('answer') or card.get('back') or card.get('a') or '').strip()
+                    if q and a:
+                        cards.append({'question': q, 'answer': a})
 
             if cards:
-                return jsonify({'cards': cards, 'fallback': False})
+                return jsonify({'cards': cards[:count], 'fallback': False})
         except Exception as exc:
-            print(f'Gemini JSON parsing error: {exc}')
+            print(f'[AI Route] Gemini JSON parsing error: {exc} | Raw text: {clean_text[:200]}')
 
     cards = generate_fallback_cards(topic, level, count, is_notes)
     return jsonify({'cards': cards, 'fallback': True})

@@ -829,6 +829,17 @@ async function handleAIFlashcardGenerate(event) {
             </h3>
             <p style="font-size: 0.85rem; color: var(--text-muted);">Topic: <strong>${topic}</strong> (${level})</p>
           </div>
+          <div>
+            ${data.fallback ? `
+              <span class="card-badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; font-size: 0.78rem;">
+                <i class="fa-solid fa-triangle-exclamation"></i> Offline Fallback
+              </span>
+            ` : `
+              <span class="card-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.78rem;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Powered by Gemini AI
+              </span>
+            `}
+          </div>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; max-height: 340px; overflow-y: auto;">

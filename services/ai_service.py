@@ -97,27 +97,74 @@ def verify_card_access(user_id, card_id):
     return None, "Access denied: This flashcard belongs to a private deck.", 403
 
 
-def call_gemini_api(prompt, response_mime_type="application/json", timeout=30):
+def extract_json_payload(text):
     """
-    Directly invokes Google Generative Language API.
+    Extracts valid JSON substring from LLM response text,
+    stripping markdown fences, conversational preambles, and postambles.
+    """
+    if not text:
+        return ""
+    cleaned = text.strip()
+    # Check if already a clean JSON object or array
+    if (cleaned.startswith('{') and cleaned.endswith('}')) or (cleaned.startswith('[') and cleaned.endswith(']')):
+        return cleaned
+
+    # Match markdown code block ```json ... ``` or ``` ... ```
+    match = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', cleaned, re.IGNORECASE)
+    if match:
+        return match.group(1).strip()
+
+    # Search for outer balanced object { ... } or array [ ... ]
+    first_brace = cleaned.find('{')
+    first_bracket = cleaned.find('[')
+    if first_brace != -1 and (first_bracket == -1 or first_brace < first_bracket):
+        last_brace = cleaned.rfind('}')
+        if last_brace > first_brace:
+            return cleaned[first_brace:last_brace + 1].strip()
+    elif first_bracket != -1:
+        last_bracket = cleaned.rfind(']')
+        if last_bracket > first_bracket:
+            return cleaned[first_bracket:last_bracket + 1].strip()
+
+    # Basic fallback regex strip
+    cleaned = re.sub(r'^```(?:json)?\s*', '', cleaned)
+    cleaned = re.sub(r'\s*```$', '', cleaned)
+    return cleaned
+
+
+def call_gemini_api(prompt, response_mime_type="application/json", timeout=15):
+    """
+    Directly invokes Google Generative Language API with resilient fallback models.
     Returns:
         (parsed_json_or_text, error_str)
     """
     api_key = os.environ.get('GEMINI_API_KEY')
-    primary_model = os.environ.get('GEMINI_MODEL', 'gemini-3.5-flash')
+    raw_primary = os.environ.get('GEMINI_MODEL', 'gemini-3.6-flash').strip()
+    primary_model = raw_primary.replace('models/', '')
 
-    if not api_key or api_key == 'test-gemini-key':
+    if not api_key:
         return None, "GEMINI_API_KEY_UNAVAILABLE"
 
-    payload = json.dumps({
-        'contents': [{'parts': [{'text': prompt}]}],
-        'generationConfig': {'responseMimeType': response_mime_type}
-    }).encode('utf-8')
+    payload_dict = {'contents': [{'parts': [{'text': prompt}]}]}
+    if response_mime_type:
+        payload_dict['generationConfig'] = {'responseMimeType': response_mime_type}
+    payload = json.dumps(payload_dict).encode('utf-8')
 
-    models_to_try = [primary_model]
-    for alt in ['gemini-3.5-flash', 'gemini-3-flash-preview', 'gemini-3.1-flash-lite-preview']:
-        if alt not in models_to_try:
-            models_to_try.append(alt)
+    # Ordered priority of proven available Gemini models
+    candidate_pool = [
+        primary_model,
+        'gemini-3.6-flash',
+        'gemini-3-flash-preview',
+        'gemini-3.5-flash-lite',
+        'gemini-3.1-flash-lite',
+        'gemini-3.1-flash-lite-preview',
+        'gemini-3.5-flash'
+    ]
+    models_to_try = []
+    for m in candidate_pool:
+        clean_m = m.replace('models/', '').strip()
+        if clean_m and clean_m not in models_to_try:
+            models_to_try.append(clean_m)
 
     last_error = None
     for model in models_to_try:
@@ -132,21 +179,40 @@ def call_gemini_api(prompt, response_mime_type="application/json", timeout=30):
         try:
             with urllib_request.urlopen(api_request, timeout=timeout) as response:
                 response_data = json.loads(response.read().decode('utf-8'))
-            
+
             candidates = response_data.get('candidates', [])
             if not candidates:
-                last_error = "NO_CANDIDATES_RETURNED"
+                last_error = f"NO_CANDIDATES_RETURNED ({model})"
                 continue
 
-            generated_text = candidates[0]['content']['parts'][0]['text']
-            clean_text = re.sub(r'^```(?:json)?\s*', '', generated_text.strip())
-            clean_text = re.sub(r'\s*```$', '', clean_text.strip())
+            parts = candidates[0].get('content', {}).get('parts', [])
+            if not parts or 'text' not in parts[0]:
+                last_error = f"NO_TEXT_PART_RETURNED ({model})"
+                continue
+
+            generated_text = parts[0]['text']
+            if response_mime_type == "application/json":
+                clean_text = extract_json_payload(generated_text)
+            else:
+                clean_text = generated_text.strip()
+
             return clean_text, None
+
         except Exception as exc:
-            last_error = str(exc)
+            err_details = str(exc)
+            if hasattr(exc, 'read'):
+                try:
+                    err_json = json.loads(exc.read().decode('utf-8'))
+                    err_details = err_json.get('error', {}).get('message', err_details)
+                except Exception:
+                    pass
+            print(f"[Gemini API] Warning: model '{model}' failed: {err_details}. Attempting fallback...")
+            last_error = err_details
             continue
 
+    print(f"[Gemini API] All candidate models failed. Last error: {last_error}")
     return None, last_error
+
 
 
 def generate_fallback_hint(question, answer=None):

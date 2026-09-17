@@ -559,12 +559,23 @@ async function handleGenerateFromStudyMaterial(event) {
     resultContainer.style.display = 'block';
     resultContainer.innerHTML = `
       <div style="background: var(--bg-card); border: 1px solid var(--border-blue); padding: 1.5rem; border-radius: var(--radius-xl); margin-top: 1.5rem; box-shadow: var(--shadow-main);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 8px;">
           <h3 style="color: var(--color-blue-bright); font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-sparkles"></i>
             <span>Synthesized Concept Flashcards</span>
           </h3>
-          <span class="card-badge" id="student-ai-card-badge">${generatedCards.length} Questions</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            ${data.fallback ? `
+              <span class="card-badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; font-size: 0.78rem;">
+                <i class="fa-solid fa-triangle-exclamation"></i> Offline Fallback
+              </span>
+            ` : `
+              <span class="card-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.78rem;">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Powered by Gemini AI
+              </span>
+            `}
+            <span class="card-badge" id="student-ai-card-badge">${generatedCards.length} Questions</span>
+          </div>
         </div>
 
         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
@@ -605,7 +616,11 @@ async function handleGenerateFromStudyMaterial(event) {
       </div>
     `;
 
-    showToast(`Synthesized ${generatedCards.length} flashcards from study notes!`, 'success');
+    if (data.fallback) {
+      showToast(`Generated ${generatedCards.length} flashcards (offline fallback mode).`, 'info');
+    } else {
+      showToast(`Synthesized ${generatedCards.length} flashcards with Gemini AI!`, 'success');
+    }
   } catch (e) {
     console.error(e);
     showToast('An error occurred during AI generation.', 'error');
