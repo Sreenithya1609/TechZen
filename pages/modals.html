@@ -1,4 +1,4 @@
-﻿  <!-- ================= MODALS ================= -->
+  <!-- ================= MODALS ================= -->
   <div class="modal-backdrop" id="modal-forgot-password">
     <div class="modal-card">
       <div class="modal-header">
@@ -439,7 +439,7 @@
     <div class="modal-card" style="max-width: 620px;">
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 1.3rem;">ðŸŽ¯</span>
+          <span style="font-size: 1.25rem; color: #ef4444;"><i class="fa-solid fa-bullseye"></i></span>
           <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--text-main);">Targeted Recall Remediation</h2>
         </div>
         <button type="button" class="modal-close-btn" onclick="closeModal('modal-mistake-remediate')">
@@ -515,6 +515,113 @@
             Dismiss
           </button>
         </div>
+      </div>
+    </div>
+  <!-- TIMED EXAM ARENA MODAL -->
+  <div class="modal-backdrop" id="modal-timed-exam">
+    <div class="modal-card exam-arena-card">
+      <!-- Exam Arena Top Bar -->
+      <div class="exam-arena-header">
+        <div class="exam-arena-meta">
+          <span class="exam-arena-badge" id="exam-arena-badge">Exam Session</span>
+          <h2 class="exam-arena-title" id="exam-arena-title">Timed Examination</h2>
+        </div>
+
+        <!-- Live Countdown Timer Component -->
+        <div class="exam-countdown-container" id="exam-countdown-container">
+          <div class="countdown-icon-wrap">
+            <i class="fa-solid fa-stopwatch" id="countdown-stopwatch-icon"></i>
+          </div>
+          <div class="countdown-digits-wrap">
+            <span class="countdown-label">Time Remaining</span>
+            <span class="countdown-time" id="exam-timer-display">05:00</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-danger btn-sm" onclick="confirmEarlySubmitExam()" title="Submit Examination">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span>Submit Exam</span>
+        </button>
+      </div>
+
+      <!-- Exam Arena Progress Bar & Stats -->
+      <div class="exam-arena-subbar">
+        <div class="exam-arena-counters">
+          <span id="exam-question-indicator">Question 1 of 10</span>
+          <span id="exam-answered-indicator">0 Answered &bull; 10 Remaining</span>
+        </div>
+        <div class="progress-bar-bg" style="height: 6px;">
+          <div class="progress-bar-fill" id="exam-progress-bar-fill" style="width: 10%;"></div>
+        </div>
+      </div>
+
+      <!-- Exam Question Viewport -->
+      <div class="exam-arena-viewport">
+        <!-- Question Content Box -->
+        <div class="exam-question-card">
+          <div class="exam-question-meta">
+            <span class="exam-question-num-tag" id="exam-q-num-tag">Question 1</span>
+            <span class="exam-question-topic-tag" id="exam-q-topic-tag">General Curriculum</span>
+          </div>
+          <div class="exam-question-text" id="exam-q-text">Loading question prompt...</div>
+        </div>
+
+        <!-- 4 Synthesized Dynamic Distractors / Options -->
+        <div class="exam-options-list" id="exam-options-container">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <!-- Question Navigation Bubbles Palette -->
+        <div class="exam-palette-container">
+          <div class="exam-palette-title">
+            <span>Question Navigator:</span>
+            <div class="exam-palette-legend">
+              <span class="legend-item"><span class="legend-dot answered"></span> Answered</span>
+              <span class="legend-item"><span class="legend-dot flagged"></span> Flagged</span>
+              <span class="legend-item"><span class="legend-dot unanswered"></span> Unanswered</span>
+            </div>
+          </div>
+          <div class="exam-palette-grid" id="exam-palette-grid">
+            <!-- Populated dynamically: [1] [2] [3]... -->
+          </div>
+        </div>
+
+        <!-- Controls Footer -->
+        <div class="exam-arena-controls">
+          <button type="button" class="btn btn-secondary" id="btn-exam-prev" onclick="examRunner.prevQuestion()">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Previous</span>
+          </button>
+
+          <button type="button" class="btn btn-secondary" id="btn-exam-flag" onclick="examRunner.toggleFlagCurrent()">
+            <i class="fa-regular fa-flag" id="flag-btn-icon"></i>
+            <span id="flag-btn-label">Flag for Review</span>
+          </button>
+
+          <button type="button" class="btn btn-primary" id="btn-exam-next" onclick="examRunner.nextQuestion()">
+            <span>Next</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSTANT DIAGNOSTIC ANALYTICS MODAL -->
+  <div class="modal-backdrop" id="modal-exam-results">
+    <div class="modal-card exam-results-card">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-square-poll-vertical" style="color: var(--color-blue-bright);"></i>
+          <span>Instant Diagnostic Analytics</span>
+        </h2>
+        <button type="button" class="modal-close-btn" onclick="closeModal('modal-exam-results')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="exam-results-body" id="exam-results-body">
+        <!-- Populated dynamically via JS -->
       </div>
     </div>
   </div>

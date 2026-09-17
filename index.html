@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -27,6 +27,7 @@
   <script src="js/teacher.js"></script>
   <script src="js/student.js"></script>
   <script src="js/study.js"></script>
+  <script src="js/exam.js"></script>
 
   <script>
     async function loadPageFragments() {
@@ -114,6 +115,7 @@
       if (tabKey === 'student-classrooms') renderStudentClassrooms();
       if (tabKey === 'student-decks') renderStudentDecks(activeStudentDeckFilter || 'all');
       if (tabKey === 'student-streaks') renderDailyStreakGame();
+      if (tabKey === 'student-exam') renderStudentExamPrep();
       if (tabKey === 'profile') renderProfileView();
 
       closeMobileSidebar();

@@ -154,8 +154,8 @@ function renderStudentDashboard() {
       ${unresolvedMistakesCount > 0 ? `
         <div class="scholar-mistake-widget">
           <div style="display: flex; align-items: center; gap: 1rem;">
-            <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(239, 68, 68, 0.15); color: var(--color-rose); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
-              <span>📕</span>
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
+              <i class="fa-solid fa-book-bookmark"></i>
             </div>
             <div>
               <div style="font-weight: 800; color: var(--text-main); font-size: 1.02rem;">

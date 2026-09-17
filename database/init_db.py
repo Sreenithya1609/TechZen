@@ -285,6 +285,27 @@ def init_db():
     cursor.execute('CREATE INDEX IF NOT EXISTS idx_student_mistakes_user ON student_mistakes(user_id, status)')
     cursor.execute('CREATE INDEX IF NOT EXISTS idx_student_mistakes_deck ON student_mistakes(deck_id)')
 
+    # Feature 8: Timed Exam Preparation Mode History & Diagnostic Records
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS exam_history (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        exam_title TEXT NOT NULL,
+        subject TEXT NOT NULL,
+        score INTEGER NOT NULL,
+        total_questions INTEGER NOT NULL,
+        accuracy INTEGER NOT NULL,
+        time_used_seconds INTEGER NOT NULL,
+        time_allocated_seconds INTEGER NOT NULL,
+        difficulty TEXT DEFAULT 'Standard Academic Curriculum',
+        badge_unlocked BOOLEAN DEFAULT 0,
+        details_json TEXT,
+        completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+    ''')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_exam_history_user ON exam_history(user_id, completed_at)')
+
     conn.commit()
 
     # Seed Default Data if empty
@@ -368,6 +389,68 @@ def init_db():
     # 4. Link existing classrooms and decks to admin_id if teacher_id/creator_id are NULL
     cursor.execute("UPDATE classrooms SET teacher_id = ? WHERE teacher_id IS NULL", (admin_id,))
     cursor.execute("UPDATE decks SET creator_id = ? WHERE creator_id IS NULL AND classroom_id IS NOT NULL", (admin_id,))
+
+    # Ensure default curriculum decks and cards are seeded if empty
+    cursor.execute("SELECT COUNT(*) FROM decks")
+    if cursor.fetchone()[0] == 0:
+        default_decks = [
+            ('deck-1', 'Cellular Biology Fundamentals', 'Biology', 'Revathi', admin_id, 'cls-1'),
+            ('deck-2', 'Java Data Structures & Algorithms', 'Computer Science', 'Revathi', admin_id, 'cls-2'),
+            ('deck-3', 'Cloud Computing & Distributed Systems', 'Technology', 'Revathi', admin_id, 'cls-3'),
+        ]
+        cursor.executemany(
+            "INSERT INTO decks (id, title, subject, creator_name, creator_id, classroom_id) VALUES (?, ?, ?, ?, ?, ?)",
+            default_decks
+        )
+
+        default_cards = [
+            # Biology Deck (deck-1)
+            ('c-bio-1', 'deck-1', 'What is the powerhouse of the cell responsible for ATP production?', 'Mitochondria'),
+            ('c-bio-2', 'deck-1', 'Which cellular organelle is responsible for protein synthesis?', 'Ribosome'),
+            ('c-bio-3', 'deck-1', 'What semi-permeable boundary encloses the cytoplasm of a cell?', 'Cell Membrane'),
+            ('c-bio-4', 'deck-1', 'What process do plants use to convert sunlight into chemical energy?', 'Photosynthesis'),
+            ('c-bio-5', 'deck-1', 'Which organelle houses the cell\'s genetic DNA in eukaryotic organisms?', 'Nucleus'),
+            ('c-bio-6', 'deck-1', 'What is the fluid matrix that fills the interior of the cell?', 'Cytoplasm'),
+            ('c-bio-7', 'deck-1', 'Which organelle modifies, sorts, and packages proteins for secretion?', 'Golgi Apparatus'),
+            ('c-bio-8', 'deck-1', 'What enzyme-filled organelle breaks down cellular waste and debris?', 'Lysosome'),
+            ('c-bio-9', 'deck-1', 'Which green pigment is crucial for absorbing light during photosynthesis?', 'Chlorophyll'),
+            ('c-bio-10', 'deck-1', 'What rigid outer structure provides protection and support to plant cells?', 'Cell Wall'),
+
+            # Computer Science Deck (deck-2)
+            ('c-cs-1', 'deck-2', 'Which data structure operates on a Last-In, First-Out (LIFO) principle?', 'Stack'),
+            ('c-cs-2', 'deck-2', 'Which data structure operates on a First-In, First-Out (FIFO) principle?', 'Queue'),
+            ('c-cs-3', 'deck-2', 'What is the worst-case time complexity of standard Binary Search?', 'O(log n)'),
+            ('c-cs-4', 'deck-2', 'Which tree traversal visits the Left subtree, Root, then Right subtree?', 'Inorder Traversal'),
+            ('c-cs-5', 'deck-2', 'What is the average time complexity of searching in a balanced Hash Map?', 'O(1)'),
+            ('c-cs-6', 'deck-2', 'Which sorting algorithm employs the divide-and-conquer paradigm with a pivot?', 'QuickSort'),
+            ('c-cs-7', 'deck-2', 'What linear data structure consists of nodes containing data and references?', 'Linked List'),
+            ('c-cs-8', 'deck-2', 'Which algorithm finds the shortest path between nodes in a weighted graph?', 'Dijkstra\'s Algorithm'),
+            ('c-cs-9', 'deck-2', 'What OOP concept allows a subclass to provide a specific implementation of a superclass method?', 'Method Overriding'),
+            ('c-cs-10', 'deck-2', 'What Java keyword prevents a class from being subclassed or method from being overridden?', 'final'),
+
+            # Technology Deck (deck-3)
+            ('c-tech-1', 'deck-3', 'What computing paradigm dynamically provisions virtualized computing resources over the internet?', 'Cloud Computing'),
+            ('c-tech-2', 'deck-3', 'Which theorem states that a distributed data store can only provide 2 of Consistency, Availability, and Partition Tolerance?', 'CAP Theorem'),
+            ('c-tech-3', 'deck-3', 'What architectural pattern structures an application as a collection of loosely coupled services?', 'Microservices Architecture'),
+            ('c-tech-4', 'deck-3', 'Which cloud service model provides virtualized hardware, storage, and networking (e.g. AWS EC2)?', 'Infrastructure as a Service (IaaS)'),
+            ('c-tech-5', 'deck-3', 'Which cloud service model delivers complete software applications over the web (e.g. Google Workspace)?', 'Software as a Service (SaaS)'),
+            ('c-tech-6', 'deck-3', 'What component distributes incoming network traffic across multiple servers to ensure reliability?', 'Load Balancer'),
+            ('c-tech-7', 'deck-3', 'What distributed consensus algorithm is designed to be more understandable than Paxos?', 'Raft'),
+            ('c-tech-8', 'deck-3', 'What container orchestration platform automates containerized application deployment and scaling?', 'Kubernetes'),
+            ('c-tech-9', 'deck-3', 'What cloud computing execution model runs code on-demand without managing server infrastructure?', 'Serverless Computing'),
+            ('c-tech-10', 'deck-3', 'Which storage type stores data as distinct units accompanied by comprehensive metadata and unique identifiers?', 'Object Storage'),
+        ]
+        cursor.executemany(
+            "INSERT INTO cards (id, deck_id, question, answer) VALUES (?, ?, ?, ?)",
+            default_cards
+        )
+
+    # Ensure default student enrollment into classrooms
+    cursor.execute("SELECT COUNT(*) FROM classroom_enrollments WHERE student_id = 'usr-student-1'")
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("INSERT OR IGNORE INTO classroom_enrollments (classroom_id, student_id, mark, completed_decks) VALUES ('cls-1', 'usr-student-1', 90, 1)")
+        cursor.execute("INSERT OR IGNORE INTO classroom_enrollments (classroom_id, student_id, mark, completed_decks) VALUES ('cls-2', 'usr-student-1', 85, 1)")
+        cursor.execute("UPDATE classrooms SET enrolled_count = (SELECT COUNT(*) FROM classroom_enrollments WHERE classroom_id = classrooms.id)")
 
     # 5. Seed initial login history if empty
     cursor.execute("SELECT COUNT(*) FROM login_history")

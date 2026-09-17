@@ -1,4 +1,4 @@
-﻿  <div id="dashboard-view" style="display: none; flex-direction: column; min-height: 100vh;">
+  <div id="dashboard-view" style="display: none; flex-direction: column; min-height: 100vh;">
 
     <!-- Top Header Navigation -->
     <header class="app-header">
@@ -133,13 +133,6 @@
               </a>
             </li>
             <li>
-              <a class="nav-item" id="nav-student-mistakes" onclick="switchTab('student-mistakes')">
-                <i class="fa-solid fa-book-bookmark" style="color: #ef4444;"></i>
-                <span>Mistake Book</span>
-                <span class="badge-count" id="nav-mistakes-badge" style="display: none; margin-left: auto; background: var(--color-rose); color: white; border-radius: 999px; padding: 2px 7px; font-size: 0.72rem; font-weight: 700;">0</span>
-              </a>
-            </li>
-            <li>
               <a class="nav-item" id="nav-student-classrooms" onclick="switchTab('student-classrooms')">
                 <i class="fa-solid fa-school"></i>
                 <span>Joined Classrooms</span>
@@ -150,6 +143,19 @@
                 onclick="activeClassroomIdFilter = null; switchTab('student-decks')">
                 <i class="fa-solid fa-layer-group"></i>
                 <span>Decks & Practice</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-student-mistakes" onclick="switchTab('student-mistakes')">
+                <i class="fa-solid fa-book-bookmark" style="color: #ef4444;"></i>
+                <span>Mistake Book</span>
+                <span class="badge-count" id="nav-mistakes-badge" style="display: none; margin-left: auto; background: var(--color-rose); color: white; border-radius: 999px; padding: 2px 7px; font-size: 0.72rem; font-weight: 700;">0</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-student-exam" onclick="switchTab('student-exam')">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <span>Exam Prep</span>
               </a>
             </li>
             <li>
@@ -789,7 +795,9 @@
             <!-- Header Row -->
             <div class="mistake-header-row">
               <div class="mistake-title-wrap">
-                <span class="mistake-book-emoji">ðŸ“•</span>
+                <div class="mistake-book-logo-badge" title="Mistake Book Remediation Engine">
+                  <i class="fa-solid fa-book-bookmark"></i>
+                </div>
                 <div>
                   <h2 class="mistake-title">Mistake Book</h2>
                   <p class="mistake-subtitle">Targeted remediation for questions you missed during flashcard practice and exams.</p>
@@ -831,6 +839,178 @@
 
             <!-- Mistakes Cards List Container -->
             <div id="mistakes-cards-container" class="mistakes-cards-list"></div>
+          </div>
+        </section>
+
+        <!-- PANEL: Timed Exam Preparation Mode -->
+        <section class="view-panel" id="panel-student-exam">
+          <div class="exam-prep-panel">
+            <!-- Header Section with 2 Caps and Subtitle -->
+            <div class="exam-prep-header">
+              <div class="exam-title-row">
+                <span class="exam-icon-green"><i class="fa-solid fa-graduation-cap"></i></span>
+                <span class="exam-icon-purple"><i class="fa-solid fa-graduation-cap"></i></span>
+                <h1 class="exam-title-text">Timed Exam Preparation Mode</h1>
+              </div>
+              <p class="exam-subtitle-text">
+                Simulate real examination conditions with dynamic multiple-choice testing and instant diagnostic analytics.
+              </p>
+            </div>
+
+            <!-- Two-Column Configuration & Rules Grid -->
+            <div class="exam-two-column-grid">
+              <!-- Left Column: Configure Exam Session Card -->
+              <div class="exam-card exam-config-card">
+                <div class="exam-card-title">
+                  <i class="fa-solid fa-sliders" style="color: var(--color-blue-bright);"></i>
+                  <span>Configure Exam Session</span>
+                </div>
+
+                <div class="exam-form-group">
+                  <div class="exam-field-header">
+                    <label class="exam-field-label">Target Topics (Single or Mixed)</label>
+                    <button type="button" class="exam-action-link" onclick="toggleSelectAllExamTopics()">
+                      <i class="fa-solid fa-list-check"></i>
+                      <span>Select All Topics</span>
+                    </button>
+                  </div>
+                  <div class="exam-topics-container" id="exam-topics-container">
+                    <button type="button" class="exam-topic-pill active" id="topic-pill-all" onclick="toggleExamTopic('all')">
+                      <i class="fa-solid fa-circle-check"></i>
+                      <span>All Topics (Comprehensive)</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="exam-fields-row">
+                  <div class="exam-form-group">
+                    <label class="exam-field-label" for="exam-question-count">Questions Count</label>
+                    <select id="exam-question-count" class="select-field exam-select">
+                      <option value="5">5 Questions (Quick)</option>
+                      <option value="10" selected>10 Questions (Standard)</option>
+                      <option value="15">15 Questions (Thorough)</option>
+                      <option value="20">20 Questions (Extended)</option>
+                      <option value="25">25 Questions (Full Test)</option>
+                    </select>
+                  </div>
+
+                  <div class="exam-form-group">
+                    <label class="exam-field-label" for="exam-timer-duration">Timer Duration</label>
+                    <select id="exam-timer-duration" class="select-field exam-select">
+                      <option value="3">3 Minutes (Speed Run)</option>
+                      <option value="5" selected>5 Minutes (Recommended)</option>
+                      <option value="10">10 Minutes (Standard)</option>
+                      <option value="15">15 Minutes (Comprehensive)</option>
+                      <option value="20">20 Minutes (Extended)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="exam-form-group">
+                  <label class="exam-field-label" for="exam-difficulty">Difficulty Level</label>
+                  <select id="exam-difficulty" class="select-field exam-select">
+                    <option value="Standard Academic Curriculum" selected>Standard Academic Curriculum</option>
+                    <option value="Foundational / Core Concepts">Foundational / Core Concepts</option>
+                    <option value="Challenging / Advanced Mastery">Challenging / Advanced Mastery</option>
+                  </select>
+                </div>
+
+                <button type="button" class="btn-start-timed-exam" id="btn-start-timed-exam" onclick="startTimedExamSession()">
+                  <i class="fa-solid fa-play"></i>
+                  <span>Start Timed Exam</span>
+                </button>
+              </div>
+
+              <!-- Right Column: Exam Environment Rules Card -->
+              <div class="exam-card exam-rules-card">
+                <div class="exam-card-title">
+                  <i class="fa-solid fa-shield-halved" style="color: var(--color-emerald);"></i>
+                  <span>Exam Environment Rules</span>
+                </div>
+
+                <div class="exam-rules-list">
+                  <div class="exam-rule-item">
+                    <div class="exam-rule-icon icon-blue">
+                      <i class="fa-solid fa-stopwatch"></i>
+                    </div>
+                    <div class="exam-rule-content">
+                      <strong>Real-Time Countdown:</strong> The exam will auto-submit when the countdown reaches 00:00.
+                    </div>
+                  </div>
+
+                  <div class="exam-rule-item">
+                    <div class="exam-rule-icon icon-purple">
+                      <i class="fa-solid fa-shuffle"></i>
+                    </div>
+                    <div class="exam-rule-content">
+                      <strong>Dynamic Distractors:</strong> 4 multiple-choice options are synthesized from real curriculum content.
+                    </div>
+                  </div>
+
+                  <div class="exam-rule-item">
+                    <div class="exam-rule-icon icon-rose">
+                      <i class="fa-solid fa-book-bookmark"></i>
+                    </div>
+                    <div class="exam-rule-content">
+                      <strong>Mistake Book Sync:</strong> Any incorrect answers are automatically logged in your Mistake Book for future retry.
+                    </div>
+                  </div>
+
+                  <div class="exam-rule-item">
+                    <div class="exam-rule-icon icon-amber">
+                      <i class="fa-solid fa-award"></i>
+                    </div>
+                    <div class="exam-rule-content">
+                      <strong>Badge Eligibility:</strong> Scoring 80%+ unlocks the 🎓 <em>Exam Ready</em> achievement badge!
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Active Recall Science Info Box -->
+                <div class="exam-callout-box">
+                  <div class="exam-callout-header">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Active Recall Science</span>
+                  </div>
+                  <div class="exam-callout-text">
+                    Timed multiple-choice testing stimulates deep memory retrieval and reduces exam anxiety through calibrated exposure.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Section: Past Exam Preparation History -->
+            <div class="exam-history-section">
+              <div class="exam-history-header">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <h2>Past Exam Preparation History</h2>
+              </div>
+
+              <div class="exam-history-table-container">
+                <table class="exam-history-table">
+                  <thead>
+                    <tr>
+                      <th>EXAM TITLE</th>
+                      <th>SUBJECT</th>
+                      <th>SCORE</th>
+                      <th>ACCURACY</th>
+                      <th>TIME USED</th>
+                      <th>DATE COMPLETED</th>
+                      <th style="text-align: right;">ACTION</th>
+                    </tr>
+                  </thead>
+                  <tbody id="exam-history-tbody">
+                    <!-- Populated dynamically via JS -->
+                  </tbody>
+                </table>
+
+                <div id="exam-history-empty" class="exam-history-empty" style="display: none;">
+                  <i class="fa-solid fa-graduation-cap"></i>
+                  <h3>No Exam History Yet</h3>
+                  <p>Configure your target topics above and start your first timed exam to benchmark your mastery!</p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
