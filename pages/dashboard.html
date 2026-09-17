@@ -1,0 +1,937 @@
+﻿  <div id="dashboard-view" style="display: none; flex-direction: column; min-height: 100vh;">
+
+    <!-- Top Header Navigation -->
+    <header class="app-header">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button class="mobile-sidebar-toggle-btn" id="sidebar-toggle-btn" onclick="toggleMobileSidebar()"
+          title="Toggle Navigation Sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="brand-container" onclick="switchTab('profile')" style="cursor: pointer;" title="Go to Profile">
+          <img src="images/memoflip_logo.png" alt="FlashLearn Logo" class="brand-logo-img" />
+          <div class="brand-title">FlashLearn</div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Header Dynamic Streak Badge -->
+        <div id="header-streak-badge" class="streak-pill-badge" style="display: none; cursor: pointer;"
+          onclick="openDailyStreakModal()" title="Click to test your daily streak challenge!">
+          <i class="fa-solid fa-fire-flame-curved"></i>
+          <span><strong id="header-streak-count">0</strong> Day Streak</span>
+        </div>
+
+        <!-- User Dropdown Menu -->
+        <div class="user-dropdown-container" id="user-header-dropdown-container">
+          <div class="user-dropdown-trigger" onclick="toggleUserHeaderMenu()">
+            <div class="user-avatar-mini" id="header-avatar-mini">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <strong id="header-user-fullname"
+              style="font-weight: 600; font-size: 0.92rem; color: var(--text-main);">User Name</strong>
+            <i class="fa-solid fa-chevron-down" style="font-size: 0.75rem; color: var(--text-subtle);"></i>
+          </div>
+
+          <div class="header-dropdown-menu" id="user-header-menu">
+            <div class="dropdown-header-info">
+              <div class="dropdown-user-name" id="dropdown-user-name">User Name</div>
+              <div class="dropdown-user-role" id="dropdown-user-role">Scholar</div>
+            </div>
+            <a class="dropdown-item" onclick="switchTab('profile'); toggleUserHeaderMenu();">
+              <i class="fa-solid fa-id-card"></i>
+              <span>My Profile</span>
+            </a>
+            <a class="dropdown-item" onclick="toggleTheme();">
+              <i id="theme-dropdown-icon" class="fa-solid fa-sun"></i>
+              <span id="theme-dropdown-label">Theme Mode</span>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" onclick="handleLogout(); toggleUserHeaderMenu();"
+              style="color: var(--color-rose);">
+              <i class="fa-solid fa-arrow-right-from-bracket" style="color: var(--color-rose);"></i>
+              <span>Sign Out</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleMobileSidebar()"></div>
+
+    <div class="app-container">
+
+      <!-- Left Sidebar Navigation -->
+      <aside class="sidebar" id="app-sidebar">
+
+        <div class="sidebar-user-card" onclick="switchTab('profile')" title="View Account Settings">
+          <div class="user-avatar-large" id="sidebar-user-avatar">US</div>
+          <div class="sidebar-user-info">
+            <span class="sidebar-user-name" id="sidebar-user-name">User Name</span>
+            <span class="sidebar-user-badge" id="sidebar-user-badge">Faculty Admin</span>
+          </div>
+        </div>
+
+        <!-- Admin Nav Group -->
+        <div id="admin-nav-group" style="display: none;">
+          <div class="nav-section-title">Administration</div>
+          <ul class="nav-list">
+            <li>
+              <a class="nav-item" id="nav-admin-requests" onclick="switchTab('admin-requests')">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Teacher Requests</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-admin-logins" onclick="switchTab('admin-logins')">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Teacher & Student Logins</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Teacher Nav Group -->
+        <div id="teacher-nav-group">
+          <div class="nav-section-title">Faculty Portal</div>
+          <ul class="nav-list">
+            <li>
+              <a class="nav-item active" id="nav-teacher-dashboard" onclick="switchTab('teacher-dashboard')">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Analytics & KPI</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-teacher-myclasses" onclick="switchTab('teacher-myclasses')">
+                <i class="fa-solid fa-chalkboard-user"></i>
+                <span>My Courses</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-teacher-classrooms" onclick="switchTab('teacher-classrooms')">
+                <i class="fa-solid fa-circle-plus"></i>
+                <span>Create Classroom</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-teacher-ai" onclick="switchTab('teacher-ai')">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>AI Deck Generator</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Student Nav Group -->
+        <div id="student-nav-group" style="display: none;">
+          <div class="nav-section-title">Student Portal</div>
+          <ul class="nav-list">
+            <li>
+              <a class="nav-item" id="nav-student-dashboard" onclick="switchTab('student-dashboard')">
+                <i class="fa-solid fa-gauge-high"></i>
+                <span>Overview</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-student-mistakes" onclick="switchTab('student-mistakes')">
+                <i class="fa-solid fa-book-bookmark" style="color: #ef4444;"></i>
+                <span>Mistake Book</span>
+                <span class="badge-count" id="nav-mistakes-badge" style="display: none; margin-left: auto; background: var(--color-rose); color: white; border-radius: 999px; padding: 2px 7px; font-size: 0.72rem; font-weight: 700;">0</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-student-classrooms" onclick="switchTab('student-classrooms')">
+                <i class="fa-solid fa-school"></i>
+                <span>Joined Classrooms</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-student-decks"
+                onclick="activeClassroomIdFilter = null; switchTab('student-decks')">
+                <i class="fa-solid fa-layer-group"></i>
+                <span>Decks & Practice</span>
+              </a>
+            </li>
+            <li>
+              <a class="nav-item" id="nav-student-create" onclick="switchTab('student-create')">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Create Flashcards</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- Viewport Content Panels -->
+      <main class="main-content">
+
+        <!-- PANEL 0: Admin Teacher Requests Panel -->
+        <section class="view-panel" id="panel-admin-requests">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-user-shield" style="color: var(--color-blue-bright);"></i>
+                <span>Teacher Access Requests</span>
+              </h2>
+              <p class="panel-subtitle">Review, approve, or reject student applications for instructor access.</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <select id="admin-request-filter" class="select-field" onchange="loadAdminTeacherRequests(this.value)"
+                style="width: auto; padding: 6px 12px; font-size: 0.85rem;">
+                <option value="pending" selected>Pending Review</option>
+                <option value="all">All Applications</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+              <button class="btn btn-secondary btn-sm"
+                onclick="loadAdminTeacherRequests(document.getElementById('admin-request-filter').value)">
+                <i class="fa-solid fa-rotate"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="admin-requests-container" style="margin-top: 1.5rem;"></div>
+        </section>
+
+        <!-- PANEL 0B: Admin Teacher & Student Login Times Panel -->
+        <section class="view-panel" id="panel-admin-logins">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-clock-rotate-left" style="color: var(--color-blue-bright);"></i>
+                <span>Teacher & Student Login History</span>
+              </h2>
+              <p class="panel-subtitle">Audit log of user sign-in sessions, login timestamps, and client connection details.</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <div class="search-field-wrapper" style="max-width: 240px;">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="admin-login-search" class="search-field" placeholder="Search by name or email..." oninput="handleAdminLoginSearch()" />
+              </div>
+              <select id="admin-login-role-filter" class="select-field" onchange="loadAdminLoginHistory(this.value, document.getElementById('admin-login-search').value)"
+                style="width: auto; padding: 6px 12px; font-size: 0.85rem;">
+                <option value="all" selected>All Roles</option>
+                <option value="teacher">Teachers / Faculty</option>
+                <option value="student">Students / Scholars</option>
+                <option value="admin">Administrators</option>
+              </select>
+              <button class="btn btn-secondary btn-sm"
+                onclick="loadAdminLoginHistory(document.getElementById('admin-login-role-filter').value, document.getElementById('admin-login-search').value)"
+                title="Refresh Login History">
+                <i class="fa-solid fa-rotate"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Metrics Bar -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem; margin-bottom: 1.5rem;">
+            <div class="stat-card">
+              <div class="stat-label"><i class="fa-solid fa-right-to-bracket" style="color: var(--color-blue-bright); margin-right: 6px;"></i>Total Sign-ins</div>
+              <div class="stat-val" id="admin-login-stat-total">--</div>
+              <div class="stat-trend green" style="font-size: 0.78rem;">Platform activity log</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label"><i class="fa-solid fa-chalkboard-user" style="color: var(--color-purple); margin-right: 6px;"></i>Active Teachers</div>
+              <div class="stat-val" id="admin-login-stat-teachers">--</div>
+              <div class="stat-trend green" style="font-size: 0.78rem;">Faculty sessions</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label"><i class="fa-solid fa-graduation-cap" style="color: var(--color-cyan); margin-right: 6px;"></i>Active Students</div>
+              <div class="stat-val" id="admin-login-stat-students">--</div>
+              <div class="stat-trend green" style="font-size: 0.78rem;">Scholar sessions</div>
+            </div>
+          </div>
+
+          <!-- Logins Table Container -->
+          <div id="admin-logins-container"></div>
+        </section>
+
+        <!-- PANEL 1: Teacher Dashboard (STATS + ANALYTICS GRAPHS + ACTIVITY STREAM) -->
+        <section class="view-panel active" id="panel-teacher-dashboard">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title" id="teacher-dashboard-title">
+                <i class="fa-solid fa-gauge-high" style="color: var(--color-blue-bright);"></i>
+                <span id="teacher-welcome-name">Hello, Professor!</span>
+              </h2>
+              <p class="panel-subtitle">Faculty Analytics & Cohort Mastery Performance Overview</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('modal-create-classroom')">
+              <i class="fa-solid fa-plus"></i>
+              <span>New Classroom</span>
+            </button>
+          </div>
+
+          <div class="dash-stats-grid" style="margin-bottom: 1.5rem;">
+            <div class="stat-card">
+              <div class="stat-icon-box blue-bg">
+                <i class="fa-solid fa-school"></i>
+              </div>
+              <div>
+                <div class="stat-label">Total Classes</div>
+                <div class="stat-value" id="stat-total-classes">3</div>
+                <div class="stat-trend green"><i class="fa-solid fa-arrow-trend-up"></i> Active curriculum</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box green-bg">
+                <i class="fa-solid fa-users"></i>
+              </div>
+              <div>
+                <div class="stat-label">Total Students</div>
+                <div class="stat-value" id="stat-total-students">6</div>
+                <div class="stat-trend green"><i class="fa-solid fa-user-check"></i> Enrolled scholars</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box purple-bg">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
+              <div>
+                <div class="stat-label">Flashcard Decks</div>
+                <div class="stat-value" id="stat-total-decks">3</div>
+                <div class="stat-trend green"><i class="fa-solid fa-bolt"></i> Published modules</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box orange-bg">
+                <i class="fa-solid fa-award"></i>
+              </div>
+              <div>
+                <div class="stat-label">Avg Performance</div>
+                <div class="stat-value" id="stat-avg-performance">78%</div>
+                <div class="stat-trend green"><i class="fa-solid fa-arrow-trend-up"></i> Cohort mastery</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Class Analytics Visualizations (Contains Curves + Donut) -->
+          <div id="dashboard-analytics-container">
+            <!-- Rendered dynamically by teacher.js -->
+          </div>
+        </section>
+
+        <!-- PANEL 2: Teacher My Classes (WITH COURSE SEARCH BAR & ROSTER/CARDS CRUD) -->
+        <section class="view-panel" id="panel-teacher-myclasses">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-book-bookmark"></i> Course Curriculum & Rosters
+              </h2>
+              <p class="panel-subtitle">Filter cohorts, inspect student progress reports, and organize course
+                flashcards.</p>
+            </div>
+            <div class="search-field-wrapper">
+              <div class="input-group">
+                <i class="fa-solid fa-magnifying-glass input-icon-left"></i>
+                <input type="text" id="myclasses-search-input" class="input-field" placeholder="Search courses..."
+                  oninput="renderMyClassesPanel(this.value)" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Course Cards Grid -->
+          <div class="grid-cards" id="myclasses-grid">
+            <!-- Rendered by teacher.js -->
+          </div>
+
+          <!-- Active Course Detail (Enrolled Students + Flashcards CRUD for Selected Course) -->
+          <div id="myclasses-course-detail" style="margin-top: 2rem;">
+            <!-- Rendered dynamically when clicking a course -->
+          </div>
+        </section>
+
+        <!-- PANEL 3: Teacher Create Classroom -->
+        <section class="view-panel" id="panel-teacher-classrooms">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-chalkboard"></i> Active Classrooms
+              </h2>
+              <p class="panel-subtitle">Generate access codes and distribute course modules to students.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('modal-create-classroom')">
+              <i class="fa-solid fa-plus"></i>
+              <span>Create Classroom</span>
+            </button>
+          </div>
+
+          <div class="grid-cards" id="teacher-classrooms-grid"></div>
+        </section>
+
+        <!-- PANEL 4: Teacher Flashcards Generator -->
+        <section class="view-panel" id="panel-teacher-ai">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Academic Flashcard Generator
+              </h2>
+              <p class="panel-subtitle">Synthesize comprehensive question-and-answer pairs across academic domains.</p>
+            </div>
+          </div>
+
+          <div class="ai-prompt-studio">
+            <!-- Mode Switcher Tabs -->
+            <div class="ai-mode-tabs" style="display: flex; gap: 10px; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+              <button type="button" class="btn btn-secondary ai-mode-tab active" id="tab-btn-ai-topic" onclick="switchTeacherAIMode('topic')">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Topic Generator</span>
+              </button>
+              <button type="button" class="btn btn-secondary ai-mode-tab" id="tab-btn-ai-doc" onclick="switchTeacherAIMode('document')">
+                <i class="fa-solid fa-file-arrow-up"></i>
+                <span>Upload Document (PDF / TXT)</span>
+              </button>
+            </div>
+
+            <!-- Tab 1: Topic Prompt Form -->
+            <div id="teacher-ai-topic-form-container">
+              <form onsubmit="handleAIFlashcardGenerate(event)"
+                style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div>
+                  <label
+                    style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Academic
+                    Subject or Topic</label>
+                  <div class="input-group">
+                    <i class="fa-solid fa-book input-icon-left"></i>
+                    <input type="text" id="ai-topic-input" class="input-field"
+                      placeholder="e.g. Distributed Consensus in Cloud Systems" required />
+                  </div>
+                  <!-- Preset Topic Chips -->
+                  <div class="ai-preset-chips">
+                    <span class="ai-chip" onclick="setAIPresetTopic('Cloud Architecture & Microservices')"><i
+                        class="fa-solid fa-cloud"></i> Cloud Architecture</span>
+                    <span class="ai-chip" onclick="setAIPresetTopic('Cellular Respiration & ATP Cycle')"><i
+                        class="fa-solid fa-dna"></i> Cellular Respiration</span>
+                    <span class="ai-chip" onclick="setAIPresetTopic('Organic Chemistry Reaction Mechanisms')"><i
+                        class="fa-solid fa-flask"></i> Organic Chemistry</span>
+                    <span class="ai-chip" onclick="setAIPresetTopic('Quantum Mechanics Wave Functions')"><i
+                        class="fa-solid fa-atom"></i> Quantum Mechanics</span>
+                    <span class="ai-chip" onclick="setAIPresetTopic('Data Structures: Trees & Graphs')"><i
+                        class="fa-solid fa-code"></i> Data Structures</span>
+                  </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                  <div>
+                    <label
+                      style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Number
+                      of Flashcards</label>
+                    <div class="input-group">
+                      <i class="fa-solid fa-list-ol input-icon-left"></i>
+                      <input type="number" id="ai-count-input" class="input-field" min="1" max="20" value="5" required />
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Rigor
+                      & Mastery Level</label>
+                    <select id="ai-level-select" class="select-field">
+                      <option value="Basic Fundamentals">Basic Fundamentals</option>
+                      <option value="Intermediate Mastery" selected>Intermediate Mastery</option>
+                      <option value="Advanced Honors / AP">Advanced Honors / AP</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button type="submit" id="ai-generate-btn" class="btn btn-primary" style="align-self: flex-start;">
+                  <i class="fa-solid fa-bolt"></i>
+                  <span>Generate Flashcards</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Tab 2: Document Ingestion Form -->
+            <div id="teacher-ai-doc-form-container" style="display: none;">
+              <form onsubmit="handleTeacherDocumentUpload(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div class="doc-upload-dropzone" id="teacher-doc-dropzone" onclick="document.getElementById('teacher-doc-file-input').click()">
+                  <input type="file" id="teacher-doc-file-input" accept=".pdf,.txt" style="display: none;" onchange="handleTeacherDocFileChange(this)" />
+                  <div class="doc-upload-icon-wrapper" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(37, 99, 235, 0.08); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+                    <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.75rem; color: var(--color-blue-bright);"></i>
+                  </div>
+                  <h4 style="font-size: 1.05rem; font-weight: 700; color: var(--text-main); margin-bottom: 4px;" id="teacher-doc-upload-title">
+                    Click to browse or drop syllabus / lecture notes
+                  </h4>
+                  <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px;">
+                    Supported formats: <strong>PDF</strong> and <strong>TXT</strong> (Maximum file size: 10 MB)
+                  </p>
+                  <div id="teacher-doc-selected-badge" style="display: none;" class="doc-selected-badge"></div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                  <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Number of Flashcards</label>
+                    <div class="input-group">
+                      <i class="fa-solid fa-list-ol input-icon-left"></i>
+                      <input type="number" id="teacher-doc-count-input" class="input-field" min="1" max="20" value="6" required />
+                    </div>
+                  </div>
+                  <div>
+                    <label style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Mastery Rigor Level</label>
+                    <select id="teacher-doc-level-select" class="select-field">
+                      <option value="Basic Fundamentals">Basic Fundamentals</option>
+                      <option value="Intermediate Mastery" selected>Intermediate Mastery</option>
+                      <option value="Advanced Honors / AP">Advanced Honors / AP</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
+                  <input type="checkbox" id="teacher-doc-rag-toggle" checked style="width: 17px; height: 17px; cursor: pointer; accent-color: #7c3aed;" />
+                  <label for="teacher-doc-rag-toggle" style="cursor: pointer; font-size: 0.88rem; font-weight: 600; color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;">
+                    <span>Enable RAG Semantic Indexing & Page Citations</span>
+                    <span class="badge-rag-pill"><i class="fa-solid fa-brain"></i> RAG Grounded</span>
+                  </label>
+                </div>
+
+                <button type="submit" id="teacher-doc-submit-btn" class="btn btn-primary" style="align-self: flex-start;">
+                  <i class="fa-solid fa-file-import"></i>
+                  <span>Extract & Generate Flashcards</span>
+                </button>
+              </form>
+            </div>
+
+            <div id="ai-generated-result" style="display: none;"></div>
+          </div>
+        </section>
+
+        <!-- PANEL 5: Student Dashboard -->
+        <section class="view-panel" id="panel-student-dashboard">
+          <!-- Personalized Scholar Hero Banner & Target Goal Progress -->
+          <div id="student-dashboard-hero-banner"></div>
+
+          <div class="panel-header-row" style="margin-top: 1.5rem;">
+            <div>
+              <h2 class="panel-title" id="student-welcome-msg">
+                <i class="fa-solid fa-gauge-high"></i> Scholar Overview
+              </h2>
+              <p class="panel-subtitle">Your personal active recall metrics, joined subjects, and streak progress.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('modal-join-classroom')">
+              <i class="fa-solid fa-key"></i>
+              <span>Join Course with Code</span>
+            </button>
+          </div>
+
+          <div class="dash-stats-grid" style="margin-bottom: 2rem;">
+            <div class="stat-card">
+              <div class="stat-icon-box blue-bg">
+                <i class="fa-solid fa-school"></i>
+              </div>
+              <div>
+                <div class="stat-label">Joined Subjects</div>
+                <div class="stat-value" id="student-stat-classes">2</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box green-bg">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
+              <div>
+                <div class="stat-label">Completed Decks</div>
+                <div class="stat-value" id="student-stat-completed-decks">7 Decks</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box purple-bg">
+                <i class="fa-solid fa-bullseye"></i>
+              </div>
+              <div>
+                <div class="stat-label">Overall Accuracy</div>
+                <div class="stat-value" id="student-stat-accuracy">92%</div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon-box orange-bg">
+                <i class="fa-solid fa-fire"></i>
+              </div>
+              <div>
+                <div class="stat-label">Daily Streak</div>
+                <div class="stat-value" id="student-stat-streak">5 Days</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.25rem;">
+              <i class="fa-solid fa-book-open-reader" style="color: var(--color-blue-bright); margin-right: 8px;"></i>
+              My Joined Subjects
+            </h3>
+            <div class="grid-cards" id="student-dashboard-subjects"></div>
+          </div>
+        </section>
+
+        <!-- PANEL 6: Student Joined Classrooms -->
+        <section class="view-panel" id="panel-student-classrooms">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-school"></i> My Classrooms
+              </h2>
+              <p class="panel-subtitle">Access your courses and faculty study materials.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('modal-join-classroom')">
+              <i class="fa-solid fa-plus"></i>
+              <span>Join Classroom with Code</span>
+            </button>
+          </div>
+
+          <div class="grid-cards" id="student-classrooms-grid"></div>
+        </section>
+
+        <!-- PANEL 7: Student Decks -->
+        <section class="view-panel" id="panel-student-decks">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-layer-group"></i> Flashcard Decks
+              </h2>
+              <p class="panel-subtitle">Review active study decks or build your custom sets.</p>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <div class="search-field-wrapper">
+                <div class="input-group">
+                  <i class="fa-solid fa-magnifying-glass input-icon-left"></i>
+                  <input type="text" class="input-field" placeholder="Search decks..."
+                    oninput="handleStudentDeckSearch(this.value)" />
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Student Deck Filter Tabs -->
+          <div class="landing-filter-bar-wrapper" style="margin-bottom: 1.5rem;">
+            <div class="landing-filter-bar" style="justify-content: flex-start; margin-top: 0;">
+              <button class="landing-filter-btn active" id="filter-student-all"
+                onclick="activeClassroomIdFilter = null; renderStudentDecks('all')">
+                <i class="fa-solid fa-border-all"></i> All Decks
+              </button>
+              <button class="landing-filter-btn" id="filter-student-classroom"
+                onclick="activeClassroomIdFilter = null; renderStudentDecks('classroom')">
+                <i class="fa-solid fa-chalkboard"></i> Classroom Decks
+              </button>
+              <button class="landing-filter-btn" id="filter-student-custom"
+                onclick="activeClassroomIdFilter = null; renderStudentDecks('custom')">
+                <i class="fa-solid fa-file-lines"></i> My Notes & Custom
+              </button>
+            </div>
+          </div>
+
+          <div class="grid-cards" id="student-decks-grid"></div>
+        </section>
+
+        <!-- PANEL 8: Student Create Flashcards -->
+        <section class="view-panel" id="panel-student-create">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-pen-to-square"></i> Create a Study Deck
+              </h2>
+              <p class="panel-subtitle">Generate flashcards from lecture notes or enter terms manually.</p>
+            </div>
+          </div>
+
+          <div
+            style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2rem; max-width: 850px; margin: 0 auto; box-shadow: var(--shadow-main);">
+            <form onsubmit="handleGenerateFromStudyMaterial(event)"
+              style="margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-subtle);">
+              <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;">
+                <h3
+                  style="color: var(--color-blue-bright); font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                  <i class="fa-solid fa-file-invoice"></i> Study Notes AI Synthesizer
+                </h3>
+              </div>
+
+              <!-- Preset Sample Notes Chips -->
+              <div style="margin-bottom: 1.25rem;">
+                <label
+                  style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.85rem; color: var(--text-subtle);">Load
+                  Sample Academic Notes:</label>
+                <div class="sample-note-chips">
+                  <span class="sample-note-chip" onclick="loadSampleStudyNotes('cellular')"><i
+                      class="fa-solid fa-dna"></i> Cellular Respiration</span>
+                  <span class="sample-note-chip" onclick="loadSampleStudyNotes('distributed')"><i
+                      class="fa-solid fa-cloud"></i> Distributed Systems Consensus</span>
+                  <span class="sample-note-chip" onclick="loadSampleStudyNotes('memory')"><i
+                      class="fa-solid fa-brain"></i> Memory & Spaced Repetition</span>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 1.25rem;">
+                <label
+                  style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck
+                  Title / Concept Name</label>
+                <input type="text" id="study-material-title" class="input-field"
+                  placeholder="e.g. Cellular Respiration Lecture Notes" />
+              </div>
+
+              <div style="margin-bottom: 1.25rem;">
+                <label
+                  style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Paste
+                  Lecture Notes or Summary Text</label>
+                <textarea id="study-material-text" class="textarea-field" rows="5"
+                  placeholder="Paste study text, textbook sections, or summary concepts here..."></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Synthesize Flashcards</span>
+              </button>
+
+              <div id="study-material-questions-result" style="display: none; margin-top: 1.5rem;"></div>
+            </form>
+
+            <div>
+              <h3
+                style="color: var(--text-main); font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-pencil"></i> Create Flashcards Manually
+              </h3>
+              <form onsubmit="handleCreateManualDeck(event)">
+                <div
+                  style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                  <div>
+                    <label
+                      style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck
+                      Title</label>
+                    <input type="text" id="deck-title-input" class="input-field"
+                      placeholder="e.g. Organic Chemistry Reactions" required />
+                  </div>
+                  <div>
+                    <label
+                      style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject
+                      Tag</label>
+                    <input type="text" id="deck-subject-input" class="input-field" placeholder="Chemistry" required />
+                  </div>
+                </div>
+
+                <div id="manual-cards-container">
+                  <div class="manual-card-row"
+                    style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                      <span style="font-weight: 700; color: var(--color-blue-bright); font-size: 0.9rem;">Card #1</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                      <input type="text" class="input-field card-q-input" placeholder="Question Front..." required />
+                      <input type="text" class="input-field card-a-input" placeholder="Answer Back..." required />
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                  <button type="button" class="btn btn-secondary" onclick="addManualCardRow()">
+                    <i class="fa-solid fa-plus"></i> Add Card
+                  </button>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Manual Deck
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- PANEL 9: Student Daily Streaks Game -->
+        <section class="view-panel" id="panel-student-streaks">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-fire" style="color: var(--color-orange);"></i> Daily Mystery Word Challenge
+              </h2>
+              <p class="panel-subtitle">Unlock clues and solve the academic concept to build your streak.</p>
+            </div>
+          </div>
+
+          <div class="streak-arena-card">
+            <div class="streak-flame-badge">
+              <i class="fa-solid fa-fire-flame-curved"></i>
+              <span><strong id="streak-count-val">5</strong> Day Active Streak</span>
+            </div>
+
+            <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">Daily
+              Concept Challenge</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">Guess the single academic
+              term or concept connecting all revealed clues.</p>
+
+            <div class="clues-grid" id="clues-grid-container"></div>
+
+            <div style="display: flex; justify-content: center; margin-bottom: 1.5rem;">
+              <button class="btn btn-secondary" id="btn-next-clue" onclick="handleNextClue()">
+                <span>Unlock Next Clue</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+            </div>
+
+            <form onsubmit="handleStreakGuess(event)"
+              style="display: flex; gap: 12px; max-width: 500px; margin: 0 auto; flex-wrap: wrap;">
+              <input type="text" id="streak-guess-input" class="input-field" placeholder="Enter word guess..."
+                style="text-transform: uppercase; font-weight: bold; text-align: center; letter-spacing: 1px; flex: 1; min-width: 180px;"
+                required />
+              <button type="submit" id="streak-submit-btn" class="btn btn-primary"
+                style="flex-shrink: 0; min-width: 140px;">
+                <i class="fa-solid fa-paper-plane"></i>
+                <span>Submit Guess</span>
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- PANEL: Student Mistake Book -->
+        <section class="view-panel" id="panel-student-mistakes">
+          <div class="mistake-book-panel">
+            <!-- Header Row -->
+            <div class="mistake-header-row">
+              <div class="mistake-title-wrap">
+                <span class="mistake-book-emoji">ðŸ“•</span>
+                <div>
+                  <h2 class="mistake-title">Mistake Book</h2>
+                  <p class="mistake-subtitle">Targeted remediation for questions you missed during flashcard practice and exams.</p>
+                </div>
+              </div>
+              <button type="button" class="btn-review-mistakes" id="btn-review-my-mistakes" onclick="startReviewMyMistakes()">
+                <i class="fa-solid fa-arrow-rotate-left"></i>
+                <span>Review My Mistakes (<span id="mistakes-count-badge">0</span>)</span>
+              </button>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="mistake-filter-tabs">
+              <button type="button" class="mistake-tab-btn" id="filter-mistakes-all" onclick="filterMistakesByStatus('all')">
+                <i class="fa-solid fa-list-ul"></i>
+                <span>All Mistakes</span>
+              </button>
+              <button type="button" class="mistake-tab-btn active" id="filter-mistakes-needs_review" onclick="filterMistakesByStatus('needs_review')">
+                <i class="fa-solid fa-circle-exclamation" style="color: #ef4444;"></i>
+                <span>Needs Review</span>
+              </button>
+              <button type="button" class="mistake-tab-btn" id="filter-mistakes-resolved" onclick="filterMistakesByStatus('resolved')">
+                <i class="fa-solid fa-circle-check" style="color: var(--color-emerald);"></i>
+                <span>Resolved</span>
+              </button>
+            </div>
+
+            <!-- Controls Row: Topic Filter & Search -->
+            <div class="mistake-controls-row">
+              <select id="mistakes-topic-filter" class="select-field mistake-topic-select" onchange="handleMistakeTopicFilter(this.value)">
+                <option value="all">All Topics</option>
+              </select>
+
+              <div class="mistake-search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="mistakes-search-input" class="input-field mistake-search-input" placeholder="Search mistakes..." oninput="handleMistakeSearch(this.value)" />
+              </div>
+            </div>
+
+            <!-- Mistakes Cards List Container -->
+            <div id="mistakes-cards-container" class="mistakes-cards-list"></div>
+          </div>
+        </section>
+
+        <!-- PANEL 10: Profile Page -->
+        <section class="view-panel" id="panel-profile">
+          <div class="panel-header-row">
+            <div>
+              <h2 class="panel-title">
+                <i class="fa-solid fa-id-card"></i> Account Profile & Settings
+              </h2>
+              <p class="panel-subtitle">Manage your credential preferences, theme options, and profile details.</p>
+            </div>
+          </div>
+
+          <div style="max-width: 780px; margin: 0 auto;">
+            <!-- Profile Identity Banner -->
+            <div class="profile-identity-card">
+              <div class="user-avatar-large" style="width: 64px; height: 64px; font-size: 1.5rem;">
+                US
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <h2 style="font-size: 1.6rem; font-weight: 800; color: #ffffff;" id="profile-identity-name">User Name
+                  </h2>
+                  <span class="card-badge" style="background: rgba(255,255,255,0.2); color: #ffffff;">Verified
+                    Scholar</span>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--sidebar-text-muted);" id="profile-identity-email">
+                  user@domain.com</p>
+                <div class="profile-meta-grid">
+                  <div>
+                    <div
+                      style="font-size: 0.72rem; font-weight: 700; color: var(--sidebar-text-muted); text-transform: uppercase;">
+                      Status</div>
+                    <strong style="color: #60a5fa;">Active Member</strong>
+                  </div>
+                  <div>
+                    <div
+                      style="font-size: 0.72rem; font-weight: 700; color: var(--sidebar-text-muted); text-transform: uppercase;">
+                      Security</div>
+                    <strong style="color: var(--color-emerald);"><i class="fa-solid fa-shield-check"></i>
+                      Encrypted</strong>
+                  </div>
+                  <div>
+                    <div
+                      style="font-size: 0.72rem; font-weight: 700; color: var(--sidebar-text-muted); text-transform: uppercase;">
+                      Joined</div>
+                    <strong style="color: #ffffff;">2026 Academic Term</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Profile Settings Form Card -->
+            <div
+              style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-main);">
+              <form onsubmit="handleUpdateProfile(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <div>
+                  <label
+                    style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Full
+                    Name</label>
+                  <div class="input-group">
+                    <i class="fa-solid fa-user input-icon-left"></i>
+                    <input type="text" id="profile-name-input" class="input-field" required />
+                  </div>
+                </div>
+                <div>
+                  <label
+                    style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Email
+                    Address</label>
+                  <div class="input-group">
+                    <i class="fa-solid fa-envelope input-icon-left"></i>
+                    <input type="email" id="profile-email-input" class="input-field" required />
+                  </div>
+                </div>
+                <div>
+                  <label
+                    style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">New
+                    Password (optional)</label>
+                  <div class="input-group">
+                    <i class="fa-solid fa-key input-icon-left"></i>
+                    <input type="password" id="profile-password-input" class="input-field"
+                      placeholder="Leave blank to keep existing password" />
+                  </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 0.5rem; flex-wrap: wrap;">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Save Profile Changes</span>
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="toggleTheme()">
+                    <i class="fa-solid fa-circle-half-stroke"></i>
+                    <span>Switch Theme Mode</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+

@@ -1,0 +1,185 @@
+﻿  <section class="auth-cosmic-viewport" id="auth-view" style="display: none;">
+    <!-- Ambient Animated Mesh Glow Orbs -->
+    <div class="cosmic-orb orb-primary"></div>
+    <div class="cosmic-orb orb-secondary"></div>
+    <div class="cosmic-orb orb-tertiary"></div>
+    <div class="cosmic-grid-overlay"></div>
+
+    <div class="auth-obsidian-card">
+      <!-- Top Laser Light Accent Bar -->
+      <div class="laser-light-bar"></div>
+
+
+
+      <!-- Floating Holographic Brand Header -->
+      <div class="auth-brand-header">
+        <div class="auth-brand-logo-glow" onclick="showLandingView()" title="Return to Platform Overview">
+          <img src="images/memoflip_logo.png" alt="FlashLearn Logo" />
+        </div>
+
+        <p class="auth-brand-tagline">Active Recall Spaced Repetition & Academic Analytics</p>
+      </div>
+
+      <!-- Futuristic Segmented Tab Switcher -->
+      <div class="auth-cyber-tabs">
+        <button type="button" class="auth-cyber-tab active" id="tab-btn-login" onclick="toggleAuthTab('login')">
+          <i class="fa-solid fa-right-to-bracket"></i> Sign In
+        </button>
+        <button type="button" class="auth-cyber-tab" id="tab-btn-reg" onclick="toggleAuthTab('register')">
+          <i class="fa-solid fa-user-plus"></i> Create Account
+        </button>
+      </div>
+
+      <!-- Sign In Form -->
+      <form id="auth-login-form" onsubmit="handleLogin(event)" class="auth-cyber-form">
+        <!-- Google Continue Button -->
+        <button type="button" class="btn-google-auth" id="btn-google-signin" onclick="initiateGoogleSignIn()">
+          <svg class="google-icon-svg" viewBox="0 0 24 24">
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <div class="auth-divider-cyber">
+          <span class="auth-divider-line"></span>
+          <span class="auth-divider-text">OR</span>
+          <span class="auth-divider-line"></span>
+        </div>
+
+        <div class="form-group-cyber">
+          <label class="form-label-cyber" id="login-email-label">Work / Institutional Email</label>
+          <div class="input-cyber-wrapper">
+            <i class="fa-solid fa-envelope input-icon-neon"></i>
+            <input type="email" id="login-email" class="input-cyber" placeholder="scholar@domain.edu" required />
+          </div>
+        </div>
+
+        <div class="form-group-cyber">
+          <div class="form-label-cyber-row">
+            <label class="form-label-cyber">Secure Password</label>
+          </div>
+          <div class="input-cyber-wrapper">
+            <i class="fa-solid fa-lock input-icon-neon"></i>
+            <input type="password" id="login-password" class="input-cyber" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required />
+            <i class="fa-solid fa-eye input-eye-neon" id="login-pwd-eye"
+              onclick="togglePasswordVisibility('login-password', 'login-pwd-eye')"
+              title="Toggle Password Visibility"></i>
+          </div>
+        </div>
+
+        <div class="form-options-row">
+          <label class="checkbox-cyber-label">
+            <input type="checkbox" checked class="checkbox-cyber" />
+            <span>Remember this device</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-cyber-primary">
+          <span class="btn-shimmer"></span>
+          <i class="fa-solid fa-right-to-bracket"></i>
+          <span>Sign In to FlashLearn</span>
+        </button>
+      </form>
+
+      <!-- Registration Form -->
+      <form id="auth-reg-form" onsubmit="handleRegister(event)" class="auth-cyber-form" style="display: none;">
+        <!-- Role Selection (Student vs Teacher) -->
+        <div class="form-group-cyber">
+          <label class="form-label-cyber">Register As</label>
+          <div class="auth-role-tabs">
+            <button type="button" class="auth-role-tab active" id="reg-role-student" onclick="selectRegRole('student')">
+              <i class="fa-solid fa-graduation-cap"></i>
+              <span>Student</span>
+            </button>
+            <button type="button" class="auth-role-tab" id="reg-role-teacher" onclick="selectRegRole('teacher')">
+              <i class="fa-solid fa-chalkboard-user"></i>
+              <span>Teacher</span>
+            </button>
+          </div>
+          <input type="hidden" id="reg-selected-role" value="student" />
+          <p id="reg-role-hint" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px;">Standard scholar
+            access to classrooms, study decks, and streaks.</p>
+        </div>
+
+        <!-- Google Continue Button -->
+        <button type="button" class="btn-google-auth" id="btn-google-reg" onclick="initiateGoogleSignIn()">
+          <svg class="google-icon-svg" viewBox="0 0 24 24">
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <div class="auth-divider-cyber">
+          <span class="auth-divider-line"></span>
+          <span class="auth-divider-text">OR</span>
+          <span class="auth-divider-line"></span>
+        </div>
+
+        <div class="form-group-cyber">
+          <label class="form-label-cyber">Full Legal Name</label>
+          <div class="input-cyber-wrapper">
+            <i class="fa-solid fa-user input-icon-neon"></i>
+            <input type="text" id="reg-name" class="input-cyber" placeholder="e.g. Eleanor Vance" required />
+          </div>
+        </div>
+
+        <div class="form-group-cyber">
+          <label class="form-label-cyber" id="reg-email-label">Institutional Email</label>
+          <div class="input-cyber-wrapper">
+            <i class="fa-solid fa-envelope input-icon-neon"></i>
+            <input type="email" id="reg-email" class="input-cyber" placeholder="name@domain.edu" required />
+          </div>
+        </div>
+
+        <div class="form-group-cyber">
+          <label class="form-label-cyber">Create Master Password</label>
+          <div class="input-cyber-wrapper">
+            <i class="fa-solid fa-key input-icon-neon"></i>
+            <input type="password" id="reg-password" class="input-cyber"
+              placeholder="Min. 6 chars (letters, numbers & symbols)" minlength="6" required />
+            <i class="fa-solid fa-eye input-eye-neon" id="reg-pwd-eye"
+              onclick="togglePasswordVisibility('reg-password', 'reg-pwd-eye')" title="Toggle Password Visibility"></i>
+          </div>
+        </div>
+        <div class="form-group-cyber">
+          <label class="form-label-cyber">Confirm Master Password</label>
+          <div class="input-cyber-wrapper">
+            <i class="fa-solid fa-check-double input-icon-neon"></i>
+            <input type="password" id="reg-confirm-password" class="input-cyber" placeholder="Repeat your password"
+              minlength="6" required />
+          </div>
+          <div></div>
+        </div>
+
+
+        <button type="submit" class="btn-cyber-primary">
+          <span class="btn-shimmer"></span>
+          <i class="fa-solid fa-user-plus"></i>
+          <span>Create Account</span>
+        </button>
+      </form>
+
+      <!-- Return Footer -->
+      <div class="auth-cyber-footer">
+        <a onclick="showLandingView()" class="cyber-return-link">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Return to Platform Overview</span>
+        </a>
+      </div>
+    </div>
+  </section>
+

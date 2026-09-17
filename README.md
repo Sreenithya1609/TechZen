@@ -147,7 +147,11 @@ Public registrations via `/api/auth/register` validate input types, name, email 
 
 ```text
 app.py                    Flask application entry point & AI endpoints
-index.html                Single-page frontend shell & Admin portal
+index.html                Frontend shell that loads the page fragments
+pages/landing.html        Landing page fragment
+pages/auth.html           Authentication page fragment
+pages/dashboard.html      Dashboard and workspace panels
+pages/modals.html         Shared modal dialogs and study overlays
 css/styles.css            Application styling & themes
 js/app.js                 Global state, authentication, admin request handlers
 js/landing.js             Landing page carousel

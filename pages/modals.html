@@ -1,0 +1,523 @@
+﻿  <!-- ================= MODALS ================= -->
+  <div class="modal-backdrop" id="modal-forgot-password">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-key" style="color: var(--color-blue-bright);"></i><span>Reset Password</span></h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-forgot-password')"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="handleForgotPassword(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+        <p style="color: var(--text-muted);">Enter your account email and we will send reset instructions.</p>
+        <input type="email" id="forgot-password-email" class="input-field" placeholder="name@domain.edu" required />
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i><span>Send Reset
+            Link</span></button>
+      </form>
+    </div>
+  </div>
+  <div class="modal-backdrop" id="modal-reset-password">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-lock" style="color: var(--color-blue-bright);"></i><span>Choose New Password</span>
+        </h2><button class="modal-close-btn" onclick="closeModal('modal-reset-password')"><i
+            class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="handleResetPassword(event)" style="display: flex; flex-direction: column; gap: 1rem;">
+        <input type="password" id="reset-password" class="input-field" placeholder="New password" minlength="6"
+          required />
+        <input type="password" id="reset-confirm-password" class="input-field" placeholder="Confirm new password"
+          minlength="6" required />
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-check"></i><span>Reset
+            Password</span></button>
+      </form>
+    </div>
+  </div>
+  <!-- Student Progress Report Modal -->
+  <div class="modal-backdrop" id="modal-student-report">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-clipboard-user" style="color: var(--color-blue-bright);"></i>
+          <span>Student Mastery Report</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-student-report')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="student-report-content"></div>
+    </div>
+  </div>
+
+  <!-- Edit Deck Modal -->
+  <div class="modal-backdrop" id="modal-edit-deck">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-pen-to-square" style="color: var(--color-blue-bright);"></i>
+          <span>Edit Flashcard Deck</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-edit-deck')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form onsubmit="handleSaveEditedDeck(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div>
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck
+            Title</label>
+          <input type="text" id="edit-deck-title" class="input-field" required />
+        </div>
+        <div>
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject
+            Tag</label>
+          <input type="text" id="edit-deck-subject" class="input-field" required />
+        </div>
+        <div>
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Deck
+            Flashcards</label>
+          <div id="edit-deck-cards-container"
+            style="max-height: 280px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; background: var(--bg-card-subtle);">
+            <!-- Dynamic cards rendered here -->
+          </div>
+        </div>
+        <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-deck')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Save Changes</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Create Classroom Modal -->
+  <div class="modal-backdrop" id="modal-create-classroom">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-school" style="color: var(--color-blue-bright);"></i>
+          <span>Create Classroom</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-create-classroom')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form onsubmit="handleCreateClassroom(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div>
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Course
+            Title</label>
+          <input type="text" id="new-class-name" class="input-field" placeholder="e.g. Distributed Systems 201"
+            required />
+        </div>
+        <div>
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Subject
+            Tag</label>
+          <input type="text" id="new-class-subject" class="input-field" placeholder="e.g. Computer Science" required />
+        </div>
+        <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create-classroom')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-key"></i>
+            <span>Create & Generate Code</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Daily Streak Challenge Modal -->
+  <div class="modal-backdrop" id="modal-streak-challenge">
+    <div class="modal-card" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-fire" style="color: var(--color-rose);"></i>
+          <span>Daily Streak Challenge</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-streak-challenge')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Answer this random daily question correctly to keep your
+          study streak active!</p>
+
+        <div id="streak-question-box"
+          style="background: var(--bg-card-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); min-height: 80px; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 700; font-size: 1rem; color: var(--text-main);">
+          Loading challenge question...
+        </div>
+
+        <div id="streak-answer-input-container">
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Your
+            Answer</label>
+          <input type="text" id="streak-challenge-answer" class="input-field" placeholder="Type your answer here..."
+            required />
+        </div>
+
+        <div id="streak-feedback-box"
+          style="display: none; padding: 10px 14px; border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 600;">
+        </div>
+
+        <div style="display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" id="btn-streak-view-solution"
+            onclick="handleViewStreakSolution()" style="display: none;">
+            <i class="fa-solid fa-eye"></i> View Solution
+          </button>
+          <div style="display: flex; gap: 10px; margin-left: auto;">
+            <button type="button" class="btn btn-secondary"
+              onclick="closeModal('modal-streak-challenge')">Close</button>
+            <button type="button" class="btn btn-primary" id="btn-streak-submit" onclick="handleSubmitStreakAnswer()">
+              <i class="fa-solid fa-paper-plane"></i> Submit Answer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Join Classroom Modal -->
+  <div class="modal-backdrop" id="modal-join-classroom">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-right-to-bracket" style="color: var(--color-blue-bright);"></i>
+          <span>Join Classroom</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-join-classroom')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form onsubmit="handleJoinClassroom(event)" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <div>
+          <label
+            style="display: block; margin-bottom: 6px; font-weight: 700; font-size: 0.9rem; color: var(--text-main);">Classroom
+            Access Code</label>
+          <input type="text" id="join-class-code" class="input-field" placeholder="e.g. BIO101X"
+            style="font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 1px;" required />
+        </div>
+        <div style="margin-top: 1rem; display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-join-classroom')">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-check"></i>
+            <span>Join Course</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3D PRACTICE FLASHCARD SESSION MODAL -->
+  <div class="modal-backdrop" id="modal-study-session">
+    <div class="modal-card" style="max-width: 760px;">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-brain" style="color: var(--color-blue-bright);"></i>
+          <span id="study-modal-deck-title">Practice Flashcards</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-study-session')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="study-viewport">
+        <div class="study-progress-container">
+          <div class="study-stats-row">
+            <span id="study-card-counter">Card 1 of 5</span>
+            <span id="study-cards-remaining">5 cards remaining</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="study-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="card-flip-container" id="study-flip-card" onclick="studyEngine.flipCard()">
+          <div class="card-flip-inner">
+            <div class="card-flip-front">
+              <div
+                style="font-size: 0.78rem; font-weight: 700; color: var(--color-blue-bright); text-transform: uppercase; letter-spacing: 0.5px;">
+                Question / Concept</div>
+              <div class="card-question-text" id="card-question-display">Loading question...</div>
+              <div class="card-flip-hint">
+                <i class="fa-solid fa-arrows-rotate"></i> Tap card or press Space to flip
+              </div>
+            </div>
+            <div class="card-flip-back">
+              <div
+                style="font-size: 0.78rem; font-weight: 700; color: var(--color-cyan); text-transform: uppercase; letter-spacing: 0.5px;">
+                Explanation / Answer</div>
+              <div class="card-answer-text" id="card-answer-display">Loading answer...</div>
+              <div class="card-flip-hint">
+                <i class="fa-solid fa-arrows-rotate"></i> Tap card or press Space to flip back
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI ACTIVE RECALL ASSISTANT (HINT & CHECK ANSWER) -->
+        <div class="ai-study-panel" id="study-ai-panel">
+          <div class="ai-study-input-row">
+            <textarea id="study-answer-input" class="input-field study-answer-textarea" 
+              placeholder="Type your recall answer here to verify before flipping..." 
+              rows="2"></textarea>
+          </div>
+          
+          <div class="ai-study-actions">
+            <button type="button" class="btn btn-secondary ai-hint-btn" id="study-ai-hint-btn" onclick="studyEngine.requestAIHint()">
+              <i class="fa-solid fa-robot" style="color: var(--color-blue-bright);"></i>
+              <span>AI Hint</span>
+            </button>
+            <button type="button" class="btn btn-primary ai-check-btn" id="study-check-answer-btn" onclick="studyEngine.checkStudentAnswer()">
+              <i class="fa-solid fa-pen-fancy"></i>
+              <span>Check My Answer</span>
+            </button>
+            <button type="button" class="btn btn-secondary" id="study-manual-flip-btn" onclick="studyEngine.flipCard()" title="Flip Flashcard">
+              <i class="fa-solid fa-arrows-rotate"></i>
+              <span>Flip Card</span>
+            </button>
+          </div>
+
+          <!-- Dynamic Socratic Hint Container -->
+          <div id="study-ai-hint-container" class="ai-hint-box" style="display: none;"></div>
+
+          <!-- Dynamic Evaluation Result Container -->
+          <div id="study-ai-eval-container" class="ai-eval-box" style="display: none;"></div>
+        </div>
+
+        <div class="study-controls" id="study-active-controls">
+          <button class="btn btn-danger" onclick="studyEngine.markCard('review')" style="flex: 1;">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span>Review Again</span>
+          </button>
+          <button class="btn btn-secondary" onclick="studyEngine.shuffleCards()" title="Shuffle order">
+            <i class="fa-solid fa-shuffle"></i>
+            <span>Shuffle</span>
+          </button>
+          <button class="btn btn-success" onclick="studyEngine.markCard('know')" style="flex: 1;">
+            <i class="fa-solid fa-check"></i>
+            <span>Know It</span>
+          </button>
+        </div>
+
+        <div id="study-summary-view" style="display: none; width: 100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI CLASSROOM DIAGNOSIS MODAL -->
+  <div class="modal-backdrop" id="modal-classroom-diagnosis">
+    <div class="modal-card" style="max-width: 720px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-stethoscope" style="color: #7c3aed;"></i>
+          <span id="diagnosis-modal-title">Classroom Performance Diagnosis</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-classroom-diagnosis')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="diagnosis-loading" style="text-align: center; padding: 2.5rem;">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: #7c3aed; margin-bottom: 0.75rem;"></i>
+        <p style="font-size: 0.95rem; color: var(--text-muted);">Analyzing cohort mastery & synthesizing pedagogical diagnosis...</p>
+      </div>
+
+      <div id="diagnosis-content" style="display: none; flex-direction: column; gap: 1.25rem;">
+        <!-- Top Metrics Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+          <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: var(--radius-lg); text-align: center;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Class Mastery</div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: var(--color-emerald); margin-top: 4px;" id="diag-stat-accuracy">--%</div>
+          </div>
+          <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: var(--radius-lg); text-align: center;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Scholars</div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: var(--text-main); margin-top: 4px;" id="diag-stat-students">0</div>
+          </div>
+          <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1rem; border-radius: var(--radius-lg); text-align: center;">
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Attention Needed</div>
+            <div style="font-size: 1.75rem; font-weight: 800; color: #ef4444; margin-top: 4px;" id="diag-stat-weak-students">0</div>
+          </div>
+        </div>
+
+        <!-- Strong vs Weak Topics -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="diagnosis-topics-grid">
+          <!-- Strong Topics -->
+          <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: var(--radius-lg); padding: 1rem;">
+            <h4 style="font-size: 0.9rem; font-weight: 800; color: #059669; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+              <i class="fa-solid fa-circle-check"></i> Strong Topics (&ge; 75%)
+            </h4>
+            <div id="diag-strong-topics-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+          </div>
+
+          <!-- Needs Improvement -->
+          <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-lg); padding: 1rem;">
+            <h4 style="font-size: 0.9rem; font-weight: 800; color: #dc2626; display: flex; align-items: center; gap: 6px; margin-bottom: 8px;">
+              <i class="fa-solid fa-triangle-exclamation"></i> Needs Improvement (&lt; 60%)
+            </h4>
+            <div id="diag-weak-topics-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+          </div>
+        </div>
+
+        <!-- AI Pedagogical Diagnosis Banner -->
+        <div style="background: var(--bg-card-subtle); border: 1px solid rgba(124, 58, 237, 0.3); border-left: 4px solid #7c3aed; border-radius: var(--radius-lg); padding: 1.25rem;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <i class="fa-solid fa-robot" style="color: #7c3aed; font-size: 1.1rem;"></i>
+            <h4 style="font-size: 0.95rem; font-weight: 800; color: #7c3aed;">AI Classroom Diagnosis</h4>
+          </div>
+          <p id="diag-ai-text" style="font-size: 0.92rem; color: var(--text-main); line-height: 1.5; margin-bottom: 12px;"></p>
+
+          <div style="border-top: 1px dashed rgba(124, 58, 237, 0.25); padding-top: 10px;">
+            <div style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">
+              <i class="fa-solid fa-lightbulb" style="color: #f59e0b;"></i> Actionable Teaching Recommendations:
+            </div>
+            <p id="diag-rec-text" style="font-size: 0.9rem; color: var(--text-main); line-height: 1.5; margin-bottom: 8px;"></p>
+            <ul id="diag-action-steps" style="font-size: 0.88rem; color: var(--text-muted); padding-left: 1.25rem; line-height: 1.5;"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MCQ PRACTICE QUIZ MODAL -->
+  <div class="modal-backdrop" id="modal-practice-quiz">
+    <div class="modal-card" style="max-width: 680px;">
+      <div class="modal-header">
+        <h2>
+          <i class="fa-solid fa-list-check" style="color: var(--color-blue-bright);"></i>
+          <span id="quiz-modal-title">Practice Quiz</span>
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-practice-quiz')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="quiz-viewport" id="quiz-viewport-container" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        <!-- Header status and progress -->
+        <div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px;">
+            <span id="quiz-counter-text">Question 1 of 5</span>
+            <span id="quiz-score-tracker" style="color: var(--color-blue-bright);">Score: 0 / 0</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="quiz-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Active Question Box -->
+        <div id="quiz-active-question-wrapper" style="display: flex; flex-direction: column; gap: 1rem;">
+          <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-lg);">
+            <span style="font-size: 0.78rem; font-weight: 700; color: var(--color-blue-bright); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Multiple Choice Question</span>
+            <div id="quiz-question-display" style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); line-height: 1.45;">Loading question...</div>
+          </div>
+
+          <!-- 4 Options Grid -->
+          <div class="quiz-options-list" id="quiz-options-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+
+          <!-- Dynamic Explanation / Feedback -->
+          <div id="quiz-feedback-box" class="quiz-feedback-banner" style="display: none;"></div>
+
+          <!-- Next Button -->
+          <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
+            <button type="button" class="btn btn-primary" id="quiz-next-btn" style="display: none;" onclick="quizRunner.nextQuestion()">
+              <span>Next Question</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quiz Completion View -->
+        <div id="quiz-summary-container" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Mistake Targeted Remediation -->
+  <div class="modal-backdrop" id="modal-mistake-remediate">
+    <div class="modal-card" style="max-width: 620px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.3rem;">ðŸŽ¯</span>
+          <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--text-main);">Targeted Recall Remediation</h2>
+        </div>
+        <button type="button" class="modal-close-btn" onclick="closeModal('modal-mistake-remediate')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-mistake-remediate-body" style="padding: 1.5rem;">
+        <!-- Content injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Google Setup & Testing Modal -->
+  <div class="modal-backdrop" id="modal-google-setup">
+    <div class="modal-card" style="max-width: 540px;">
+      <div class="modal-header">
+        <h2>
+          <svg viewBox="0 0 24 24" width="22" height="22" style="vertical-align: middle; margin-right: 8px;">
+            <path fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+            <path fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+          </svg>
+          Google Authentication Setup
+        </h2>
+        <button class="modal-close-btn" onclick="closeModal('modal-google-setup')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body"
+        style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.92rem; color: var(--text-muted); line-height: 1.5;">
+        <div
+          style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 10px; padding: 0.85rem 1rem;">
+          <p style="color: var(--text-main); font-weight: 600; margin-bottom: 4px;">
+            <i class="fa-solid fa-circle-info" style="color: #38bdf8; margin-right: 6px;"></i> Google Client ID Not
+            Configured
+          </p>
+          <p style="font-size: 0.86rem;">
+            Code integration is 100% active! To connect your official Google account, add your Google OAuth Client ID
+            into the project's <code>.env</code> file.
+          </p>
+        </div>
+
+        <div>
+          <h4 style="color: var(--text-main); font-size: 0.95rem; margin-bottom: 0.5rem;">How to get your Client ID (3
+            minutes):</h4>
+          <ol style="margin-left: 1.25rem; font-size: 0.85rem; display: flex; flex-direction: column; gap: 6px;">
+            <li>Visit <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener"
+                style="color: var(--color-blue-bright); text-decoration: underline;">Google Cloud Console
+                Credentials</a>.</li>
+            <li>Create an <strong>OAuth 2.0 Client ID</strong> (Application Type: <em>Web application</em>).</li>
+            <li>Add Authorized JavaScript origin: <code>http://localhost:5000</code> and
+              <code>http://127.0.0.1:5000</code>.
+            </li>
+            <li>Copy your <strong>Client ID</strong> and paste into <code>.env</code>: <code>GOOGLE_CLIENT_ID=...</code>
+            </li>
+          </ol>
+        </div>
+
+        <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+          <button type="button" class="btn btn-primary" onclick="loginWithGoogleDemoAccount()"
+            style="width: 100%; justify-content: center; height: 44px;">
+            <i class="fa-brands fa-google"></i>
+            <span>Test with Demo Google Profile (Instant Preview)</span>
+          </button>
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-google-setup')"
+            style="width: 100%; justify-content: center;">
+            Dismiss
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container"></div>
+
