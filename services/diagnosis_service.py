@@ -203,22 +203,16 @@ Respond ONLY with a JSON object in this exact schema:
 }}"""
 
     try:
-        model = os.environ.get('GEMINI_MODEL', 'gemini-3.6-flash')
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={os.environ.get('GEMINI_API_KEY')}"
-        payload = json.dumps({
-            'contents': [{'parts': [{'text': prompt}]}],
-            'generationConfig': {'responseMimeType': 'application/json'}
-        }).encode('utf-8')
-        req = urllib_request.Request(url, data=payload, headers={'Content-Type': 'application/json'}, method='POST')
-        with urllib_request.urlopen(req, timeout=15) as resp:
-            data = json.loads(resp.read().decode('utf-8'))
-            text = data['candidates'][0]['content']['parts'][0]['text']
+        from services.ai_service import call_gemini_api
+        text, err = call_gemini_api(prompt, response_mime_type="application/json", timeout=20)
+        if not err and text:
             res_json = json.loads(text)
             if isinstance(res_json, dict) and 'diagnosis' in res_json and 'recommendation' in res_json:
                 return res_json
     except Exception:
         pass
     return None
+
 
 
 def _generate_offline_diagnosis(subject, avg_score, strong_list, needs_improvement, weak_count):

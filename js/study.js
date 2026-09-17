@@ -14,18 +14,9 @@ class StudyEngine {
   startSession(deckId) {
     let deck = state.data.decks.find(d => d.id === deckId);
     
-    // Fallback search by title or create simulated deck if needed
     if (!deck) {
-      deck = {
-        id: deckId || 'deck-demo',
-        title: 'Academic Flashcard Deck',
-        subject: 'General',
-        cards: [
-          { question: 'What is Active Recall in learning psychology?', answer: 'The practice of testing memory retention by stimulating mind retrieval during learning.' },
-          { question: 'How does Spaced Repetition enhance long-term memory?', answer: 'By reviewing study material at increasing time intervals to interrupt forgetting curves.' },
-          { question: 'What are the benefits of flashcard-based self-testing?', answer: 'Immediate feedback, active engagement, and targeted mastery of weak topics.' }
-        ]
-      };
+      showToast('Flashcard deck not found.', 'error');
+      return;
     }
 
     if (!deck.cards || deck.cards.length === 0) {

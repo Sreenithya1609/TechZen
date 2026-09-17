@@ -358,27 +358,20 @@ Respond ONLY with a JSON array in this exact schema:
 ]"""
 
     try:
-        model = os.environ.get('GEMINI_MODEL', 'gemini-3.6-flash')
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={os.environ.get('GEMINI_API_KEY')}"
-        payload = json.dumps({
-            'contents': [{'parts': [{'text': prompt}]}],
-            'generationConfig': {'responseMimeType': 'application/json'}
-        }).encode('utf-8')
-        req = urllib_request.Request(url, data=payload, headers={'Content-Type': 'application/json'}, method='POST')
-        with urllib_request.urlopen(req, timeout=30) as resp:
-            data = json.loads(resp.read().decode('utf-8'))
-            text = data['candidates'][0]['content']['parts'][0]['text']
+        from services.ai_service import call_gemini_api
+        text, err = call_gemini_api(prompt, response_mime_type="application/json", timeout=30)
+        if not err and text:
             cards = json.loads(text)
             if isinstance(cards, list) and len(cards) > 0:
                 for c in cards:
                     if 'source_citation' not in c or not c['source_citation']:
                         p = c.get('page_number', 1)
-                        q = c.get('citation_quote', '')
-                        c['source_citation'] = f'Page {p}: "{q}"' if q else f'Page {p}'
-                return cards[:count]
+                        c['source_citation'] = f"Page {p}: \"{c.get('citation_quote', '')[:100]}\""
+                return cards
     except Exception:
         pass
     return None
+
 
 
 def _extract_flashcards_offline(chunks, count=6, level='Intermediate Mastery'):
@@ -502,22 +495,17 @@ Question:
 {query_text}"""
 
         try:
-            model = os.environ.get('GEMINI_MODEL', 'gemini-3.6-flash')
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-            payload = json.dumps({
-                'contents': [{'parts': [{'text': prompt}]}]
-            }).encode('utf-8')
-            req = urllib_request.Request(url, data=payload, headers={'Content-Type': 'application/json'}, method='POST')
-            with urllib_request.urlopen(req, timeout=20) as resp:
-                data = json.loads(resp.read().decode('utf-8'))
-                answer_text = data['candidates'][0]['content']['parts'][0]['text'].strip()
+            from services.ai_service import call_gemini_api
+            answer_text, err = call_gemini_api(prompt, response_mime_type="text/plain", timeout=20)
+            if not err and answer_text:
                 return {
-                    'answer': answer_text,
+                    'answer': answer_text.strip(),
                     'citations': citations,
                     'query': query_text
                 }
         except Exception:
             pass
+
 
     # Offline Grounded Synthesis
     best_chunk = top_chunks[0]

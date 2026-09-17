@@ -137,6 +137,37 @@ def record_study_result():
             last_reviewed = CURRENT_TIMESTAMP
     ''', (prog_id, user_id, card_id, classroom_id, is_known, is_review))
     
+    # 2c. Log into student_mistakes for targeted remediation in Mistake Book
+    if result == 'review':
+        cursor.execute('''
+            SELECT c.id, c.deck_id, c.question, c.answer, d.title as deck_title, d.subject
+            FROM cards c
+            LEFT JOIN decks d ON c.deck_id = d.id
+            WHERE c.id = ?
+        ''', (card_id,))
+        card_info = cursor.fetchone()
+        if card_info:
+            mistake_id = f"mst-{user_id}-{card_id}"
+            cursor.execute('''
+                INSERT INTO student_mistakes (
+                    id, user_id, card_id, deck_id, deck_title, subject, question, answer, source, missed_count, status, last_missed_at, resolved_at
+                ) VALUES (
+                    ?, ?, ?, ?, ?, ?, ?, ?, 'practice', 1, 'needs_review', CURRENT_TIMESTAMP, NULL
+                )
+                ON CONFLICT(user_id, card_id) DO UPDATE SET
+                    missed_count = student_mistakes.missed_count + 1,
+                    status = 'needs_review',
+                    resolved_at = NULL,
+                    last_missed_at = CURRENT_TIMESTAMP,
+                    deck_title = COALESCE(excluded.deck_title, student_mistakes.deck_title),
+                    subject = COALESCE(excluded.subject, student_mistakes.subject)
+            ''', (
+                mistake_id, user_id, card_id, card_info['deck_id'],
+                card_info['deck_title'] or 'Academic Deck',
+                card_info['subject'] or 'General',
+                card_info['question'], card_info['answer']
+            ))
+
     # 3. Log daily study date for streaks (if not already logged today)
     from services.streak_service import record_study_activity
     record_study_activity(user_id)

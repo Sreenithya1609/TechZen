@@ -117,6 +117,14 @@ function renderStudentDashboard() {
     }
   }
 
+  // Update Mistake Book nav badge
+  const unresolvedMistakesCount = state.data.unresolvedMistakesCount || 0;
+  const mistakeNavBadge = document.getElementById('nav-mistakes-badge');
+  if (mistakeNavBadge) {
+    mistakeNavBadge.textContent = unresolvedMistakesCount;
+    mistakeNavBadge.style.display = unresolvedMistakesCount > 0 ? 'inline-block' : 'none';
+  }
+
   // Render Scholar Welcome Hero Banner
   const heroBannerContainer = document.getElementById('student-dashboard-hero-banner');
   if (heroBannerContainer) {
@@ -142,6 +150,32 @@ function renderStudentDashboard() {
       </div>
 
       ${teacherStatusHTML}
+
+      ${unresolvedMistakesCount > 0 ? `
+        <div class="scholar-mistake-widget">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(239, 68, 68, 0.15); color: var(--color-rose); display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+              <span>📕</span>
+            </div>
+            <div>
+              <div style="font-weight: 800; color: var(--text-main); font-size: 1.02rem;">
+                Mistake Book: <strong style="color: var(--color-rose);">${unresolvedMistakesCount} Questions</strong> Require Targeted Review
+              </div>
+              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">
+                Targeted remediation for questions you missed during flashcard practice and exams.
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary btn-sm" onclick="switchTab('student-mistakes')">
+              <i class="fa-solid fa-book-open"></i> Open Mistake Book
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="startReviewMyMistakes()" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none;">
+              <i class="fa-solid fa-arrow-rotate-left"></i> Review Now
+            </button>
+          </div>
+        </div>
+      ` : ''}
 
       <!-- Daily Goal Progress & Spaced Repetition Queue -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;" class="teacher-analytics-grid">
@@ -1072,3 +1106,375 @@ async function handleTeacherAccessRequest() {
     showToast('Failed to submit teacher request.', 'error');
   }
 }
+
+/* ==========================================================================
+   FEATURE: STUDENT MISTAKE BOOK & TARGETED REMEDIATION ENGINE
+   ========================================================================== */
+
+let activeMistakeFilter = 'needs_review';
+let activeMistakeTopic = 'all';
+let mistakeSearchQuery = '';
+let cachedMistakes = [];
+let cachedMistakeCounts = { all: 0, needs_review: 0, resolved: 0 };
+let mistakeSearchTimer = null;
+
+function safeMistakeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+async function loadMistakes() {
+  const container = document.getElementById('mistakes-cards-container');
+  if (container && cachedMistakes.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 3rem 1.5rem; color: var(--text-muted);">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: var(--color-blue-bright); margin-bottom: 12px; display: block;"></i>
+        <span>Loading targeted mistake remediation questions...</span>
+      </div>
+    `;
+  }
+
+  try {
+    const params = new URLSearchParams();
+    if (activeMistakeFilter && activeMistakeFilter !== 'all') {
+      params.set('status', activeMistakeFilter);
+    } else if (activeMistakeFilter === 'all') {
+      params.set('status', 'all');
+    }
+    if (activeMistakeTopic && activeMistakeTopic !== 'all') {
+      params.set('topic', activeMistakeTopic);
+    }
+    if (mistakeSearchQuery) {
+      params.set('search', mistakeSearchQuery);
+    }
+
+    const res = await fetch(`/api/mistakes?${params.toString()}`);
+    if (!res.ok) {
+      console.error('Failed to fetch mistakes');
+      return;
+    }
+
+    const data = await res.json();
+    cachedMistakes = data.mistakes || [];
+    cachedMistakeCounts = data.counts || { all: 0, needs_review: 0, resolved: 0 };
+
+    // Update global state count
+    if (state.data) {
+      state.data.unresolvedMistakesCount = cachedMistakeCounts.needs_review;
+    }
+
+    // Update Nav Badge
+    const navBadge = document.getElementById('nav-mistakes-badge');
+    if (navBadge) {
+      navBadge.textContent = cachedMistakeCounts.needs_review;
+      navBadge.style.display = cachedMistakeCounts.needs_review > 0 ? 'inline-block' : 'none';
+    }
+
+    // Update Review Button Header Count
+    const countBadge = document.getElementById('mistakes-count-badge');
+    if (countBadge) {
+      countBadge.textContent = cachedMistakeCounts.needs_review;
+    }
+
+    // Update Topic Filter Dropdown
+    updateMistakesTopicDropdown(data.topics || [], data.deckTitles || []);
+
+    // Render Mistake Cards
+    renderMistakesCards();
+  } catch (err) {
+    console.error('Error loading mistakes:', err);
+    if (container) {
+      container.innerHTML = `
+        <div class="mistakes-empty-state">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.2rem; color: var(--color-rose); margin-bottom: 10px;"></i>
+          <h3 style="margin-bottom: 6px; color: var(--text-main);">Unable to Load Mistakes</h3>
+          <p style="margin-bottom: 1.25rem;">There was an error communicating with the academic database.</p>
+          <button class="btn btn-secondary btn-sm" onclick="loadMistakes()">
+            <i class="fa-solid fa-rotate"></i> Try Again
+          </button>
+        </div>
+      `;
+    }
+  }
+}
+
+function updateMistakesTopicDropdown(topics, deckTitles) {
+  const select = document.getElementById('mistakes-topic-filter');
+  if (!select) return;
+
+  const currentVal = select.value || activeMistakeTopic;
+  const uniqueOptions = new Set(['all']);
+  let html = `<option value="all">All Topics</option>`;
+
+  (topics || []).forEach(t => {
+    if (t && !uniqueOptions.has(t.toLowerCase())) {
+      uniqueOptions.add(t.toLowerCase());
+      html += `<option value="${safeMistakeHtml(t)}">${safeMistakeHtml(t)}</option>`;
+    }
+  });
+
+  (deckTitles || []).forEach(d => {
+    if (d && !uniqueOptions.has(d.toLowerCase())) {
+      uniqueOptions.add(d.toLowerCase());
+      html += `<option value="${safeMistakeHtml(d)}">${safeMistakeHtml(d)}</option>`;
+    }
+  });
+
+  select.innerHTML = html;
+  if (uniqueOptions.has(currentVal.toLowerCase()) || currentVal === 'all') {
+    select.value = currentVal;
+  } else {
+    select.value = 'all';
+  }
+}
+
+function renderMistakeBook() {
+  // Sync tab active styles
+  ['all', 'needs_review', 'resolved'].forEach(status => {
+    const btn = document.getElementById(`filter-mistakes-${status}`);
+    if (btn) {
+      if (status === activeMistakeFilter) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+  });
+
+  loadMistakes();
+}
+
+function filterMistakesByStatus(status) {
+  activeMistakeFilter = status;
+  ['all', 'needs_review', 'resolved'].forEach(s => {
+    const btn = document.getElementById(`filter-mistakes-${s}`);
+    if (btn) {
+      if (s === status) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+  });
+  loadMistakes();
+}
+
+function handleMistakeTopicFilter(topic) {
+  activeMistakeTopic = topic;
+  loadMistakes();
+}
+
+function handleMistakeSearch(query) {
+  if (mistakeSearchTimer) clearTimeout(mistakeSearchTimer);
+  mistakeSearchTimer = setTimeout(() => {
+    mistakeSearchQuery = query.trim();
+    loadMistakes();
+  }, 200);
+}
+
+function renderMistakesCards() {
+  const container = document.getElementById('mistakes-cards-container');
+  if (!container) return;
+
+  if (!cachedMistakes || cachedMistakes.length === 0) {
+    let emptyTitle = "All Caught Up!";
+    let emptyMsg = "No questions found in this view.";
+    if (activeMistakeFilter === 'needs_review') {
+      emptyTitle = "No Mistakes Need Review";
+      emptyMsg = "Targeted remediation is completely clear. All flashcard questions are currently mastered!";
+    } else if (activeMistakeFilter === 'resolved') {
+      emptyTitle = "No Resolved Mistakes Yet";
+      emptyMsg = "As you practice and master questions you previously missed, they will appear here as resolved.";
+    }
+
+    container.innerHTML = `
+      <div class="mistakes-empty-state">
+        <i class="fa-solid fa-circle-check mistakes-empty-icon"></i>
+        <h3 style="color: var(--text-main); font-weight: 700; margin-bottom: 6px;">${emptyTitle}</h3>
+        <p style="margin-bottom: 1.5rem;">${emptyMsg}</p>
+        <button class="btn btn-primary" onclick="switchTab('student-decks')">
+          <i class="fa-solid fa-play"></i> Practice Flashcards
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = cachedMistakes.map(m => {
+    const isResolved = m.status === 'resolved';
+    const missedText = `Missed ${m.missedCount} time${m.missedCount === 1 ? '' : 's'}`;
+
+    return `
+      <div class="mistake-card ${isResolved ? 'resolved' : ''}" id="mistake-item-${m.id}">
+        <div class="mistake-card-top">
+          <div class="mistake-badges-group">
+            <span class="badge-mistake-subject">${safeMistakeHtml(m.subject)}</span>
+            <span class="mistake-deck-text">DECK: ${safeMistakeHtml(m.deckTitle)}</span>
+            <span class="badge-mistake-status ${isResolved ? 'resolved' : 'needs-review'}">
+              ${isResolved ? '<i class="fa-solid fa-circle-check"></i> RESOLVED' : '<i class="fa-solid fa-arrow-rotate-left"></i> NEEDS REVIEW ⚠️'}
+            </span>
+            <span class="mistake-missed-count">${missedText}</span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 8px;">
+            ${isResolved ? `
+              <button type="button" class="btn btn-secondary btn-sm" onclick="toggleMistakeStatus('${m.id}', 'needs_review')" title="Re-open for review" style="padding: 4px 10px; font-size: 0.78rem; border-radius: 999px;">
+                <i class="fa-solid fa-rotate-left"></i> Re-open
+              </button>
+            ` : `
+              <button type="button" class="btn btn-secondary btn-sm" onclick="toggleMistakeStatus('${m.id}', 'resolved')" title="Mark as resolved" style="padding: 4px 10px; font-size: 0.78rem; border-radius: 999px; color: var(--color-emerald);">
+                <i class="fa-solid fa-check"></i> Resolve
+              </button>
+            `}
+          </div>
+        </div>
+
+        <div class="mistake-question-text">
+          ${safeMistakeHtml(m.question)}
+        </div>
+
+        <div class="mistake-card-body-row">
+          <div class="mistake-answer-box">
+            <div class="mistake-answer-label">CORRECT ANSWER</div>
+            <p class="mistake-answer-text">${safeMistakeHtml(m.answer)}</p>
+          </div>
+
+          <button type="button" class="btn-try-again" onclick="openMistakeRemediationModal('${m.id}')" title="Test yourself on this concept">
+            <i class="fa-solid fa-arrow-rotate-right"></i>
+            <span>Try Again</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function toggleMistakeStatus(mistakeId, newStatus) {
+  try {
+    const res = await fetch('/api/mistakes/resolve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mistake_id: mistakeId, status: newStatus })
+    });
+
+    if (!res.ok) {
+      showToast('Failed to update mistake status.', 'error');
+      return;
+    }
+
+    if (newStatus === 'resolved') {
+      showToast('Question resolved! Great recall remediation.', 'success');
+    } else {
+      showToast('Question reopened for targeted review.', 'info');
+    }
+
+    loadMistakes();
+  } catch (err) {
+    console.error(err);
+    showToast('An error occurred updating mistake status.', 'error');
+  }
+}
+
+function openMistakeRemediationModal(mistakeId) {
+  const mistake = cachedMistakes.find(m => m.id === mistakeId);
+  if (!mistake) return;
+
+  const bodyEl = document.getElementById('modal-mistake-remediate-body');
+  if (!bodyEl) return;
+
+  bodyEl.innerHTML = `
+    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge-mistake-subject">${safeMistakeHtml(mistake.subject)}</span>
+          <span class="mistake-deck-text">DECK: ${safeMistakeHtml(mistake.deckTitle)}</span>
+        </div>
+        <span class="mistake-missed-count">Missed ${mistake.missedCount} time${mistake.missedCount === 1 ? '' : 's'}</span>
+      </div>
+
+      <div style="background: var(--bg-card-subtle); border: 1px solid var(--border-subtle); padding: 1.25rem; border-radius: var(--radius-md);">
+        <span style="font-size: 0.78rem; font-weight: 800; color: var(--color-blue-bright); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Targeted Question Prompt</span>
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0; line-height: 1.5;">${safeMistakeHtml(mistake.question)}</h3>
+      </div>
+
+      <div>
+        <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 6px;">
+          Active Retrieval Self-Check (Type your recall answer)
+        </label>
+        <textarea id="remediate-test-input" class="input-field" rows="3" placeholder="Type your answer from memory..." style="width: 100%;"></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: center;">
+        <button type="button" class="btn btn-secondary" id="btn-reveal-remediate-answer" onclick="revealRemediationAnswer()" style="padding: 8px 20px;">
+          <i class="fa-solid fa-eye"></i>
+          <span>Reveal Correct Answer</span>
+        </button>
+      </div>
+
+      <div id="remediate-revealed-answer-box" style="display: none; background: rgba(16, 185, 129, 0.07); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-md); padding: 1.1rem;">
+        <div style="font-size: 0.75rem; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Verified Correct Answer</div>
+        <div style="font-size: 0.95rem; color: #15803d; font-weight: 600; line-height: 1.5;">${safeMistakeHtml(mistake.answer)}</div>
+        
+        <div style="margin-top: 1.25rem; border-top: 1px solid rgba(16, 185, 129, 0.2); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Self-Assessment Result:</span>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('modal-mistake-remediate'); showToast('Keep practicing! Saved in Needs Review.', 'info');">
+              <i class="fa-solid fa-clock-rotate-left"></i> Still Practicing
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="toggleMistakeStatus('${mistake.id}', 'resolved'); closeModal('modal-mistake-remediate');" style="background: var(--color-emerald); border-color: var(--color-emerald);">
+              <i class="fa-solid fa-circle-check"></i> I Got It Right (Resolve)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  openModal('modal-mistake-remediate');
+}
+
+function revealRemediationAnswer() {
+  const ansBox = document.getElementById('remediate-revealed-answer-box');
+  const revealBtn = document.getElementById('btn-reveal-remediate-answer');
+  if (ansBox) ansBox.style.display = 'block';
+  if (revealBtn) revealBtn.style.display = 'none';
+}
+
+async function startReviewMyMistakes() {
+  try {
+    const res = await fetch('/api/mistakes/review-deck');
+    if (!res.ok) {
+      showToast('Failed to prepare mistakes review session.', 'error');
+      return;
+    }
+
+    const data = await res.json();
+    const deck = data.deck;
+
+    if (!deck || !deck.cards || deck.cards.length === 0) {
+      showToast('You have 0 mistakes needing review! All active recall concepts are currently mastered.', 'success');
+      return;
+    }
+
+    showToast(`Launching targeted remediation session with ${deck.cards.length} questions.`, 'info');
+
+    // Register synthetic deck into state temporarily if not present
+    if (!state.data.decks) state.data.decks = [];
+    const existingIdx = state.data.decks.findIndex(d => d.id === deck.id);
+    if (existingIdx >= 0) {
+      state.data.decks[existingIdx] = deck;
+    } else {
+      state.data.decks.push(deck);
+    }
+
+    // Launch StudyEngine session with this deck
+    if (typeof studyEngine !== 'undefined' && studyEngine.startSession) {
+      studyEngine.startSession(deck.id);
+    } else if (typeof launchStudySession === 'function') {
+      launchStudySession(deck.id);
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to start remediation study session.', 'error');
+  }
+}
+

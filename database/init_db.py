@@ -261,6 +261,30 @@ def init_db():
     cursor.execute('CREATE INDEX IF NOT EXISTS idx_teacher_apps_status ON teacher_applications(status)')
     cursor.execute('CREATE INDEX IF NOT EXISTS idx_teacher_apps_user ON teacher_applications(user_id)')
 
+    # Feature 7: Student Mistake Book (Targeted Remediation)
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS student_mistakes (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        card_id TEXT NOT NULL,
+        deck_id TEXT,
+        deck_title TEXT,
+        subject TEXT,
+        question TEXT NOT NULL,
+        answer TEXT NOT NULL,
+        source TEXT DEFAULT 'practice',
+        missed_count INTEGER DEFAULT 1,
+        status TEXT DEFAULT 'needs_review' CHECK(status IN ('needs_review', 'resolved')),
+        last_missed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        resolved_at TIMESTAMP,
+        UNIQUE (user_id, card_id),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE
+    )
+    ''')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_student_mistakes_user ON student_mistakes(user_id, status)')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_student_mistakes_deck ON student_mistakes(deck_id)')
+
     conn.commit()
 
     # Seed Default Data if empty
@@ -288,56 +312,18 @@ def init_db():
             users
         )
 
-        # 2. Classrooms (Seeded with Revathi as instructor)
+        # 2. Classrooms (Faculty classrooms available for joining via course code)
         classrooms = [
-            ('cls-1', 'Biology 101: Cellular Mechanics', 'Biology', 'BIO101X', 'Revathi', 'usr-admin-1', 82, 3),
-            ('cls-2', 'Java Programming & Data Structures', 'Computer Science', 'JAVA92A', 'Revathi', 'usr-admin-1', 76, 3),
-            ('cls-3', 'Cloud Computing & Distributed Systems', 'Technology', 'CLOUD7B', 'Revathi', 'usr-admin-1', 74, 2),
+            ('cls-1', 'Biology 101: Cellular Mechanics', 'Biology', 'BIO101X', 'Revathi', 'usr-admin-1', 0, 0),
+            ('cls-2', 'Java Programming & Data Structures', 'Computer Science', 'JAVA92A', 'Revathi', 'usr-admin-1', 0, 0),
+            ('cls-3', 'Cloud Computing & Distributed Systems', 'Technology', 'CLOUD7B', 'Revathi', 'usr-admin-1', 0, 0),
         ]
         cursor.executemany(
             "INSERT INTO classrooms (id, name, subject, code, teacher_name, teacher_id, avg_performance, enrolled_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             classrooms
         )
 
-        # 3. Classroom Enrollments
-        enrollments = [
-            ('cls-1', 'usr-student-1', 96, 4),
-            ('cls-1', 'st-3', 92, 5),
-            ('cls-1', 'st-2', 85, 3),
-            ('cls-2', 'usr-student-1', 88, 3),
-            ('cls-2', 'st-5', 92, 4),
-            ('cls-2', 'st-4', 82, 2),
-            ('cls-3', 'st-5', 94, 4),
-            ('cls-3', 'st-2', 90, 3),
-        ]
-        cursor.executemany("INSERT INTO classroom_enrollments (classroom_id, student_id, mark, completed_decks) VALUES (?, ?, ?, ?)", enrollments)
-
-        # 4. Decks
-        decks = [
-            ('deck-1', 'Cellular Respiration & Mitosis', 'Biology', 'Revathi', 'usr-admin-1', 'cls-1'),
-            ('deck-2', 'Java OOP Concepts & Collections', 'Computer Science', 'Revathi', 'usr-admin-1', 'cls-2'),
-            ('deck-3', 'Cloud Architecture & AWS Services', 'Technology', 'Revathi', 'usr-admin-1', 'cls-3'),
-        ]
-        cursor.executemany("INSERT INTO decks (id, title, subject, creator_name, creator_id, classroom_id) VALUES (?, ?, ?, ?, ?, ?)", decks)
-
-        # 5. Cards
-        cards = [
-            # Deck 1
-            ('card-1-1', 'deck-1', 'What is the primary energy currency produced by mitochondria?', 'ATP (Adenosine Triphosphate)'),
-            ('card-1-2', 'deck-1', 'What phase of cell division comes immediately after Metaphase?', 'Anaphase'),
-            ('card-1-3', 'deck-1', 'What key molecule accepts final electrons during aerobic respiration?', 'Oxygen (O₂)'),
-            ('card-1-4', 'deck-1', 'Define Mitosis in simple biological terms.', 'The process where a single cell divides into two identical daughter cells.'),
-            # Deck 2
-            ('card-2-1', 'deck-2', 'What are the four fundamental pillars of Object-Oriented Programming (OOP) in Java?', 'Encapsulation, Inheritance, Polymorphism, and Abstraction.'),
-            ('card-2-2', 'deck-2', 'What is the difference between == and .equals() in Java?', '== compares memory address references; .equals() compares logical values.'),
-            ('card-2-3', 'deck-2', 'What is the difference between ArrayList and LinkedList in Java?', 'ArrayList is backed by a dynamic array offering O(1) index access; LinkedList is a doubly-linked list.'),
-            # Deck 3
-            ('card-3-1', 'deck-3', 'What is the primary purpose of Amazon S3?', 'Scalable object storage in the cloud.'),
-            ('card-3-2', 'deck-3', 'Define IaaS vs PaaS in cloud computing.', 'IaaS provides raw virtual infrastructure; PaaS provides a platform for app development without managing servers.'),
-        ]
-        cursor.executemany("INSERT INTO cards (id, deck_id, question, answer) VALUES (?, ?, ?, ?)", cards)
-
-        # 6. Daily Streaks
+        # 3. Daily Streaks (Individual student challenge)
         clues = [
             'Discovered mathematically by Sir Isaac Newton in 1687.',
             'An invisible fundamental force that pulls physical objects toward one another.',
@@ -348,38 +334,6 @@ def init_db():
             "INSERT INTO daily_streaks (user_id, count, last_played_date, secret_word, clues, current_clue_index, solved) VALUES (?, ?, ?, ?, ?, ?, ?)",
             ('usr-student-1', 0, None, 'GRAVITY', json.dumps(clues), 0, 0)
         )
-
-        # 7. Card Attempts Seed
-        card_attempts = [
-            ('usr-student-1', 'card-1-1', 'cls-1', 'known'),
-            ('usr-student-1', 'card-1-2', 'cls-1', 'known'),
-            ('usr-student-1', 'card-1-3', 'cls-1', 'known'),
-            ('usr-student-1', 'card-1-4', 'cls-1', 'known'),
-            ('st-3', 'card-1-1', 'cls-1', 'known'),
-            ('st-3', 'card-1-2', 'cls-1', 'known'),
-            ('st-3', 'card-1-3', 'cls-1', 'known'),
-            ('st-3', 'card-1-4', 'cls-1', 'review'),
-            ('st-2', 'card-1-1', 'cls-1', 'known'),
-            ('st-2', 'card-1-2', 'cls-1', 'known'),
-            ('st-2', 'card-1-3', 'cls-1', 'review'),
-            ('st-2', 'card-1-4', 'cls-1', 'review'),
-
-            ('usr-student-1', 'card-2-1', 'cls-2', 'known'),
-            ('usr-student-1', 'card-2-2', 'cls-2', 'known'),
-            ('usr-student-1', 'card-2-3', 'cls-2', 'review'),
-            ('st-5', 'card-2-1', 'cls-2', 'known'),
-            ('st-5', 'card-2-2', 'cls-2', 'known'),
-            ('st-5', 'card-2-3', 'cls-2', 'known'),
-            ('st-4', 'card-2-1', 'cls-2', 'known'),
-            ('st-4', 'card-2-2', 'cls-2', 'review'),
-            ('st-4', 'card-2-3', 'cls-2', 'review'),
-
-            ('st-5', 'card-3-1', 'cls-3', 'known'),
-            ('st-5', 'card-3-2', 'cls-3', 'known'),
-            ('st-2', 'card-3-1', 'cls-3', 'known'),
-            ('st-2', 'card-3-2', 'cls-3', 'review'),
-        ]
-        cursor.executemany("INSERT INTO card_attempts (user_id, card_id, classroom_id, result) VALUES (?, ?, ?, ?)", card_attempts)
 
         conn.commit()
 
@@ -414,7 +368,6 @@ def init_db():
     # 4. Link existing classrooms and decks to admin_id if teacher_id/creator_id are NULL
     cursor.execute("UPDATE classrooms SET teacher_id = ? WHERE teacher_id IS NULL", (admin_id,))
     cursor.execute("UPDATE decks SET creator_id = ? WHERE creator_id IS NULL AND classroom_id IS NOT NULL", (admin_id,))
-    cursor.execute("UPDATE decks SET creator_id = 'usr-student-1' WHERE creator_id IS NULL AND classroom_id IS NULL", ())
 
     # 5. Seed initial login history if empty
     cursor.execute("SELECT COUNT(*) FROM login_history")
@@ -470,6 +423,33 @@ def init_db():
             FROM users
             WHERE teacher_status != 'none'
         ''', (admin_id,))
+
+    # 8. Seed student_mistakes from existing card_attempts where result = 'review'
+    cursor.execute("SELECT COUNT(*) FROM student_mistakes")
+    if cursor.fetchone()[0] == 0:
+        cursor.execute('''
+            INSERT OR IGNORE INTO student_mistakes (
+                id, user_id, card_id, deck_id, deck_title, subject, question, answer, source, missed_count, status, last_missed_at
+            )
+            SELECT 
+                'mst-' || ca.user_id || '-' || ca.card_id,
+                ca.user_id,
+                ca.card_id,
+                c.deck_id,
+                COALESCE(d.title, 'Academic Flashcard Deck'),
+                COALESCE(d.subject, 'General'),
+                c.question,
+                c.answer,
+                'practice',
+                COUNT(ca.id),
+                'needs_review',
+                MAX(ca.created_at)
+            FROM card_attempts ca
+            JOIN cards c ON ca.card_id = c.id
+            LEFT JOIN decks d ON c.deck_id = d.id
+            WHERE ca.result = 'review'
+            GROUP BY ca.user_id, ca.card_id
+        ''')
 
     conn.commit()
     conn.close()

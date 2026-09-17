@@ -84,7 +84,15 @@ def get_state_json(user_id=None):
             theme = row['theme'] if row['theme'] in ('light', 'dark') else 'light'
 
     # 2. Classrooms
-    cursor.execute("SELECT id, name, subject, code, teacher_name, avg_performance, enrolled_count FROM classrooms ORDER BY name ASC")
+    if current_user and current_user['role'] == 'teacher':
+        cursor.execute('''
+            SELECT id, name, subject, code, teacher_name, avg_performance, enrolled_count 
+            FROM classrooms 
+            WHERE teacher_id = ? OR teacher_name = ?
+            ORDER BY name ASC
+        ''', (user_id, current_user['name']))
+    else:
+        cursor.execute("SELECT id, name, subject, code, teacher_name, avg_performance, enrolled_count FROM classrooms ORDER BY name ASC")
     classrooms_rows = cursor.fetchall()
     classrooms = []
     for c_row in classrooms_rows:
@@ -166,23 +174,32 @@ def get_state_json(user_id=None):
         user_name = user_row['name'] if user_row else ""
         user_role = user_row['role'] if user_row else "student"
         
-        if user_role in ('teacher', 'admin'):
+        if user_role == 'teacher':
             cursor.execute('''
-                SELECT id, title, subject, creator_name, classroom_id 
-                FROM decks 
-                WHERE classroom_id IS NOT NULL OR creator_id = ? OR creator_name = ?
-                ORDER BY id ASC
-            ''', (user_id, user_name))
+                SELECT d.id, d.title, d.subject, d.creator_name, d.classroom_id 
+                FROM decks d
+                LEFT JOIN classrooms c ON d.classroom_id = c.id
+                WHERE d.creator_id = ? OR d.creator_name = ? OR c.teacher_id = ?
+                ORDER BY d.id ASC
+            ''', (user_id, user_name, user_id))
+        elif user_role == 'admin':
+            cursor.execute('''
+                SELECT d.id, d.title, d.subject, d.creator_name, d.classroom_id 
+                FROM decks d
+                LEFT JOIN classrooms c ON d.classroom_id = c.id
+                WHERE d.creator_id = ? OR d.creator_name = ? OR c.teacher_id = ? OR d.classroom_id IS NOT NULL
+                ORDER BY d.id ASC
+            ''', (user_id, user_name, user_id))
         else:
             cursor.execute('''
                 SELECT id, title, subject, creator_name, classroom_id 
                 FROM decks 
-                WHERE classroom_id IN (SELECT classroom_id FROM classroom_enrollments WHERE student_id = ?)
+                WHERE (classroom_id IS NOT NULL AND classroom_id IN (SELECT classroom_id FROM classroom_enrollments WHERE student_id = ?))
                    OR (classroom_id IS NULL AND (creator_id = ? OR creator_name = ?))
                 ORDER BY id ASC
             ''', (user_id, user_id, user_name))
     else:
-        cursor.execute('SELECT id, title, subject, creator_name, classroom_id FROM decks WHERE classroom_id IS NOT NULL ORDER BY id ASC')
+        cursor.execute('SELECT id, title, subject, creator_name, classroom_id FROM decks WHERE 1=0')
     
     decks_rows = cursor.fetchall()
     decks = []
@@ -407,6 +424,7 @@ def get_state_json(user_id=None):
         })
 
     cards_studied_today = 0
+    unresolved_mistakes_count = 0
     if user_id:
         from datetime import timezone
         today_local = datetime.now().strftime("%Y-%m-%d")
@@ -416,6 +434,12 @@ def get_state_json(user_id=None):
             WHERE user_id = ? AND (created_at LIKE ? OR created_at LIKE ?)
         ''', (user_id, f"{today_local}%", f"{today_utc}%"))
         cards_studied_today = cursor.fetchone()[0] or 0
+
+        cursor.execute('''
+            SELECT COUNT(*) FROM student_mistakes 
+            WHERE user_id = ? AND status = 'needs_review'
+        ''', (user_id,))
+        unresolved_mistakes_count = cursor.fetchone()[0] or 0
 
     conn.close()
     
@@ -428,5 +452,6 @@ def get_state_json(user_id=None):
         'studentJoinedClassrooms': student_joined_classrooms,
         'dailyStreak': daily_streak,
         'dailyActivity': daily_activity,
-        'cardsStudiedToday': cards_studied_today
+        'cardsStudiedToday': cards_studied_today,
+        'unresolvedMistakesCount': unresolved_mistakes_count
     }

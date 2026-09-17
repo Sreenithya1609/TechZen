@@ -1566,6 +1566,14 @@ class PracticeQuizRunner {
           </div>
           <div><strong>Correct choice:</strong> ${escapeHtml(q.correct_answer)}. ${escapeHtml(q.explanation || '')}</div>
         `;
+
+        if (q.card_id) {
+          fetch('/api/mistakes/record', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ card_id: q.card_id, source: 'quiz' })
+          }).catch(e => console.error('Failed to log quiz mistake', e));
+        }
       }
     }
 

@@ -34,6 +34,7 @@ from routes.ai_routes import ai_bp
 from routes.upload_routes import upload_bp
 from routes.quiz_routes import quiz_bp
 from routes.document_routes import document_bp
+from routes.mistake_routes import mistake_bp
 
 load_dotenv()
 
@@ -62,6 +63,7 @@ app.register_blueprint(ai_bp)
 app.register_blueprint(upload_bp)
 app.register_blueprint(quiz_bp)
 app.register_blueprint(document_bp)
+app.register_blueprint(mistake_bp)
 
 @app.after_request
 def add_security_headers(response):

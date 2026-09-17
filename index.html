@@ -722,6 +722,13 @@
               </a>
             </li>
             <li>
+              <a class="nav-item" id="nav-student-mistakes" onclick="switchTab('student-mistakes')">
+                <i class="fa-solid fa-book-bookmark" style="color: #ef4444;"></i>
+                <span>Mistake Book</span>
+                <span class="badge-count" id="nav-mistakes-badge" style="display: none; margin-left: auto; background: var(--color-rose); color: white; border-radius: 999px; padding: 2px 7px; font-size: 0.72rem; font-weight: 700;">0</span>
+              </a>
+            </li>
+            <li>
               <a class="nav-item" id="nav-student-classrooms" onclick="switchTab('student-classrooms')">
                 <i class="fa-solid fa-school"></i>
                 <span>Joined Classrooms</span>
@@ -1365,6 +1372,57 @@
           </div>
         </section>
 
+        <!-- PANEL: Student Mistake Book -->
+        <section class="view-panel" id="panel-student-mistakes">
+          <div class="mistake-book-panel">
+            <!-- Header Row -->
+            <div class="mistake-header-row">
+              <div class="mistake-title-wrap">
+                <span class="mistake-book-emoji">📕</span>
+                <div>
+                  <h2 class="mistake-title">Mistake Book</h2>
+                  <p class="mistake-subtitle">Targeted remediation for questions you missed during flashcard practice and exams.</p>
+                </div>
+              </div>
+              <button type="button" class="btn-review-mistakes" id="btn-review-my-mistakes" onclick="startReviewMyMistakes()">
+                <i class="fa-solid fa-arrow-rotate-left"></i>
+                <span>Review My Mistakes (<span id="mistakes-count-badge">0</span>)</span>
+              </button>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="mistake-filter-tabs">
+              <button type="button" class="mistake-tab-btn" id="filter-mistakes-all" onclick="filterMistakesByStatus('all')">
+                <i class="fa-solid fa-list-ul"></i>
+                <span>All Mistakes</span>
+              </button>
+              <button type="button" class="mistake-tab-btn active" id="filter-mistakes-needs_review" onclick="filterMistakesByStatus('needs_review')">
+                <i class="fa-solid fa-circle-exclamation" style="color: #ef4444;"></i>
+                <span>Needs Review</span>
+              </button>
+              <button type="button" class="mistake-tab-btn" id="filter-mistakes-resolved" onclick="filterMistakesByStatus('resolved')">
+                <i class="fa-solid fa-circle-check" style="color: var(--color-emerald);"></i>
+                <span>Resolved</span>
+              </button>
+            </div>
+
+            <!-- Controls Row: Topic Filter & Search -->
+            <div class="mistake-controls-row">
+              <select id="mistakes-topic-filter" class="select-field mistake-topic-select" onchange="handleMistakeTopicFilter(this.value)">
+                <option value="all">All Topics</option>
+              </select>
+
+              <div class="mistake-search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="mistakes-search-input" class="input-field mistake-search-input" placeholder="Search mistakes..." oninput="handleMistakeSearch(this.value)" />
+              </div>
+            </div>
+
+            <!-- Mistakes Cards List Container -->
+            <div id="mistakes-cards-container" class="mistakes-cards-list"></div>
+          </div>
+        </section>
+
         <!-- PANEL 10: Profile Page -->
         <section class="view-panel" id="panel-profile">
           <div class="panel-header-row">
@@ -1902,6 +1960,24 @@
     </div>
   </div>
 
+  <!-- Modal: Mistake Targeted Remediation -->
+  <div class="modal-backdrop" id="modal-mistake-remediate">
+    <div class="modal-card" style="max-width: 620px;">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.3rem;">🎯</span>
+          <h2 style="font-size: 1.25rem; font-weight: 800; margin: 0; color: var(--text-main);">Targeted Recall Remediation</h2>
+        </div>
+        <button type="button" class="modal-close-btn" onclick="closeModal('modal-mistake-remediate')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-mistake-remediate-body" style="padding: 1.5rem;">
+        <!-- Content injected dynamically -->
+      </div>
+    </div>
+  </div>
+
   <!-- Google Setup & Testing Modal -->
   <div class="modal-backdrop" id="modal-google-setup">
     <div class="modal-card" style="max-width: 540px;">
@@ -2046,6 +2122,7 @@
       if (tabKey === 'teacher-myclasses') renderMyClassesPanel();
       if (tabKey === 'teacher-classrooms') renderTeacherClassrooms();
       if (tabKey === 'student-dashboard') renderStudentDashboard();
+      if (tabKey === 'student-mistakes') renderMistakeBook();
       if (tabKey === 'student-classrooms') renderStudentClassrooms();
       if (tabKey === 'student-decks') renderStudentDecks(activeStudentDeckFilter || 'all');
       if (tabKey === 'student-streaks') renderDailyStreakGame();

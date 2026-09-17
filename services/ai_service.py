@@ -104,7 +104,7 @@ def call_gemini_api(prompt, response_mime_type="application/json", timeout=30):
         (parsed_json_or_text, error_str)
     """
     api_key = os.environ.get('GEMINI_API_KEY')
-    model = os.environ.get('GEMINI_MODEL', 'gemini-3.6-flash')
+    primary_model = os.environ.get('GEMINI_MODEL', 'gemini-3.5-flash')
 
     if not api_key or api_key == 'test-gemini-key':
         return None, "GEMINI_API_KEY_UNAVAILABLE"
@@ -114,28 +114,39 @@ def call_gemini_api(prompt, response_mime_type="application/json", timeout=30):
         'generationConfig': {'responseMimeType': response_mime_type}
     }).encode('utf-8')
 
-    url = f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}'
-    api_request = urllib_request.Request(
-        url,
-        data=payload,
-        headers={'Content-Type': 'application/json'},
-        method='POST'
-    )
+    models_to_try = [primary_model]
+    for alt in ['gemini-3.5-flash', 'gemini-3-flash-preview', 'gemini-3.1-flash-lite-preview']:
+        if alt not in models_to_try:
+            models_to_try.append(alt)
 
-    try:
-        with urllib_request.urlopen(api_request, timeout=timeout) as response:
-            response_data = json.loads(response.read().decode('utf-8'))
-        
-        candidates = response_data.get('candidates', [])
-        if not candidates:
-            return None, "NO_CANDIDATES_RETURNED"
+    last_error = None
+    for model in models_to_try:
+        url = f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}'
+        api_request = urllib_request.Request(
+            url,
+            data=payload,
+            headers={'Content-Type': 'application/json'},
+            method='POST'
+        )
 
-        generated_text = candidates[0]['content']['parts'][0]['text']
-        clean_text = re.sub(r'^```(?:json)?\s*', '', generated_text.strip())
-        clean_text = re.sub(r'\s*```$', '', clean_text.strip())
-        return clean_text, None
-    except Exception as exc:
-        return None, str(exc)
+        try:
+            with urllib_request.urlopen(api_request, timeout=timeout) as response:
+                response_data = json.loads(response.read().decode('utf-8'))
+            
+            candidates = response_data.get('candidates', [])
+            if not candidates:
+                last_error = "NO_CANDIDATES_RETURNED"
+                continue
+
+            generated_text = candidates[0]['content']['parts'][0]['text']
+            clean_text = re.sub(r'^```(?:json)?\s*', '', generated_text.strip())
+            clean_text = re.sub(r'\s*```$', '', clean_text.strip())
+            return clean_text, None
+        except Exception as exc:
+            last_error = str(exc)
+            continue
+
+    return None, last_error
 
 
 def generate_fallback_hint(question, answer=None):

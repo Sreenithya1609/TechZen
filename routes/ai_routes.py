@@ -18,8 +18,10 @@ from services.ai_service import (
     verify_card_access,
     generate_hint,
     evaluate_student_answer,
-    generate_fallback_cards
+    generate_fallback_cards,
+    call_gemini_api
 )
+
 
 ai_bp = Blueprint('ai', __name__)
 
@@ -132,13 +134,9 @@ def generate_ai_flashcards():
     except (TypeError, ValueError):
         return jsonify({'error': 'Question count must be an integer between 1 and 20.'}), 400
 
-    api_key = os.environ.get('GEMINI_API_KEY')
-    model = os.environ.get('GEMINI_MODEL', 'gemini-3.6-flash')
-
-    if not api_key or api_key == 'test-gemini-key':
-        if api_key != 'test-gemini-key':
-            cards = generate_fallback_cards(topic, level, count, is_notes)
-            return jsonify({'cards': cards, 'fallback': True})
+    if not os.environ.get('GEMINI_API_KEY'):
+        cards = generate_fallback_cards(topic, level, count, is_notes)
+        return jsonify({'cards': cards, 'fallback': True})
 
     if is_notes:
         prompt = (
@@ -156,39 +154,26 @@ def generate_ai_flashcards():
             '{"cards":[{"question":"...","answer":"..."}]}. '
             'Do not include Markdown code fences or extra text.'
         )
-        
-    payload = json.dumps({
-        'contents': [{'parts': [{'text': prompt}]}],
-        'generationConfig': {'responseMimeType': 'application/json'}
-    }).encode('utf-8')
-    url = f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}'
-    api_request = urllib_request.Request(
-        url,
-        data=payload,
-        headers={'Content-Type': 'application/json'},
-        method='POST'
-    )
 
-    try:
-        with urllib_request.urlopen(api_request, timeout=30) as response:
-            response_data = json.loads(response.read().decode('utf-8'))
-        generated_text = response_data['candidates'][0]['content']['parts'][0]['text']
-        clean_text = re.sub(r'^```(?:json)?\s*', '', generated_text.strip())
-        clean_text = re.sub(r'\s*```$', '', clean_text.strip())
-        
-        generated_data = json.loads(clean_text)
-        cards = generated_data.get('cards', [])
-        cards = [
-            {'question': str(card.get('question', '')).strip(), 'answer': str(card.get('answer', '')).strip()}
-            for card in cards
-            if card.get('question') and card.get('answer')
-        ][:count]
-        
-        if not cards:
-            raise ValueError('Gemini returned empty card list.')
-            
-        return jsonify({'cards': cards})
-    except Exception as exc:
-        print(f'Gemini generation fallback triggered: {exc}')
-        cards = generate_fallback_cards(topic, level, count, is_notes)
-        return jsonify({'cards': cards, 'fallback': True})
+    clean_text, err = call_gemini_api(prompt, response_mime_type="application/json")
+    if not err and clean_text:
+        try:
+            generated_data = json.loads(clean_text)
+            if isinstance(generated_data, list):
+                raw_cards = generated_data
+            else:
+                raw_cards = generated_data.get('cards', [])
+            cards = [
+                {'question': str(card.get('question', '')).strip(), 'answer': str(card.get('answer', '')).strip()}
+                for card in raw_cards
+                if card.get('question') and card.get('answer')
+            ][:count]
+
+            if cards:
+                return jsonify({'cards': cards, 'fallback': False})
+        except Exception as exc:
+            print(f'Gemini JSON parsing error: {exc}')
+
+    cards = generate_fallback_cards(topic, level, count, is_notes)
+    return jsonify({'cards': cards, 'fallback': True})
+
