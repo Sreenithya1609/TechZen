@@ -58,8 +58,8 @@
   --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   --shadow-glow: 0 0 50px rgba(37, 99, 235, 0.15);
   
-  --sidebar-width: 280px;
-  --header-height: 72px;
+  --sidebar-width: 300px;
+  --header-height: 93px;
   --radius-xl: 20px;
   --radius-lg: 14px;
   --radius-md: 10px;
@@ -155,8 +155,8 @@ button, input, textarea, select {
   transform: translateY(-1px);
 }
 .brand-logo-img {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
@@ -181,6 +181,24 @@ button, input, textarea, select {
   margin-left: 2px;
 }
 
+/* Core App Views & Containers */
+#dashboard-container,
+#landing-container,
+#auth-container,
+#modals-container {
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+#dashboard-view {
+  width: 100%;
+  max-width: 100vw;
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
 /* App Header & Layout */
 .app-header {
   height: var(--header-height);
@@ -189,12 +207,17 @@ button, input, textarea, select {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.75rem;
-  position: sticky;
+  padding: 0 2.5rem;
+  position: fixed;
   top: 0;
+  left: 0;
+  width: 100%;
   z-index: 100;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .mobile-sidebar-toggle-btn {
@@ -1988,10 +2011,12 @@ body:not(.dark-theme) .auth-role-tab.active {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
-  padding: 2.25rem;
+  padding: 1.85rem 2rem;
   box-shadow: var(--shadow-main);
-  max-width: 860px;
+  width: 100%;
+  max-width: 900px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 .ai-preset-chips {
   display: flex;
@@ -2044,8 +2069,13 @@ body:not(.dark-theme) .auth-role-tab.active {
 .app-container {
   display: flex;
   flex: 1;
+  margin-top: var(--header-height);
   min-height: calc(100vh - var(--header-height));
   position: relative;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .sidebar {
@@ -2059,9 +2089,11 @@ body:not(.dark-theme) .auth-role-tab.active {
   gap: 1.25rem;
   flex-shrink: 0;
   transition: left var(--transition-normal);
-  position: sticky;
+  position: fixed;
+  left: 0;
   top: var(--header-height);
   height: calc(100vh - var(--header-height));
+  bottom: 0;
   overflow-y: auto;
 }
 
@@ -2185,26 +2217,271 @@ body:not(.dark-theme) .auth-role-tab.active {
 /* Main Content Area */
 .main-content {
   flex: 1;
-  padding: 2rem 2.25rem;
+  min-width: 0;
+  max-width: 100%;
+  margin-left: var(--sidebar-width);
+  padding: 1.75rem 2rem;
   background-color: var(--bg-main);
   overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .view-panel {
   display: none;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   animation: fadeIn 0.25s ease forwards;
 }
 .view-panel.active {
   display: block;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ================= LAPTOP & COMPACT DESKTOP WORKSPACE (<= 1536px) ================= */
+@media (max-width: 1536px) {
+  :root {
+    --sidebar-width: 270px;
+    --header-height: 72px;
+  }
+
+  .app-header {
+    padding: 0 2rem;
+  }
+
+  .sidebar {
+    padding: 1rem 0.75rem;
+    gap: 1rem;
+  }
+
+  .sidebar-user-card {
+    padding: 0.75rem 0.85rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .user-avatar-large {
+    width: 38px;
+    height: 38px;
+    font-size: 0.95rem;
+  }
+
+  .sidebar-user-name {
+    font-size: 0.86rem;
+  }
+
+  .sidebar-user-badge {
+    font-size: 0.65rem;
+    padding: 1px 6px;
+  }
+
+  .nav-item {
+    padding: 8px 11px;
+    font-size: 0.86rem;
+    gap: 9px;
+  }
+
+  .nav-section-title {
+    font-size: 0.66rem;
+    margin: 8px 0 4px 6px;
+  }
+
+  .main-content {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .panel-header-row {
+    margin-bottom: 1.15rem;
+    gap: 0.75rem;
+  }
+
+  .panel-title {
+    font-size: clamp(1.2rem, 2vw, 1.45rem);
+    gap: 8px;
+  }
+
+  .panel-subtitle {
+    font-size: 0.82rem;
+  }
+
+  .ai-prompt-studio {
+    padding: 1.25rem 1.5rem;
+    max-width: 880px;
+    border-radius: var(--radius-lg);
+  }
+
+  .ai-mode-tabs {
+    margin-bottom: 1rem !important;
+    padding-bottom: 8px !important;
+    gap: 8px !important;
+  }
+
+  .ai-mode-tab {
+    padding: 6px 12px;
+    font-size: 0.84rem;
+  }
+
+  .ai-preset-chips {
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .ai-chip {
+    padding: 4px 9px;
+    font-size: 0.76rem;
+  }
+
+  .dash-stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.85rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .stat-card {
+    padding: 0.85rem 1rem;
+    gap: 0.75rem;
+    border-radius: var(--radius-md);
+  }
+
+  .stat-icon-box {
+    width: 38px;
+    height: 38px;
+    font-size: 1.05rem;
+  }
+
+  .stat-value {
+    font-size: 1.3rem;
+  }
+
+  .stat-label {
+    font-size: 0.66rem;
+  }
+
+  .grid-cards {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+
+  .card {
+    padding: 1.15rem 1.25rem;
+  }
+
+  .teacher-analytics-grid {
+    grid-template-columns: 1.6fr 1fr;
+    gap: 1.15rem;
+  }
+
+  .portal-hero-banner {
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+    gap: 1rem;
+  }
+
+  .exam-two-column-grid {
+    grid-template-columns: 1.1fr 1fr;
+    gap: 1.15rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .exam-card {
+    padding: 1.15rem 1.25rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .exam-card-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .exam-topics-container {
+    min-height: 40px;
+    padding: 6px 8px;
+    margin-bottom: 0.85rem;
+    gap: 6px;
+  }
+
+  .exam-topic-pill {
+    padding: 4px 10px;
+    font-size: 0.78rem;
+  }
+
+  .exam-fields-row {
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .exam-select {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .btn-start-timed-exam {
+    padding: 10px 18px;
+    font-size: 0.9rem;
+  }
+
+  .exam-history-table th, .exam-history-table td {
+    padding: 9px 11px;
+    font-size: 0.8rem;
+  }
+
+  .landing-hero-section {
+    padding: 2.25rem 1.75rem 1.5rem;
+  }
+
+  .hero-main-heading {
+    font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+    line-height: 1.15;
+  }
+
+  .hero-main-subtext {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-interactive-card-frame {
+    padding: 1.25rem;
+  }
 }
 
 .panel-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.85rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.panel-header-row > div:first-child {
+  flex: 1 1 auto;
+  min-width: 200px;
+}
+.panel-header-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+.panel-header-stack .panel-title {
+  display: flex;
+  width: 100%;
+}
+.panel-header-stack .panel-subtitle {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+}
+.panel-header-row > div:last-child {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 .panel-title {
   font-size: clamp(1.35rem, 2.5vw, 1.75rem);
@@ -2845,8 +3122,33 @@ body:not(.dark-theme) .auth-role-tab.active {
 
 /* ================= COMPREHENSIVE RESPONSIVE DESIGN (TABLETS & PHONES) ================= */
 
-/* Tablets / Medium Screens */
+/* Tablets / Small Laptops (max-width: 1080px) */
 @media (max-width: 1080px) {
+  :root {
+    --sidebar-width: 240px;
+  }
+  .sidebar {
+    padding: 0.85rem 0.6rem;
+  }
+  .main-content {
+    padding: 1.15rem 1rem;
+  }
+  .panel-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .panel-header-row > div:last-child {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .search-field-wrapper {
+    max-width: 100%;
+  }
+  .dash-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .hero-split-container {
     grid-template-columns: 1fr;
     gap: 2.5rem;
@@ -2959,6 +3261,7 @@ body:not(.dark-theme) .auth-role-tab.active {
   }
 
   .main-content {
+    margin-left: 0;
     padding: 1.25rem 1rem;
   }
 
@@ -3948,9 +4251,6 @@ body.dark-theme .scholar-mistake-widget {
     grid-template-columns: 1fr;
   }
 }
-  .some-placeholder-that-does-not-exist {
-    display: block;
-  }
 
 .exam-select {
   width: 100%;
@@ -4849,6 +5149,208 @@ body.dark-theme .exam-diag-question-item {
   background: #111827;
   border-color: rgba(255, 255, 255, 0.1);
 }
+
+/* ==========================================================================
+   LAPTOP SCREEN HEIGHT CONSTRAINTS (viewport height <= 850px)
+   Ensures complete vertical fit on 1366x768, 1280x800, 1536x864 displays
+   ========================================================================== */
+@media (max-height: 850px) and (min-width: 769px) {
+  :root {
+    --header-height: 60px;
+  }
+
+  /* Obsidian Auth View Vertical Fit */
+  .auth-cosmic-viewport {
+    padding: 1.25rem 1rem;
+  }
+
+  .auth-obsidian-card {
+    padding: 1.35rem 1.6rem 1.25rem;
+    max-width: 420px;
+    border-radius: 16px;
+  }
+
+  .auth-brand-logo-glow {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 0.25rem;
+  }
+
+  .auth-brand-logo-glow img {
+    width: 26px;
+    height: 26px;
+  }
+
+  .auth-brand-name {
+    font-size: 1.25rem;
+  }
+
+  .auth-brand-tagline {
+    font-size: 0.74rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .auth-cyber-tabs {
+    margin-bottom: 0.75rem;
+    padding: 3px;
+  }
+
+  .auth-cyber-tab {
+    padding: 7px 12px;
+    font-size: 0.82rem;
+  }
+
+  .btn-google-auth {
+    padding: 7px 12px;
+    font-size: 0.84rem;
+  }
+
+  .auth-divider-cyber {
+    margin: 0.5rem 0;
+  }
+
+  .form-group-cyber {
+    margin-bottom: 0.55rem;
+  }
+
+  .form-label-cyber {
+    font-size: 0.76rem;
+    margin-bottom: 3px;
+  }
+
+  .input-cyber {
+    padding: 7px 12px 7px 34px;
+    font-size: 0.85rem;
+  }
+
+  .btn-cyber-primary {
+    padding: 9px 16px;
+    font-size: 0.9rem;
+    margin-top: 0.4rem;
+  }
+
+  /* Modals General Fit */
+  .modal-backdrop {
+    padding: 0.75rem;
+  }
+
+  .modal-card {
+    max-height: calc(100vh - 2rem);
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .modal-header {
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.65rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.15rem;
+  }
+
+  /* Flashcard Practice Modal Vertical Fit */
+  .study-viewport {
+    gap: 0.75rem;
+  }
+
+  .card-flip-container,
+  .card-flip-inner,
+  .card-flip-front,
+  .card-flip-back {
+    min-height: 180px;
+    padding: 1.25rem;
+  }
+
+  .card-question-text {
+    font-size: 1.15rem;
+    line-height: 1.35;
+  }
+
+  .card-answer-text {
+    font-size: 1.05rem;
+    line-height: 1.35;
+  }
+
+  .ai-study-panel {
+    padding: 0.7rem 0.9rem;
+    gap: 0.5rem;
+  }
+
+  .study-answer-textarea {
+    min-height: 46px;
+    padding: 7px 11px;
+    font-size: 0.85rem;
+  }
+
+  .study-controls {
+    gap: 8px;
+    margin-top: 0.35rem;
+  }
+
+  /* Timed Exam Arena Modal Vertical Fit */
+  .exam-arena-card {
+    max-height: calc(100vh - 1.5rem);
+  }
+
+  .exam-arena-header {
+    padding: 0.75rem 1.25rem;
+    gap: 0.5rem;
+  }
+
+  .exam-arena-subbar {
+    padding: 0.45rem 1.25rem;
+  }
+
+  .exam-arena-viewport {
+    padding: 0.85rem 1.25rem;
+    gap: 0.75rem;
+  }
+
+  .exam-question-card {
+    padding: 0.9rem 1.15rem;
+  }
+
+  .exam-question-text {
+    font-size: 1.05rem;
+    line-height: 1.35;
+  }
+
+  .exam-option-card {
+    padding: 8px 12px;
+    gap: 10px;
+  }
+
+  .exam-option-letter {
+    width: 28px;
+    height: 28px;
+    font-size: 0.82rem;
+  }
+
+  .exam-option-text {
+    font-size: 0.88rem;
+  }
+
+  .exam-palette-container {
+    padding: 7px 11px;
+  }
+
+  .palette-bubble {
+    width: 28px;
+    height: 28px;
+    font-size: 0.78rem;
+  }
+
+  .exam-arena-controls {
+    margin-top: 0.25rem;
+  }
+
+  /* AI Prompt Studio inside Main Content */
+  .ai-prompt-studio {
+    padding: 1.25rem 1.5rem;
+  }
+}
+
 
 
 
